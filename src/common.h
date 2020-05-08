@@ -141,6 +141,8 @@
 #define TODO_ENCODER HANDLER (OUTPUT, "TODO: Encoder\n");
 #define TODO_DECODER HANDLER (OUTPUT, "TODO: Decoder\n");
 
+// exporters are more common in the spec format, in_json and in_dxf are not using it.
+// so default to the encode-to format. dec_macros needs to override them.
 #define VERSION(v)                                                            \
   cur_ver = v;                                                                \
   if (dat->version == v)
@@ -171,6 +173,9 @@
 
 #define SAFENAME(name) (name) ? (name) : ""
 #define SAFEDXFNAME (obj && obj->dxfname ? obj->dxfname : "")
+#define ARRAY_SIZE(arr) (int)(sizeof (arr) / sizeof ((arr)[0]))
+#define MIN(X, Y) ((X) < (Y) ? (X) : (Y))
+#define MAX(X, Y) ((X) > (Y) ? (X) : (Y))
 
 /**
  Data types (including compressed forms) used through the project
@@ -227,11 +232,6 @@ extern const char version_codes[DWG_VERSIONS][7];
 extern const char *dwg_bits_name[];
 extern const unsigned char dwg_bits_size[];
 
-/* The old color.index 0-256 */
-typedef struct rgbpalette {
-  unsigned char r,g,b;
-} Dwg_RGB_Palette;
-
 /**
  * References of sentinels
  */
@@ -265,11 +265,6 @@ enum RES_BUF_VALUE_TYPE
 };
 
 enum RES_BUF_VALUE_TYPE get_base_value_type (short gc);
-
-EXPORT Dwg_Version_Type dwg_version_as (const char *);
-const char *dwg_version_type (const Dwg_Version_Type version);
-EXPORT void dwg_errstrings (int error);
-EXPORT const Dwg_RGB_Palette *dwg_rgb_palette (void);
 
 unsigned char *dwg_sentinel (Dwg_Sentinel sentinel);
 char *strrplc (const char *s, const char *from, const char *to);

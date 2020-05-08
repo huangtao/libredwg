@@ -114,6 +114,9 @@
 #ifndef VALUE_3BD
 #  define VALUE_3BD(value, dxf)
 #endif
+#ifndef VALUE_BS
+#  define VALUE_BS(value, dxf)
+#endif
 #ifndef VALUE_BL
 #  define VALUE_BL(value, dxf)
 #endif
@@ -141,6 +144,9 @@
 #endif
 #ifndef SUB_FIELD_T
 #  define SUB_FIELD_T(o, nam, dxf) FIELD_T (o.nam, dxf)
+#endif
+#ifndef SUB_FIELD_TV
+#  define SUB_FIELD_TV(o, nam, dxf) FIELD_TV (o.nam, dxf)
 #endif
 #ifndef SUB_FIELD_TF
 #  define SUB_FIELD_TF(o, nam, len, dxf) FIELD_TF (o.nam, _obj->o.len, dxf)
@@ -269,6 +275,19 @@
 #endif
 #ifndef FIELD_BINARY
 #  define FIELD_BINARY(name, len, dxf) FIELD_TF (name, len, dxf)
+#endif
+// on DXF skip if 0
+#ifndef FIELD_BD0
+#  define FIELD_BD0(name, dxf) FIELD_BD (name, dxf)
+#  define FIELD_BL0(name, dxf) FIELD_BL (name, dxf)
+#  define FIELD_BS0(name, dxf) FIELD_BS (name, dxf)
+#  define FIELD_RC0(name, dxf) FIELD_RC (name, dxf)
+#  define FIELD_BT0(name, dxf) FIELD_BT (name, dxf)
+#endif
+
+// double to text
+#ifndef FIELD_D2T
+#  define FIELD_D2T(name, dxf) FIELD_TV (name, dxf)
 #endif
 #ifndef LOG_TRACE_TF
 #  define LOG_TRACE_TF(var, len)
@@ -417,60 +436,33 @@
     assert (obj->supertype == DWG_SUPERTYPE_OBJECT);                          \
     PRE (R_13)                                                                \
     {                                                                         \
-      FIELD_RC (flag, 70);                                                    \
+      if (obj->fixedtype == DWG_TYPE_LAYER) {                                 \
+        FIELD_RS (flag, 70)                                                   \
+      } else {                                                                \
+        FIELD_CAST (flag, RC, RS, 70)                                         \
+      }                                                                       \
       FIELD_TFv (name, 32, 2);                                                \
       FIELD_RS (used, 0);                                                     \
     }                                                                         \
     LATER_VERSIONS                                                            \
     {                                                                         \
       FIELD_T (name, 2);                                                      \
-      FIELD_B (xrefref, 0); /* 70 bit 7 */                                    \
-      PRE (R_2007)                                                            \
+      UNTIL (R_2004)                                                          \
       {                                                                       \
-        FIELD_BS (xrefindex_plus1, 0);                                        \
-        FIELD_B (xrefdep, 0);                                                 \
+        FIELD_B (is_xref_ref, 0);       /* always 1, 70 bit 6 */              \
+        FIELD_BS (is_xref_resolved, 0); /* 0 or 256 */                        \
+        FIELD_B (is_xref_dep, 0);       /* 70 bit 4 */                        \
       }                                                                       \
       LATER_VERSIONS                                                          \
       {                                                                       \
-        FIELD_B (xrefdep, 0);                                                 \
-        if (FIELD_VALUE (xrefdep))                                            \
-          {                                                                   \
-            FIELD_BS (xrefindex_plus1, 0);                                    \
-          }                                                                   \
+        FIELD_VALUE (is_xref_ref) = 1;                                        \
+        FIELD_BS (is_xref_resolved, 0); /* 0 or 256 */                        \
+        if (FIELD_VALUE (is_xref_resolved) == 256)                            \
+          FIELD_VALUE (is_xref_dep) = 1;                                      \
       }                                                                       \
-      FIELD_VALUE (flag) = FIELD_VALUE (flag) | FIELD_VALUE (xrefdep) << 4    \
-                           | FIELD_VALUE (xrefref) << 6;                      \
-    }                                                                         \
-    RESET_VER
-
-// Same as above. just Dwg_Object_LAYER::flags is short, not RC
-#  define LAYER_TABLE_FLAGS(acdbname)                                         \
-    assert (obj->fixedtype == DWG_TYPE_LAYER);                                \
-    PRE (R_13)                                                                \
-    {                                                                         \
-      FIELD_CAST (flag, RC, RS, 70);                                          \
-      FIELD_TFv (name, 32, 2);                                                \
-      FIELD_RS (used, 0);                                                     \
-    }                                                                         \
-    LATER_VERSIONS                                                            \
-    {                                                                         \
-      FIELD_T (name, 2);                                                      \
-      FIELD_B (xrefref, 0); /* 70 bit 7 */                                    \
-      PRE (R_2007)                                                            \
-      {                                                                       \
-        FIELD_BS (xrefindex_plus1, 0);                                        \
-        FIELD_B (xrefdep, 0);                                                 \
-      }                                                                       \
-      LATER_VERSIONS                                                          \
-      {                                                                       \
-        FIELD_B (xrefdep, 0);                                                 \
-        if (FIELD_VALUE (xrefdep))                                            \
-          {                                                                   \
-            FIELD_BS (xrefindex_plus1, 0);                                    \
-          }                                                                   \
-      }                                                                       \
-      FIELD_VALUE (flag) = FIELD_VALUE (flag) | FIELD_VALUE (xrefdep) << 4    \
-                           | FIELD_VALUE (xrefref) << 6;                      \
+      FIELD_HANDLE (xref, 5, 0); /* NULLHDL without is_xref_dep */            \
+      FIELD_VALUE (flag) |= FIELD_VALUE (is_xref_dep) << 4                    \
+                          | FIELD_VALUE (is_xref_ref) << 6;                   \
     }                                                                         \
     RESET_VER
 #endif

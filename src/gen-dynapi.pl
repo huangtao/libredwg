@@ -93,6 +93,7 @@ for (sort $c->struct_names) {
     $structs{$n}++;
     push @entity_names, $n;
   } elsif (/_dwg_object_([A-Z0-9_]+)/) {
+    next if $1 eq 'BACKGROUND';
     $structs{$1}++;
     push @object_names, $1;
   } elsif (/^_dwg_header_variables/) {
@@ -373,12 +374,6 @@ sub dxfin_spec {
   close $in;
 }
 dxfin_spec "$srcdir/dwg.spec";
-$DXF{'3DSOLID'}->{'version'} = 70;
-$DXF{'REGION'}->{'version'} = 70;
-$DXF{'BODY'}->{'version'} = 70;
-$DXF{'3DSOLID'}->{'encr_sat_data'} = 1;
-$DXF{'REGION'}->{'encr_sat_data'} = 1;
-$DXF{'BODY'}->{'encr_sat_data'} = 1;
 $DXF{'BLOCK'}->{'name'} = 2; # and 3
 $DXF{'INSERT'}->{'block_header'} = 2;
 $DXF{'MINSERT'}->{'block_header'} = 2;
@@ -389,6 +384,7 @@ $DXF{'DIMSTYLE_CONTROL'}->{'morehandles'} = 340;
 # $DXF{'DIMSTYLE'}->{'DIMFIT'} = 287;   # <= r14 only
 $DXF{'PROXY_ENTITY'}->{'version'} = 95; # or 91 <= r14
 $DXF{'DIMASSOC'}->{'intsect_gsmarker'} = 92;
+$DXF{'DIMSTYLE'}->{'flag'} = 70;
 # $DXF{'DIMENSION_ORDINATE'}->{'def_pt'} = 10;
 # $DXF{'DIMENSION_ORDINATE'}->{'feature_location_pt'} = 13;
 # $DXF{'DIMENSION_ORDINATE'}->{'leader_endpt'} = 14;
@@ -399,6 +395,17 @@ $DXF{$_}->{'class_version'} = 280 for qw(ATTRIB ATTDEF); #r2010 only
 $DXF{$_}->{'has_attribs'} = 66 for qw(INSERT MINSERT);
 #$DXF{$_}->{'has_vertex'} = 66 for qw (POLYLINE_2D POLYLINE_3D POLYLINE_PFACE);
 $DXF{$_}->{'flag'} = 70 for qw(VERTEX_3D VERTEX_MESH VERTEX_PFACE_FACE POLYLINE_PFACE);
+my @solids = qw(3DSOLID REGSION BODY
+                EXTRUDEDSURFACE LOFTEDSURFACE REVOLVEDSURFACE SWEPTSURFACE PLANESURFACE);
+$DXF{$_}->{'version'} = 70 for @solids;
+$DXF{$_}->{'encr_sat_data'} = 1 for @solids;
+$DXF{$_}->{'history_id'} = 350 for @solids;
+my @annotscale = qw (TEXTOBJECTCONTEXTDATA MTEXTOBJECTCONTEXTDATA ALDIMOBJECTCONTEXTDATA
+                     MTEXTATTRIBUTEOBJECTCONTEXTDATA MLEADEROBJECTCONTEXTDATA LEADEROBJECTCONTEXTDATA
+                     BLKREFOBJECTCONTEXTDATA);
+$DXF{$_}->{'class_version'} = 70 for @annotscale;
+$DXF{$_}->{'is_default'} = 290 for @annotscale;
+$DXF{$_}->{'scale'} = 340 for @annotscale;
 
 dxfin_spec "$srcdir/header_variables_dxf.spec";
 $DXF{header_variables}->{'_3DDWFPREC'} = 40;
@@ -1370,6 +1377,7 @@ __DATA__
 #include "config.h"
 #include <string.h>
 #include <stdlib.h>
+#include <assert.h>
 #include "common.h"
 #include "dynapi.h"
 #define DWG_LOGLEVEL loglevel
@@ -1452,7 +1460,6 @@ _name_struct_cmp (const void *restrict key, const void *restrict elem)
   return strcmp ((const char *)key, f->name); //deref
 }
 
-#define ARRAY_SIZE(arr) (sizeof (arr) / sizeof (arr[0]))
 #define NUM_ENTITIES    ARRAY_SIZE(dwg_entity_names)
 #define NUM_OBJECTS     ARRAY_SIZE(dwg_object_names)
 #define NUM_NAME_TYPES  ARRAY_SIZE(dwg_name_types)
@@ -1969,6 +1976,12 @@ dynapi_set_helper (void *restrict old, const Dwg_DYNAPI_field *restrict f,
         }
       else
         memcpy (old, value, sizeof (char*));
+    }
+  // CMC <2004 is color.index only
+  else if (strEQc (f->type, "CMC") && dwg_version < R_2004)
+    {
+      assert (OFF (struct _dwg_color, index) == 0);
+      memcpy (old, value, 2);
     }
   else
     memcpy (old, value, f->size);

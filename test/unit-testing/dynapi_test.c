@@ -5586,6 +5586,21 @@ static int test__3DSOLID (const Dwg_Object *obj)
     _3dsolid->isoline_present--;
   }
   {
+    BITCODE_BL isolines;
+    if (dwg_dynapi_entity_value (_3dsolid, "3DSOLID", "isolines", &isolines, NULL)
+        && isolines == _3dsolid->isolines)
+      pass ();
+    else
+      fail ("3DSOLID.isolines [BL] %u != %u", _3dsolid->isolines, isolines);
+    isolines++;
+    if (dwg_dynapi_entity_set_value (_3dsolid, "3DSOLID", "isolines", &isolines, 0)
+        && isolines == _3dsolid->isolines)
+      pass ();
+    else
+      fail ("3DSOLID.isolines [BL] set+1 %u != %u", _3dsolid->isolines, isolines);
+    _3dsolid->isolines--;
+  }
+  {
     BITCODE_BL num_blocks;
     if (dwg_dynapi_entity_value (_3dsolid, "3DSOLID", "num_blocks", &num_blocks, NULL)
         && num_blocks == _3dsolid->num_blocks)
@@ -5599,21 +5614,6 @@ static int test__3DSOLID (const Dwg_Object *obj)
     else
       fail ("3DSOLID.num_blocks [BL] set+1 %u != %u", _3dsolid->num_blocks, num_blocks);
     _3dsolid->num_blocks--;
-  }
-  {
-    BITCODE_BL num_isolines;
-    if (dwg_dynapi_entity_value (_3dsolid, "3DSOLID", "num_isolines", &num_isolines, NULL)
-        && num_isolines == _3dsolid->num_isolines)
-      pass ();
-    else
-      fail ("3DSOLID.num_isolines [BL] %u != %u", _3dsolid->num_isolines, num_isolines);
-    num_isolines++;
-    if (dwg_dynapi_entity_set_value (_3dsolid, "3DSOLID", "num_isolines", &num_isolines, 0)
-        && num_isolines == _3dsolid->num_isolines)
-      pass ();
-    else
-      fail ("3DSOLID.num_isolines [BL] set+1 %u != %u", _3dsolid->num_isolines, num_isolines);
-    _3dsolid->num_isolines--;
   }
   {
     BITCODE_BL num_silhouettes;
@@ -6240,6 +6240,400 @@ static int test_ARC_DIMENSION (const Dwg_Object *obj)
   if (failed && (is_class_unstable ("ARC_DIMENSION") || is_class_debugging ("ARC_DIMENSION")))
     {
       ok ("%s failed %d tests (TODO unstable)", "ARC_DIMENSION", failed);
+      failed = 0;
+    }
+  return failed;
+}
+static int test_ATEXT (const Dwg_Object *obj)
+{
+  int error = 0;
+  const Dwg_Object_Entity *restrict obj_obj = obj->tio.entity;
+  Dwg_Entity_ATEXT *restrict atext = obj->tio.entity->tio.ATEXT;
+  failed = 0;
+  {
+    BITCODE_BS alignment;
+    if (dwg_dynapi_entity_value (atext, "ATEXT", "alignment", &alignment, NULL)
+        && alignment == atext->alignment)
+      pass ();
+    else
+      fail ("ATEXT.alignment [BS] %hu != %hu", atext->alignment, alignment);
+    alignment++;
+    if (dwg_dynapi_entity_set_value (atext, "ATEXT", "alignment", &alignment, 0)
+        && alignment == atext->alignment)
+      pass ();
+    else
+      fail ("ATEXT.alignment [BS] set+1 %hu != %hu", atext->alignment, alignment);
+    atext->alignment--;
+  }
+  {
+    BITCODE_H arc_handle;
+    if (dwg_dynapi_entity_value (atext, "ATEXT", "arc_handle", &arc_handle, NULL)
+        && !memcmp (&arc_handle, &atext->arc_handle, sizeof (atext->arc_handle)))
+        pass ();
+    else
+        fail ("ATEXT.arc_handle [H]");
+  }
+  {
+    BITCODE_BS bs1;
+    if (dwg_dynapi_entity_value (atext, "ATEXT", "bs1", &bs1, NULL)
+        && bs1 == atext->bs1)
+      pass ();
+    else
+      fail ("ATEXT.bs1 [BS] %hu != %hu", atext->bs1, bs1);
+    bs1++;
+    if (dwg_dynapi_entity_set_value (atext, "ATEXT", "bs1", &bs1, 0)
+        && bs1 == atext->bs1)
+      pass ();
+    else
+      fail ("ATEXT.bs1 [BS] set+1 %hu != %hu", atext->bs1, bs1);
+    atext->bs1--;
+  }
+  {
+    BITCODE_BS bs2;
+    if (dwg_dynapi_entity_value (atext, "ATEXT", "bs2", &bs2, NULL)
+        && bs2 == atext->bs2)
+      pass ();
+    else
+      fail ("ATEXT.bs2 [BS] %hu != %hu", atext->bs2, bs2);
+    bs2++;
+    if (dwg_dynapi_entity_set_value (atext, "ATEXT", "bs2", &bs2, 0)
+        && bs2 == atext->bs2)
+      pass ();
+    else
+      fail ("ATEXT.bs2 [BS] set+1 %hu != %hu", atext->bs2, bs2);
+    atext->bs2--;
+  }
+  {
+    BITCODE_3BD center;
+    if (dwg_dynapi_entity_value (atext, "ATEXT", "center", &center, NULL)
+        && !memcmp (&center, &atext->center, sizeof (atext->center)))
+        pass ();
+    else
+        fail ("ATEXT.center [3BD]");
+  }
+  {
+    BITCODE_D2T char_spacing;
+    if (dwg_dynapi_entity_value (atext, "ATEXT", "char_spacing", &char_spacing, NULL)
+        && char_spacing == atext->char_spacing)
+      pass ();
+    else
+      fail ("ATEXT.char_spacing [D2T] " FORMAT_D2T " != " FORMAT_D2T "", atext->char_spacing, char_spacing);
+    if (dwg_dynapi_entity_set_value (atext, "ATEXT", "char_spacing", &char_spacing, 0)
+        && char_spacing == atext->char_spacing)
+      pass ();
+    else
+      fail ("ATEXT.char_spacing [D2T] set+1 " FORMAT_D2T " != " FORMAT_D2T "", atext->char_spacing, char_spacing);
+    atext->char_spacing--;
+  }
+  {
+    BITCODE_BL color;
+    if (dwg_dynapi_entity_value (atext, "ATEXT", "color", &color, NULL)
+        && color == atext->color)
+      pass ();
+    else
+      fail ("ATEXT.color [BL] %u != %u", atext->color, color);
+    color++;
+    if (dwg_dynapi_entity_set_value (atext, "ATEXT", "color", &color, 0)
+        && color == atext->color)
+      pass ();
+    else
+      fail ("ATEXT.color [BL] set+1 %u != %u", atext->color, color);
+    atext->color--;
+  }
+  {
+    BITCODE_BD end_angle;
+    if (dwg_dynapi_entity_value (atext, "ATEXT", "end_angle", &end_angle, NULL)
+        && end_angle == atext->end_angle)
+      pass ();
+    else
+      fail ("ATEXT.end_angle [BD] %g != %g", atext->end_angle, end_angle);
+    end_angle++;
+    if (dwg_dynapi_entity_set_value (atext, "ATEXT", "end_angle", &end_angle, 0)
+        && end_angle == atext->end_angle)
+      pass ();
+    else
+      fail ("ATEXT.end_angle [BD] set+1 %g != %g", atext->end_angle, end_angle);
+    atext->end_angle--;
+  }
+  {
+    BITCODE_3BD extrusion;
+    if (dwg_dynapi_entity_value (atext, "ATEXT", "extrusion", &extrusion, NULL)
+        && !memcmp (&extrusion, &atext->extrusion, sizeof (atext->extrusion)))
+        pass ();
+    else
+        fail ("ATEXT.extrusion [3BD]");
+  }
+  {
+    BITCODE_BS font;
+    if (dwg_dynapi_entity_value (atext, "ATEXT", "font", &font, NULL)
+        && font == atext->font)
+      pass ();
+    else
+      fail ("ATEXT.font [BS] %hu != %hu", atext->font, font);
+    font++;
+    if (dwg_dynapi_entity_set_value (atext, "ATEXT", "font", &font, 0)
+        && font == atext->font)
+      pass ();
+    else
+      fail ("ATEXT.font [BS] set+1 %hu != %hu", atext->font, font);
+    atext->font--;
+  }
+  {
+    BITCODE_BS font_19;
+    if (dwg_dynapi_entity_value (atext, "ATEXT", "font_19", &font_19, NULL)
+        && font_19 == atext->font_19)
+      pass ();
+    else
+      fail ("ATEXT.font_19 [BS] %hu != %hu", atext->font_19, font_19);
+    font_19++;
+    if (dwg_dynapi_entity_set_value (atext, "ATEXT", "font_19", &font_19, 0)
+        && font_19 == atext->font_19)
+      pass ();
+    else
+      fail ("ATEXT.font_19 [BS] set+1 %hu != %hu", atext->font_19, font_19);
+    atext->font_19--;
+  }
+  {
+    BITCODE_BS is_reverse;
+    if (dwg_dynapi_entity_value (atext, "ATEXT", "is_reverse", &is_reverse, NULL)
+        && is_reverse == atext->is_reverse)
+      pass ();
+    else
+      fail ("ATEXT.is_reverse [BS] %hu != %hu", atext->is_reverse, is_reverse);
+    is_reverse++;
+    if (dwg_dynapi_entity_set_value (atext, "ATEXT", "is_reverse", &is_reverse, 0)
+        && is_reverse == atext->is_reverse)
+      pass ();
+    else
+      fail ("ATEXT.is_reverse [BS] set+1 %hu != %hu", atext->is_reverse, is_reverse);
+    atext->is_reverse--;
+  }
+  {
+    BITCODE_BS is_shx;
+    if (dwg_dynapi_entity_value (atext, "ATEXT", "is_shx", &is_shx, NULL)
+        && is_shx == atext->is_shx)
+      pass ();
+    else
+      fail ("ATEXT.is_shx [BS] %hu != %hu", atext->is_shx, is_shx);
+    is_shx++;
+    if (dwg_dynapi_entity_set_value (atext, "ATEXT", "is_shx", &is_shx, 0)
+        && is_shx == atext->is_shx)
+      pass ();
+    else
+      fail ("ATEXT.is_shx [BS] set+1 %hu != %hu", atext->is_shx, is_shx);
+    atext->is_shx--;
+  }
+  {
+    BITCODE_BS is_underlined;
+    if (dwg_dynapi_entity_value (atext, "ATEXT", "is_underlined", &is_underlined, NULL)
+        && is_underlined == atext->is_underlined)
+      pass ();
+    else
+      fail ("ATEXT.is_underlined [BS] %hu != %hu", atext->is_underlined, is_underlined);
+    is_underlined++;
+    if (dwg_dynapi_entity_set_value (atext, "ATEXT", "is_underlined", &is_underlined, 0)
+        && is_underlined == atext->is_underlined)
+      pass ();
+    else
+      fail ("ATEXT.is_underlined [BS] set+1 %hu != %hu", atext->is_underlined, is_underlined);
+    atext->is_underlined--;
+  }
+  {
+    BITCODE_D2T left_offset;
+    if (dwg_dynapi_entity_value (atext, "ATEXT", "left_offset", &left_offset, NULL)
+        && left_offset == atext->left_offset)
+      pass ();
+    else
+      fail ("ATEXT.left_offset [D2T] " FORMAT_D2T " != " FORMAT_D2T "", atext->left_offset, left_offset);
+    if (dwg_dynapi_entity_set_value (atext, "ATEXT", "left_offset", &left_offset, 0)
+        && left_offset == atext->left_offset)
+      pass ();
+    else
+      fail ("ATEXT.left_offset [D2T] set+1 " FORMAT_D2T " != " FORMAT_D2T "", atext->left_offset, left_offset);
+    atext->left_offset--;
+  }
+  {
+    BITCODE_D2T offset_from_arc;
+    if (dwg_dynapi_entity_value (atext, "ATEXT", "offset_from_arc", &offset_from_arc, NULL)
+        && offset_from_arc == atext->offset_from_arc)
+      pass ();
+    else
+      fail ("ATEXT.offset_from_arc [D2T] " FORMAT_D2T " != " FORMAT_D2T "", atext->offset_from_arc, offset_from_arc);
+    if (dwg_dynapi_entity_set_value (atext, "ATEXT", "offset_from_arc", &offset_from_arc, 0)
+        && offset_from_arc == atext->offset_from_arc)
+      pass ();
+    else
+      fail ("ATEXT.offset_from_arc [D2T] set+1 " FORMAT_D2T " != " FORMAT_D2T "", atext->offset_from_arc, offset_from_arc);
+    atext->offset_from_arc--;
+  }
+  {
+    struct _dwg_object_entity* parent;
+    if (dwg_dynapi_entity_value (atext, "ATEXT", "parent", &parent, NULL)
+        && !memcmp (&parent, &atext->parent, sizeof (atext->parent)))
+        pass ();
+    else
+        fail ("ATEXT.parent [struct _dwg_object_entity*]");
+  }
+  {
+    BITCODE_BD radius;
+    if (dwg_dynapi_entity_value (atext, "ATEXT", "radius", &radius, NULL)
+        && radius == atext->radius)
+      pass ();
+    else
+      fail ("ATEXT.radius [BD] %g != %g", atext->radius, radius);
+    radius++;
+    if (dwg_dynapi_entity_set_value (atext, "ATEXT", "radius", &radius, 0)
+        && radius == atext->radius)
+      pass ();
+    else
+      fail ("ATEXT.radius [BD] set+1 %g != %g", atext->radius, radius);
+    atext->radius--;
+  }
+  {
+    BITCODE_D2T right_offset;
+    if (dwg_dynapi_entity_value (atext, "ATEXT", "right_offset", &right_offset, NULL)
+        && right_offset == atext->right_offset)
+      pass ();
+    else
+      fail ("ATEXT.right_offset [D2T] " FORMAT_D2T " != " FORMAT_D2T "", atext->right_offset, right_offset);
+    if (dwg_dynapi_entity_set_value (atext, "ATEXT", "right_offset", &right_offset, 0)
+        && right_offset == atext->right_offset)
+      pass ();
+    else
+      fail ("ATEXT.right_offset [D2T] set+1 " FORMAT_D2T " != " FORMAT_D2T "", atext->right_offset, right_offset);
+    atext->right_offset--;
+  }
+  {
+    BITCODE_BD start_angle;
+    if (dwg_dynapi_entity_value (atext, "ATEXT", "start_angle", &start_angle, NULL)
+        && start_angle == atext->start_angle)
+      pass ();
+    else
+      fail ("ATEXT.start_angle [BD] %g != %g", atext->start_angle, start_angle);
+    start_angle++;
+    if (dwg_dynapi_entity_set_value (atext, "ATEXT", "start_angle", &start_angle, 0)
+        && start_angle == atext->start_angle)
+      pass ();
+    else
+      fail ("ATEXT.start_angle [BD] set+1 %g != %g", atext->start_angle, start_angle);
+    atext->start_angle--;
+  }
+  {
+    BITCODE_T style;
+    if (dwg_dynapi_entity_value (atext, "ATEXT", "style", &style, NULL)
+        && style
+           ? strEQ ((char *)style, (char *)atext->style)
+           : !atext->style)
+      pass ();
+    else
+      fail ("ATEXT.style [T] '%s' <> '%s'", style, atext->style);
+  }
+  {
+    BITCODE_T t2;
+    if (dwg_dynapi_entity_value (atext, "ATEXT", "t2", &t2, NULL)
+        && t2
+           ? strEQ ((char *)t2, (char *)atext->t2)
+           : !atext->t2)
+      pass ();
+    else
+      fail ("ATEXT.t2 [T] '%s' <> '%s'", t2, atext->t2);
+  }
+  {
+    BITCODE_T t3;
+    if (dwg_dynapi_entity_value (atext, "ATEXT", "t3", &t3, NULL)
+        && t3
+           ? strEQ ((char *)t3, (char *)atext->t3)
+           : !atext->t3)
+      pass ();
+    else
+      fail ("ATEXT.t3 [T] '%s' <> '%s'", t3, atext->t3);
+  }
+  {
+    BITCODE_BS text_direction;
+    if (dwg_dynapi_entity_value (atext, "ATEXT", "text_direction", &text_direction, NULL)
+        && text_direction == atext->text_direction)
+      pass ();
+    else
+      fail ("ATEXT.text_direction [BS] %hu != %hu", atext->text_direction, text_direction);
+    text_direction++;
+    if (dwg_dynapi_entity_set_value (atext, "ATEXT", "text_direction", &text_direction, 0)
+        && text_direction == atext->text_direction)
+      pass ();
+    else
+      fail ("ATEXT.text_direction [BS] set+1 %hu != %hu", atext->text_direction, text_direction);
+    atext->text_direction--;
+  }
+  {
+    BITCODE_BS text_position;
+    if (dwg_dynapi_entity_value (atext, "ATEXT", "text_position", &text_position, NULL)
+        && text_position == atext->text_position)
+      pass ();
+    else
+      fail ("ATEXT.text_position [BS] %hu != %hu", atext->text_position, text_position);
+    text_position++;
+    if (dwg_dynapi_entity_set_value (atext, "ATEXT", "text_position", &text_position, 0)
+        && text_position == atext->text_position)
+      pass ();
+    else
+      fail ("ATEXT.text_position [BS] set+1 %hu != %hu", atext->text_position, text_position);
+    atext->text_position--;
+  }
+  {
+    BITCODE_D2T text_size;
+    if (dwg_dynapi_entity_value (atext, "ATEXT", "text_size", &text_size, NULL)
+        && text_size == atext->text_size)
+      pass ();
+    else
+      fail ("ATEXT.text_size [D2T] " FORMAT_D2T " != " FORMAT_D2T "", atext->text_size, text_size);
+    if (dwg_dynapi_entity_set_value (atext, "ATEXT", "text_size", &text_size, 0)
+        && text_size == atext->text_size)
+      pass ();
+    else
+      fail ("ATEXT.text_size [D2T] set+1 " FORMAT_D2T " != " FORMAT_D2T "", atext->text_size, text_size);
+    atext->text_size--;
+  }
+  {
+    BITCODE_T text_value;
+    if (dwg_dynapi_entity_value (atext, "ATEXT", "text_value", &text_value, NULL)
+        && text_value
+           ? strEQ ((char *)text_value, (char *)atext->text_value)
+           : !atext->text_value)
+      pass ();
+    else
+      fail ("ATEXT.text_value [T] '%s' <> '%s'", text_value, atext->text_value);
+  }
+  {
+    BITCODE_BS wizard_flag;
+    if (dwg_dynapi_entity_value (atext, "ATEXT", "wizard_flag", &wizard_flag, NULL)
+        && wizard_flag == atext->wizard_flag)
+      pass ();
+    else
+      fail ("ATEXT.wizard_flag [BS] %hu != %hu", atext->wizard_flag, wizard_flag);
+    wizard_flag++;
+    if (dwg_dynapi_entity_set_value (atext, "ATEXT", "wizard_flag", &wizard_flag, 0)
+        && wizard_flag == atext->wizard_flag)
+      pass ();
+    else
+      fail ("ATEXT.wizard_flag [BS] set+1 %hu != %hu", atext->wizard_flag, wizard_flag);
+    atext->wizard_flag--;
+  }
+  {
+    BITCODE_D2T xscale;
+    if (dwg_dynapi_entity_value (atext, "ATEXT", "xscale", &xscale, NULL)
+        && xscale == atext->xscale)
+      pass ();
+    else
+      fail ("ATEXT.xscale [D2T] " FORMAT_D2T " != " FORMAT_D2T "", atext->xscale, xscale);
+    if (dwg_dynapi_entity_set_value (atext, "ATEXT", "xscale", &xscale, 0)
+        && xscale == atext->xscale)
+      pass ();
+    else
+      fail ("ATEXT.xscale [D2T] set+1 " FORMAT_D2T " != " FORMAT_D2T "", atext->xscale, xscale);
+    atext->xscale--;
+  }
+  if (failed && (is_class_unstable ("ATEXT") || is_class_debugging ("ATEXT")))
+    {
+      ok ("%s failed %d tests (TODO unstable)", "ATEXT", failed);
       failed = 0;
     }
   return failed;
@@ -9863,6 +10257,21 @@ static int test_EXTRUDEDSURFACE (const Dwg_Object *obj)
     extrudedsurface->isoline_present--;
   }
   {
+    BITCODE_BL isolines;
+    if (dwg_dynapi_entity_value (extrudedsurface, "EXTRUDEDSURFACE", "isolines", &isolines, NULL)
+        && isolines == extrudedsurface->isolines)
+      pass ();
+    else
+      fail ("EXTRUDEDSURFACE.isolines [BL] %u != %u", extrudedsurface->isolines, isolines);
+    isolines++;
+    if (dwg_dynapi_entity_set_value (extrudedsurface, "EXTRUDEDSURFACE", "isolines", &isolines, 0)
+        && isolines == extrudedsurface->isolines)
+      pass ();
+    else
+      fail ("EXTRUDEDSURFACE.isolines [BL] set+1 %u != %u", extrudedsurface->isolines, isolines);
+    extrudedsurface->isolines--;
+  }
+  {
     BITCODE_BS modeler_format_version;
     if (dwg_dynapi_entity_value (extrudedsurface, "EXTRUDEDSURFACE", "modeler_format_version", &modeler_format_version, NULL)
         && modeler_format_version == extrudedsurface->modeler_format_version)
@@ -9891,21 +10300,6 @@ static int test_EXTRUDEDSURFACE (const Dwg_Object *obj)
     else
       fail ("EXTRUDEDSURFACE.num_blocks [BL] set+1 %u != %u", extrudedsurface->num_blocks, num_blocks);
     extrudedsurface->num_blocks--;
-  }
-  {
-    BITCODE_BL num_isolines;
-    if (dwg_dynapi_entity_value (extrudedsurface, "EXTRUDEDSURFACE", "num_isolines", &num_isolines, NULL)
-        && num_isolines == extrudedsurface->num_isolines)
-      pass ();
-    else
-      fail ("EXTRUDEDSURFACE.num_isolines [BL] %u != %u", extrudedsurface->num_isolines, num_isolines);
-    num_isolines++;
-    if (dwg_dynapi_entity_set_value (extrudedsurface, "EXTRUDEDSURFACE", "num_isolines", &num_isolines, 0)
-        && num_isolines == extrudedsurface->num_isolines)
-      pass ();
-    else
-      fail ("EXTRUDEDSURFACE.num_isolines [BL] set+1 %u != %u", extrudedsurface->num_isolines, num_isolines);
-    extrudedsurface->num_isolines--;
   }
   {
     BITCODE_BL num_silhouettes;
@@ -11969,18 +12363,18 @@ static int test_LIGHT (const Dwg_Object *obj)
     light->attenuation_start_limit--;
   }
   {
-    BITCODE_BS attenuation_type;
+    BITCODE_BL attenuation_type;
     if (dwg_dynapi_entity_value (light, "LIGHT", "attenuation_type", &attenuation_type, NULL)
         && attenuation_type == light->attenuation_type)
       pass ();
     else
-      fail ("LIGHT.attenuation_type [BS] %hu != %hu", light->attenuation_type, attenuation_type);
+      fail ("LIGHT.attenuation_type [BL] %u != %u", light->attenuation_type, attenuation_type);
     attenuation_type++;
     if (dwg_dynapi_entity_set_value (light, "LIGHT", "attenuation_type", &attenuation_type, 0)
         && attenuation_type == light->attenuation_type)
       pass ();
     else
-      fail ("LIGHT.attenuation_type [BS] set+1 %hu != %hu", light->attenuation_type, attenuation_type);
+      fail ("LIGHT.attenuation_type [BL] set+1 %u != %u", light->attenuation_type, attenuation_type);
     light->attenuation_type--;
   }
   {
@@ -12022,6 +12416,66 @@ static int test_LIGHT (const Dwg_Object *obj)
         fail ("LIGHT.color [CMC]");
   }
   {
+    BITCODE_BD extlight_length;
+    if (dwg_dynapi_entity_value (light, "LIGHT", "extlight_length", &extlight_length, NULL)
+        && extlight_length == light->extlight_length)
+      pass ();
+    else
+      fail ("LIGHT.extlight_length [BD] %g != %g", light->extlight_length, extlight_length);
+    extlight_length++;
+    if (dwg_dynapi_entity_set_value (light, "LIGHT", "extlight_length", &extlight_length, 0)
+        && extlight_length == light->extlight_length)
+      pass ();
+    else
+      fail ("LIGHT.extlight_length [BD] set+1 %g != %g", light->extlight_length, extlight_length);
+    light->extlight_length--;
+  }
+  {
+    BITCODE_BD extlight_radius;
+    if (dwg_dynapi_entity_value (light, "LIGHT", "extlight_radius", &extlight_radius, NULL)
+        && extlight_radius == light->extlight_radius)
+      pass ();
+    else
+      fail ("LIGHT.extlight_radius [BD] %g != %g", light->extlight_radius, extlight_radius);
+    extlight_radius++;
+    if (dwg_dynapi_entity_set_value (light, "LIGHT", "extlight_radius", &extlight_radius, 0)
+        && extlight_radius == light->extlight_radius)
+      pass ();
+    else
+      fail ("LIGHT.extlight_radius [BD] set+1 %g != %g", light->extlight_radius, extlight_radius);
+    light->extlight_radius--;
+  }
+  {
+    BITCODE_BS extlight_shape;
+    if (dwg_dynapi_entity_value (light, "LIGHT", "extlight_shape", &extlight_shape, NULL)
+        && extlight_shape == light->extlight_shape)
+      pass ();
+    else
+      fail ("LIGHT.extlight_shape [BS] %hu != %hu", light->extlight_shape, extlight_shape);
+    extlight_shape++;
+    if (dwg_dynapi_entity_set_value (light, "LIGHT", "extlight_shape", &extlight_shape, 0)
+        && extlight_shape == light->extlight_shape)
+      pass ();
+    else
+      fail ("LIGHT.extlight_shape [BS] set+1 %hu != %hu", light->extlight_shape, extlight_shape);
+    light->extlight_shape--;
+  }
+  {
+    BITCODE_BD extlight_width;
+    if (dwg_dynapi_entity_value (light, "LIGHT", "extlight_width", &extlight_width, NULL)
+        && extlight_width == light->extlight_width)
+      pass ();
+    else
+      fail ("LIGHT.extlight_width [BD] %g != %g", light->extlight_width, extlight_width);
+    extlight_width++;
+    if (dwg_dynapi_entity_set_value (light, "LIGHT", "extlight_width", &extlight_width, 0)
+        && extlight_width == light->extlight_width)
+      pass ();
+    else
+      fail ("LIGHT.extlight_width [BD] set+1 %g != %g", light->extlight_width, extlight_width);
+    light->extlight_width--;
+  }
+  {
     BITCODE_BD falloff_angle;
     if (dwg_dynapi_entity_value (light, "LIGHT", "falloff_angle", &falloff_angle, NULL)
         && falloff_angle == light->falloff_angle)
@@ -12035,6 +12489,66 @@ static int test_LIGHT (const Dwg_Object *obj)
     else
       fail ("LIGHT.falloff_angle [BD] set+1 %g != %g", light->falloff_angle, falloff_angle);
     light->falloff_angle--;
+  }
+  {
+    BITCODE_BS glyph_display_type;
+    if (dwg_dynapi_entity_value (light, "LIGHT", "glyph_display_type", &glyph_display_type, NULL)
+        && glyph_display_type == light->glyph_display_type)
+      pass ();
+    else
+      fail ("LIGHT.glyph_display_type [BS] %hu != %hu", light->glyph_display_type, glyph_display_type);
+    glyph_display_type++;
+    if (dwg_dynapi_entity_set_value (light, "LIGHT", "glyph_display_type", &glyph_display_type, 0)
+        && glyph_display_type == light->glyph_display_type)
+      pass ();
+    else
+      fail ("LIGHT.glyph_display_type [BS] set+1 %hu != %hu", light->glyph_display_type, glyph_display_type);
+    light->glyph_display_type--;
+  }
+  {
+    BITCODE_B has_photometric_data;
+    if (dwg_dynapi_entity_value (light, "LIGHT", "has_photometric_data", &has_photometric_data, NULL)
+        && has_photometric_data == light->has_photometric_data)
+      pass ();
+    else
+      fail ("LIGHT.has_photometric_data [B] " FORMAT_B " != " FORMAT_B "", light->has_photometric_data, has_photometric_data);
+    has_photometric_data++;
+    if (dwg_dynapi_entity_set_value (light, "LIGHT", "has_photometric_data", &has_photometric_data, 0)
+        && has_photometric_data == light->has_photometric_data)
+      pass ();
+    else
+      fail ("LIGHT.has_photometric_data [B] set+1 " FORMAT_B " != " FORMAT_B "", light->has_photometric_data, has_photometric_data);
+    light->has_photometric_data--;
+  }
+  {
+    BITCODE_BS has_target_grip;
+    if (dwg_dynapi_entity_value (light, "LIGHT", "has_target_grip", &has_target_grip, NULL)
+        && has_target_grip == light->has_target_grip)
+      pass ();
+    else
+      fail ("LIGHT.has_target_grip [BS] %hu != %hu", light->has_target_grip, has_target_grip);
+    has_target_grip++;
+    if (dwg_dynapi_entity_set_value (light, "LIGHT", "has_target_grip", &has_target_grip, 0)
+        && has_target_grip == light->has_target_grip)
+      pass ();
+    else
+      fail ("LIGHT.has_target_grip [BS] set+1 %hu != %hu", light->has_target_grip, has_target_grip);
+    light->has_target_grip--;
+  }
+  {
+    BITCODE_B has_webfile;
+    if (dwg_dynapi_entity_value (light, "LIGHT", "has_webfile", &has_webfile, NULL)
+        && has_webfile == light->has_webfile)
+      pass ();
+    else
+      fail ("LIGHT.has_webfile [B] " FORMAT_B " != " FORMAT_B "", light->has_webfile, has_webfile);
+    has_webfile++;
+    if (dwg_dynapi_entity_set_value (light, "LIGHT", "has_webfile", &has_webfile, 0)
+        && has_webfile == light->has_webfile)
+      pass ();
+    else
+      fail ("LIGHT.has_webfile [B] set+1 " FORMAT_B " != " FORMAT_B "", light->has_webfile, has_webfile);
+    light->has_webfile--;
   }
   {
     BITCODE_BD hotspot_angle;
@@ -12052,6 +12566,21 @@ static int test_LIGHT (const Dwg_Object *obj)
     light->hotspot_angle--;
   }
   {
+    BITCODE_BD illuminance_dist;
+    if (dwg_dynapi_entity_value (light, "LIGHT", "illuminance_dist", &illuminance_dist, NULL)
+        && illuminance_dist == light->illuminance_dist)
+      pass ();
+    else
+      fail ("LIGHT.illuminance_dist [BD] %g != %g", light->illuminance_dist, illuminance_dist);
+    illuminance_dist++;
+    if (dwg_dynapi_entity_set_value (light, "LIGHT", "illuminance_dist", &illuminance_dist, 0)
+        && illuminance_dist == light->illuminance_dist)
+      pass ();
+    else
+      fail ("LIGHT.illuminance_dist [BD] set+1 %g != %g", light->illuminance_dist, illuminance_dist);
+    light->illuminance_dist--;
+  }
+  {
     BITCODE_BD intensity;
     if (dwg_dynapi_entity_value (light, "LIGHT", "intensity", &intensity, NULL)
         && intensity == light->intensity)
@@ -12067,12 +12596,79 @@ static int test_LIGHT (const Dwg_Object *obj)
     light->intensity--;
   }
   {
-    BITCODE_H lights_layer;
-    if (dwg_dynapi_entity_value (light, "LIGHT", "lights_layer", &lights_layer, NULL)
-        && !memcmp (&lights_layer, &light->lights_layer, sizeof (light->lights_layer)))
-        pass ();
+    BITCODE_B is_photometric;
+    if (dwg_dynapi_entity_value (light, "LIGHT", "is_photometric", &is_photometric, NULL)
+        && is_photometric == light->is_photometric)
+      pass ();
     else
-        fail ("LIGHT.lights_layer [H]");
+      fail ("LIGHT.is_photometric [B] " FORMAT_B " != " FORMAT_B "", light->is_photometric, is_photometric);
+    is_photometric++;
+    if (dwg_dynapi_entity_set_value (light, "LIGHT", "is_photometric", &is_photometric, 0)
+        && is_photometric == light->is_photometric)
+      pass ();
+    else
+      fail ("LIGHT.is_photometric [B] set+1 " FORMAT_B " != " FORMAT_B "", light->is_photometric, is_photometric);
+    light->is_photometric--;
+  }
+  {
+    BITCODE_BS lamp_color_preset;
+    if (dwg_dynapi_entity_value (light, "LIGHT", "lamp_color_preset", &lamp_color_preset, NULL)
+        && lamp_color_preset == light->lamp_color_preset)
+      pass ();
+    else
+      fail ("LIGHT.lamp_color_preset [BS] %hu != %hu", light->lamp_color_preset, lamp_color_preset);
+    lamp_color_preset++;
+    if (dwg_dynapi_entity_set_value (light, "LIGHT", "lamp_color_preset", &lamp_color_preset, 0)
+        && lamp_color_preset == light->lamp_color_preset)
+      pass ();
+    else
+      fail ("LIGHT.lamp_color_preset [BS] set+1 %hu != %hu", light->lamp_color_preset, lamp_color_preset);
+    light->lamp_color_preset--;
+  }
+  {
+    BITCODE_BL lamp_color_rgb;
+    if (dwg_dynapi_entity_value (light, "LIGHT", "lamp_color_rgb", &lamp_color_rgb, NULL)
+        && lamp_color_rgb == light->lamp_color_rgb)
+      pass ();
+    else
+      fail ("LIGHT.lamp_color_rgb [BL] %u != %u", light->lamp_color_rgb, lamp_color_rgb);
+    lamp_color_rgb++;
+    if (dwg_dynapi_entity_set_value (light, "LIGHT", "lamp_color_rgb", &lamp_color_rgb, 0)
+        && lamp_color_rgb == light->lamp_color_rgb)
+      pass ();
+    else
+      fail ("LIGHT.lamp_color_rgb [BL] set+1 %u != %u", light->lamp_color_rgb, lamp_color_rgb);
+    light->lamp_color_rgb--;
+  }
+  {
+    BITCODE_BD lamp_color_temp;
+    if (dwg_dynapi_entity_value (light, "LIGHT", "lamp_color_temp", &lamp_color_temp, NULL)
+        && lamp_color_temp == light->lamp_color_temp)
+      pass ();
+    else
+      fail ("LIGHT.lamp_color_temp [BD] %g != %g", light->lamp_color_temp, lamp_color_temp);
+    lamp_color_temp++;
+    if (dwg_dynapi_entity_set_value (light, "LIGHT", "lamp_color_temp", &lamp_color_temp, 0)
+        && lamp_color_temp == light->lamp_color_temp)
+      pass ();
+    else
+      fail ("LIGHT.lamp_color_temp [BD] set+1 %g != %g", light->lamp_color_temp, lamp_color_temp);
+    light->lamp_color_temp--;
+  }
+  {
+    BITCODE_BS lamp_color_type;
+    if (dwg_dynapi_entity_value (light, "LIGHT", "lamp_color_type", &lamp_color_type, NULL)
+        && lamp_color_type == light->lamp_color_type)
+      pass ();
+    else
+      fail ("LIGHT.lamp_color_type [BS] %hu != %hu", light->lamp_color_type, lamp_color_type);
+    lamp_color_type++;
+    if (dwg_dynapi_entity_set_value (light, "LIGHT", "lamp_color_type", &lamp_color_type, 0)
+        && lamp_color_type == light->lamp_color_type)
+      pass ();
+    else
+      fail ("LIGHT.lamp_color_type [BS] set+1 %hu != %hu", light->lamp_color_type, lamp_color_type);
+    light->lamp_color_type--;
   }
   {
     BITCODE_T name;
@@ -12091,6 +12687,36 @@ static int test_LIGHT (const Dwg_Object *obj)
         pass ();
     else
         fail ("LIGHT.parent [struct _dwg_object_entity*]");
+  }
+  {
+    BITCODE_BD physical_intensity;
+    if (dwg_dynapi_entity_value (light, "LIGHT", "physical_intensity", &physical_intensity, NULL)
+        && physical_intensity == light->physical_intensity)
+      pass ();
+    else
+      fail ("LIGHT.physical_intensity [BD] %g != %g", light->physical_intensity, physical_intensity);
+    physical_intensity++;
+    if (dwg_dynapi_entity_set_value (light, "LIGHT", "physical_intensity", &physical_intensity, 0)
+        && physical_intensity == light->physical_intensity)
+      pass ();
+    else
+      fail ("LIGHT.physical_intensity [BD] set+1 %g != %g", light->physical_intensity, physical_intensity);
+    light->physical_intensity--;
+  }
+  {
+    BITCODE_BS physical_intensity_method;
+    if (dwg_dynapi_entity_value (light, "LIGHT", "physical_intensity_method", &physical_intensity_method, NULL)
+        && physical_intensity_method == light->physical_intensity_method)
+      pass ();
+    else
+      fail ("LIGHT.physical_intensity_method [BS] %hu != %hu", light->physical_intensity_method, physical_intensity_method);
+    physical_intensity_method++;
+    if (dwg_dynapi_entity_set_value (light, "LIGHT", "physical_intensity_method", &physical_intensity_method, 0)
+        && physical_intensity_method == light->physical_intensity_method)
+      pass ();
+    else
+      fail ("LIGHT.physical_intensity_method [BS] set+1 %hu != %hu", light->physical_intensity_method, physical_intensity_method);
+    light->physical_intensity_method--;
   }
   {
     BITCODE_B plot_glyph;
@@ -12146,18 +12772,18 @@ static int test_LIGHT (const Dwg_Object *obj)
     light->shadow_map_softness--;
   }
   {
-    BITCODE_BS shadow_type;
+    BITCODE_BL shadow_type;
     if (dwg_dynapi_entity_value (light, "LIGHT", "shadow_type", &shadow_type, NULL)
         && shadow_type == light->shadow_type)
       pass ();
     else
-      fail ("LIGHT.shadow_type [BS] %hu != %hu", light->shadow_type, shadow_type);
+      fail ("LIGHT.shadow_type [BL] %u != %u", light->shadow_type, shadow_type);
     shadow_type++;
     if (dwg_dynapi_entity_set_value (light, "LIGHT", "shadow_type", &shadow_type, 0)
         && shadow_type == light->shadow_type)
       pass ();
     else
-      fail ("LIGHT.shadow_type [BS] set+1 %hu != %hu", light->shadow_type, shadow_type);
+      fail ("LIGHT.shadow_type [BL] set+1 %u != %u", light->shadow_type, shadow_type);
     light->shadow_type--;
   }
   {
@@ -12184,18 +12810,18 @@ static int test_LIGHT (const Dwg_Object *obj)
         fail ("LIGHT.target [3BD]");
   }
   {
-    BITCODE_BS type;
+    BITCODE_BL type;
     if (dwg_dynapi_entity_value (light, "LIGHT", "type", &type, NULL)
         && type == light->type)
       pass ();
     else
-      fail ("LIGHT.type [BS] %hu != %hu", light->type, type);
+      fail ("LIGHT.type [BL] %u != %u", light->type, type);
     type++;
     if (dwg_dynapi_entity_set_value (light, "LIGHT", "type", &type, 0)
         && type == light->type)
       pass ();
     else
-      fail ("LIGHT.type [BS] set+1 %hu != %hu", light->type, type);
+      fail ("LIGHT.type [BL] set+1 %u != %u", light->type, type);
     light->type--;
   }
   {
@@ -12212,6 +12838,144 @@ static int test_LIGHT (const Dwg_Object *obj)
     else
       fail ("LIGHT.use_attenuation_limits [B] set+1 " FORMAT_B " != " FORMAT_B "", light->use_attenuation_limits, use_attenuation_limits);
     light->use_attenuation_limits--;
+  }
+  {
+    BITCODE_BD web_angle1;
+    if (dwg_dynapi_entity_value (light, "LIGHT", "web_angle1", &web_angle1, NULL)
+        && web_angle1 == light->web_angle1)
+      pass ();
+    else
+      fail ("LIGHT.web_angle1 [BD] %g != %g", light->web_angle1, web_angle1);
+    web_angle1++;
+    if (dwg_dynapi_entity_set_value (light, "LIGHT", "web_angle1", &web_angle1, 0)
+        && web_angle1 == light->web_angle1)
+      pass ();
+    else
+      fail ("LIGHT.web_angle1 [BD] set+1 %g != %g", light->web_angle1, web_angle1);
+    light->web_angle1--;
+  }
+  {
+    BITCODE_BD web_angle2;
+    if (dwg_dynapi_entity_value (light, "LIGHT", "web_angle2", &web_angle2, NULL)
+        && web_angle2 == light->web_angle2)
+      pass ();
+    else
+      fail ("LIGHT.web_angle2 [BD] %g != %g", light->web_angle2, web_angle2);
+    web_angle2++;
+    if (dwg_dynapi_entity_set_value (light, "LIGHT", "web_angle2", &web_angle2, 0)
+        && web_angle2 == light->web_angle2)
+      pass ();
+    else
+      fail ("LIGHT.web_angle2 [BD] set+1 %g != %g", light->web_angle2, web_angle2);
+    light->web_angle2--;
+  }
+  {
+    BITCODE_BD web_angle3;
+    if (dwg_dynapi_entity_value (light, "LIGHT", "web_angle3", &web_angle3, NULL)
+        && web_angle3 == light->web_angle3)
+      pass ();
+    else
+      fail ("LIGHT.web_angle3 [BD] %g != %g", light->web_angle3, web_angle3);
+    web_angle3++;
+    if (dwg_dynapi_entity_set_value (light, "LIGHT", "web_angle3", &web_angle3, 0)
+        && web_angle3 == light->web_angle3)
+      pass ();
+    else
+      fail ("LIGHT.web_angle3 [BD] set+1 %g != %g", light->web_angle3, web_angle3);
+    light->web_angle3--;
+  }
+  {
+    BITCODE_BD web_angle4;
+    if (dwg_dynapi_entity_value (light, "LIGHT", "web_angle4", &web_angle4, NULL)
+        && web_angle4 == light->web_angle4)
+      pass ();
+    else
+      fail ("LIGHT.web_angle4 [BD] %g != %g", light->web_angle4, web_angle4);
+    web_angle4++;
+    if (dwg_dynapi_entity_set_value (light, "LIGHT", "web_angle4", &web_angle4, 0)
+        && web_angle4 == light->web_angle4)
+      pass ();
+    else
+      fail ("LIGHT.web_angle4 [BD] set+1 %g != %g", light->web_angle4, web_angle4);
+    light->web_angle4--;
+  }
+  {
+    BITCODE_BD web_angle5;
+    if (dwg_dynapi_entity_value (light, "LIGHT", "web_angle5", &web_angle5, NULL)
+        && web_angle5 == light->web_angle5)
+      pass ();
+    else
+      fail ("LIGHT.web_angle5 [BD] %g != %g", light->web_angle5, web_angle5);
+    web_angle5++;
+    if (dwg_dynapi_entity_set_value (light, "LIGHT", "web_angle5", &web_angle5, 0)
+        && web_angle5 == light->web_angle5)
+      pass ();
+    else
+      fail ("LIGHT.web_angle5 [BD] set+1 %g != %g", light->web_angle5, web_angle5);
+    light->web_angle5--;
+  }
+  {
+    BITCODE_BD web_flux;
+    if (dwg_dynapi_entity_value (light, "LIGHT", "web_flux", &web_flux, NULL)
+        && web_flux == light->web_flux)
+      pass ();
+    else
+      fail ("LIGHT.web_flux [BD] %g != %g", light->web_flux, web_flux);
+    web_flux++;
+    if (dwg_dynapi_entity_set_value (light, "LIGHT", "web_flux", &web_flux, 0)
+        && web_flux == light->web_flux)
+      pass ();
+    else
+      fail ("LIGHT.web_flux [BD] set+1 %g != %g", light->web_flux, web_flux);
+    light->web_flux--;
+  }
+  {
+    BITCODE_3BD web_rotation;
+    if (dwg_dynapi_entity_value (light, "LIGHT", "web_rotation", &web_rotation, NULL)
+        && !memcmp (&web_rotation, &light->web_rotation, sizeof (light->web_rotation)))
+        pass ();
+    else
+        fail ("LIGHT.web_rotation [3BD_1]");
+  }
+  {
+    BITCODE_BS web_symetry;
+    if (dwg_dynapi_entity_value (light, "LIGHT", "web_symetry", &web_symetry, NULL)
+        && web_symetry == light->web_symetry)
+      pass ();
+    else
+      fail ("LIGHT.web_symetry [BS] %hu != %hu", light->web_symetry, web_symetry);
+    web_symetry++;
+    if (dwg_dynapi_entity_set_value (light, "LIGHT", "web_symetry", &web_symetry, 0)
+        && web_symetry == light->web_symetry)
+      pass ();
+    else
+      fail ("LIGHT.web_symetry [BS] set+1 %hu != %hu", light->web_symetry, web_symetry);
+    light->web_symetry--;
+  }
+  {
+    BITCODE_T webfile;
+    if (dwg_dynapi_entity_value (light, "LIGHT", "webfile", &webfile, NULL)
+        && webfile
+           ? strEQ ((char *)webfile, (char *)light->webfile)
+           : !light->webfile)
+      pass ();
+    else
+      fail ("LIGHT.webfile [T] '%s' <> '%s'", webfile, light->webfile);
+  }
+  {
+    BITCODE_BS webfile_type;
+    if (dwg_dynapi_entity_value (light, "LIGHT", "webfile_type", &webfile_type, NULL)
+        && webfile_type == light->webfile_type)
+      pass ();
+    else
+      fail ("LIGHT.webfile_type [BS] %hu != %hu", light->webfile_type, webfile_type);
+    webfile_type++;
+    if (dwg_dynapi_entity_set_value (light, "LIGHT", "webfile_type", &webfile_type, 0)
+        && webfile_type == light->webfile_type)
+      pass ();
+    else
+      fail ("LIGHT.webfile_type [BS] set+1 %hu != %hu", light->webfile_type, webfile_type);
+    light->webfile_type--;
   }
   if (failed && (is_class_unstable ("LIGHT") || is_class_debugging ("LIGHT")))
     {
@@ -12498,6 +13262,21 @@ static int test_LOFTEDSURFACE (const Dwg_Object *obj)
     loftedsurface->isoline_present--;
   }
   {
+    BITCODE_BL isolines;
+    if (dwg_dynapi_entity_value (loftedsurface, "LOFTEDSURFACE", "isolines", &isolines, NULL)
+        && isolines == loftedsurface->isolines)
+      pass ();
+    else
+      fail ("LOFTEDSURFACE.isolines [BL] %u != %u", loftedsurface->isolines, isolines);
+    isolines++;
+    if (dwg_dynapi_entity_set_value (loftedsurface, "LOFTEDSURFACE", "isolines", &isolines, 0)
+        && isolines == loftedsurface->isolines)
+      pass ();
+    else
+      fail ("LOFTEDSURFACE.isolines [BL] set+1 %u != %u", loftedsurface->isolines, isolines);
+    loftedsurface->isolines--;
+  }
+  {
     BITCODE_BD* loft_entity_transmatrix;
     if (dwg_dynapi_entity_value (loftedsurface, "LOFTEDSURFACE", "loft_entity_transmatrix", &loft_entity_transmatrix, NULL)
         && !memcmp (&loft_entity_transmatrix, &loftedsurface->loft_entity_transmatrix, sizeof (loftedsurface->loft_entity_transmatrix)))
@@ -12579,21 +13358,6 @@ static int test_LOFTEDSURFACE (const Dwg_Object *obj)
     else
       fail ("LOFTEDSURFACE.num_guide_curves [BS] set+1 %hu != %hu", loftedsurface->num_guide_curves, num_guide_curves);
     loftedsurface->num_guide_curves--;
-  }
-  {
-    BITCODE_BL num_isolines;
-    if (dwg_dynapi_entity_value (loftedsurface, "LOFTEDSURFACE", "num_isolines", &num_isolines, NULL)
-        && num_isolines == loftedsurface->num_isolines)
-      pass ();
-    else
-      fail ("LOFTEDSURFACE.num_isolines [BL] %u != %u", loftedsurface->num_isolines, num_isolines);
-    num_isolines++;
-    if (dwg_dynapi_entity_set_value (loftedsurface, "LOFTEDSURFACE", "num_isolines", &num_isolines, 0)
-        && num_isolines == loftedsurface->num_isolines)
-      pass ();
-    else
-      fail ("LOFTEDSURFACE.num_isolines [BL] set+1 %u != %u", loftedsurface->num_isolines, num_isolines);
-    loftedsurface->num_isolines--;
   }
   {
     BITCODE_BL num_silhouettes;
@@ -13082,21 +13846,6 @@ static int test_MESH (const Dwg_Object *obj)
   Dwg_Entity_MESH *restrict mesh = obj->tio.entity->tio.MESH;
   failed = 0;
   {
-    BITCODE_BL class_version;
-    if (dwg_dynapi_entity_value (mesh, "MESH", "class_version", &class_version, NULL)
-        && class_version == mesh->class_version)
-      pass ();
-    else
-      fail ("MESH.class_version [BL] %u != %u", mesh->class_version, class_version);
-    class_version++;
-    if (dwg_dynapi_entity_set_value (mesh, "MESH", "class_version", &class_version, 0)
-        && class_version == mesh->class_version)
-      pass ();
-    else
-      fail ("MESH.class_version [BL] set+1 %u != %u", mesh->class_version, class_version);
-    mesh->class_version--;
-  }
-  {
     BITCODE_BD* crease;
     BITCODE_BL count = 0;
     if (dwg_dynapi_entity_value (mesh, "MESH", "num_crease", &count, NULL)
@@ -13107,18 +13856,18 @@ static int test_MESH (const Dwg_Object *obj)
       fail ("MESH.crease [BD*] * %u num_crease", count);
   }
   {
-    BITCODE_RC dlevel;
+    BITCODE_BS dlevel;
     if (dwg_dynapi_entity_value (mesh, "MESH", "dlevel", &dlevel, NULL)
         && dlevel == mesh->dlevel)
       pass ();
     else
-      fail ("MESH.dlevel [RC] %u != %u", mesh->dlevel, dlevel);
+      fail ("MESH.dlevel [BS] %hu != %hu", mesh->dlevel, dlevel);
     dlevel++;
     if (dwg_dynapi_entity_set_value (mesh, "MESH", "dlevel", &dlevel, 0)
         && dlevel == mesh->dlevel)
       pass ();
     else
-      fail ("MESH.dlevel [RC] set+1 %u != %u", mesh->dlevel, dlevel);
+      fail ("MESH.dlevel [BS] set+1 %hu != %hu", mesh->dlevel, dlevel);
     mesh->dlevel--;
   }
   {
@@ -13142,18 +13891,18 @@ static int test_MESH (const Dwg_Object *obj)
       fail ("MESH.faces [BL*] * %u num_faces", count);
   }
   {
-    BITCODE_RC is_watertight;
+    BITCODE_B is_watertight;
     if (dwg_dynapi_entity_value (mesh, "MESH", "is_watertight", &is_watertight, NULL)
         && is_watertight == mesh->is_watertight)
       pass ();
     else
-      fail ("MESH.is_watertight [RC] %u != %u", mesh->is_watertight, is_watertight);
+      fail ("MESH.is_watertight [B] " FORMAT_B " != " FORMAT_B "", mesh->is_watertight, is_watertight);
     is_watertight++;
     if (dwg_dynapi_entity_set_value (mesh, "MESH", "is_watertight", &is_watertight, 0)
         && is_watertight == mesh->is_watertight)
       pass ();
     else
-      fail ("MESH.is_watertight [RC] set+1 %u != %u", mesh->is_watertight, is_watertight);
+      fail ("MESH.is_watertight [B] set+1 " FORMAT_B " != " FORMAT_B "", mesh->is_watertight, is_watertight);
     mesh->is_watertight--;
   }
   {
@@ -13240,24 +13989,24 @@ static int test_MESH (const Dwg_Object *obj)
         fail ("MESH.parent [struct _dwg_object_entity*]");
   }
   {
-    BITCODE_3BD* subdiv_vertex;
+    BITCODE_3DPOINT* subdiv_vertex;
     BITCODE_BL count = 0;
     if (dwg_dynapi_entity_value (mesh, "MESH", "num_subdiv_vertex", &count, NULL)
         && dwg_dynapi_entity_value (mesh, "MESH", "subdiv_vertex", &subdiv_vertex, NULL)
         && subdiv_vertex == mesh->subdiv_vertex)
       pass ();
     else
-      fail ("MESH.subdiv_vertex [3BD*] * %u num_subdiv_vertex", count);
+      fail ("MESH.subdiv_vertex [3DPOINT*] * %u num_subdiv_vertex", count);
   }
   {
-    BITCODE_3BD* vertex;
+    BITCODE_3DPOINT* vertex;
     BITCODE_BL count = 0;
     if (dwg_dynapi_entity_value (mesh, "MESH", "num_owned", &count, NULL)
         && dwg_dynapi_entity_value (mesh, "MESH", "vertex", &vertex, NULL)
         && vertex == mesh->vertex)
       pass ();
     else
-      fail ("MESH.vertex [3BD*] * %u num_owned", count);
+      fail ("MESH.vertex [3DPOINT*] * %u num_owned", count);
   }
   if (failed && (is_class_unstable ("MESH") || is_class_debugging ("MESH")))
     {
@@ -14601,6 +15350,352 @@ static int test_NAVISWORKSMODEL (const Dwg_Object *obj)
     }
   return failed;
 }
+static int test_NURBSURFACE (const Dwg_Object *obj)
+{
+  int error = 0;
+  const Dwg_Object_Entity *restrict obj_obj = obj->tio.entity;
+  Dwg_Entity_NURBSURFACE *restrict nurbsurface = obj->tio.entity->tio.NURBSURFACE;
+  failed = 0;
+  {
+    BITCODE_RC* acis_data;
+    if (dwg_dynapi_entity_value (nurbsurface, "NURBSURFACE", "acis_data", &acis_data, NULL)
+        && acis_data
+           ? strEQ ((char *)acis_data, (char *)nurbsurface->acis_data)
+           : !nurbsurface->acis_data)
+      pass ();
+    else
+      fail ("NURBSURFACE.acis_data [RC*] '%s' <> '%s'", acis_data, nurbsurface->acis_data);
+  }
+  {
+    BITCODE_B acis_empty;
+    if (dwg_dynapi_entity_value (nurbsurface, "NURBSURFACE", "acis_empty", &acis_empty, NULL)
+        && acis_empty == nurbsurface->acis_empty)
+      pass ();
+    else
+      fail ("NURBSURFACE.acis_empty [B] " FORMAT_B " != " FORMAT_B "", nurbsurface->acis_empty, acis_empty);
+    acis_empty++;
+    if (dwg_dynapi_entity_set_value (nurbsurface, "NURBSURFACE", "acis_empty", &acis_empty, 0)
+        && acis_empty == nurbsurface->acis_empty)
+      pass ();
+    else
+      fail ("NURBSURFACE.acis_empty [B] set+1 " FORMAT_B " != " FORMAT_B "", nurbsurface->acis_empty, acis_empty);
+    nurbsurface->acis_empty--;
+  }
+  {
+    BITCODE_B acis_empty2;
+    if (dwg_dynapi_entity_value (nurbsurface, "NURBSURFACE", "acis_empty2", &acis_empty2, NULL)
+        && acis_empty2 == nurbsurface->acis_empty2)
+      pass ();
+    else
+      fail ("NURBSURFACE.acis_empty2 [B] " FORMAT_B " != " FORMAT_B "", nurbsurface->acis_empty2, acis_empty2);
+    acis_empty2++;
+    if (dwg_dynapi_entity_set_value (nurbsurface, "NURBSURFACE", "acis_empty2", &acis_empty2, 0)
+        && acis_empty2 == nurbsurface->acis_empty2)
+      pass ();
+    else
+      fail ("NURBSURFACE.acis_empty2 [B] set+1 " FORMAT_B " != " FORMAT_B "", nurbsurface->acis_empty2, acis_empty2);
+    nurbsurface->acis_empty2--;
+  }
+  {
+    BITCODE_B acis_empty_bit;
+    if (dwg_dynapi_entity_value (nurbsurface, "NURBSURFACE", "acis_empty_bit", &acis_empty_bit, NULL)
+        && acis_empty_bit == nurbsurface->acis_empty_bit)
+      pass ();
+    else
+      fail ("NURBSURFACE.acis_empty_bit [B] " FORMAT_B " != " FORMAT_B "", nurbsurface->acis_empty_bit, acis_empty_bit);
+    acis_empty_bit++;
+    if (dwg_dynapi_entity_set_value (nurbsurface, "NURBSURFACE", "acis_empty_bit", &acis_empty_bit, 0)
+        && acis_empty_bit == nurbsurface->acis_empty_bit)
+      pass ();
+    else
+      fail ("NURBSURFACE.acis_empty_bit [B] set+1 " FORMAT_B " != " FORMAT_B "", nurbsurface->acis_empty_bit, acis_empty_bit);
+    nurbsurface->acis_empty_bit--;
+  }
+  {
+    BITCODE_BL* block_size;
+    if (dwg_dynapi_entity_value (nurbsurface, "NURBSURFACE", "block_size", &block_size, NULL)
+        && !memcmp (&block_size, &nurbsurface->block_size, sizeof (nurbsurface->block_size)))
+        pass ();
+    else
+        fail ("NURBSURFACE.block_size [BL*]");
+  }
+  {
+    BITCODE_BL class_version;
+    if (dwg_dynapi_entity_value (nurbsurface, "NURBSURFACE", "class_version", &class_version, NULL)
+        && class_version == nurbsurface->class_version)
+      pass ();
+    else
+      fail ("NURBSURFACE.class_version [BL] %u != %u", nurbsurface->class_version, class_version);
+    class_version++;
+    if (dwg_dynapi_entity_set_value (nurbsurface, "NURBSURFACE", "class_version", &class_version, 0)
+        && class_version == nurbsurface->class_version)
+      pass ();
+    else
+      fail ("NURBSURFACE.class_version [BL] set+1 %u != %u", nurbsurface->class_version, class_version);
+    nurbsurface->class_version--;
+  }
+  {
+    char ** encr_sat_data;
+    if (dwg_dynapi_entity_value (nurbsurface, "NURBSURFACE", "encr_sat_data", &encr_sat_data, NULL)
+        && !memcmp (&encr_sat_data, &nurbsurface->encr_sat_data, sizeof (nurbsurface->encr_sat_data)))
+      pass ();
+    else
+      fail ("NURBSURFACE.encr_sat_data [char **]");
+  }
+  {
+    struct _dwg_entity_3DSOLID* extra_acis_data;
+    if (dwg_dynapi_entity_value (nurbsurface, "NURBSURFACE", "extra_acis_data", &extra_acis_data, NULL)
+        && !memcmp (&extra_acis_data, &nurbsurface->extra_acis_data, sizeof (nurbsurface->extra_acis_data)))
+        pass ();
+    else
+        fail ("NURBSURFACE.extra_acis_data [struct _dwg_entity_3DSOLID*]");
+  }
+  {
+    BITCODE_H history_id;
+    if (dwg_dynapi_entity_value (nurbsurface, "NURBSURFACE", "history_id", &history_id, NULL)
+        && !memcmp (&history_id, &nurbsurface->history_id, sizeof (nurbsurface->history_id)))
+        pass ();
+    else
+        fail ("NURBSURFACE.history_id [H]");
+  }
+  {
+    BITCODE_B isoline_present;
+    if (dwg_dynapi_entity_value (nurbsurface, "NURBSURFACE", "isoline_present", &isoline_present, NULL)
+        && isoline_present == nurbsurface->isoline_present)
+      pass ();
+    else
+      fail ("NURBSURFACE.isoline_present [B] " FORMAT_B " != " FORMAT_B "", nurbsurface->isoline_present, isoline_present);
+    isoline_present++;
+    if (dwg_dynapi_entity_set_value (nurbsurface, "NURBSURFACE", "isoline_present", &isoline_present, 0)
+        && isoline_present == nurbsurface->isoline_present)
+      pass ();
+    else
+      fail ("NURBSURFACE.isoline_present [B] set+1 " FORMAT_B " != " FORMAT_B "", nurbsurface->isoline_present, isoline_present);
+    nurbsurface->isoline_present--;
+  }
+  {
+    BITCODE_BL isolines;
+    if (dwg_dynapi_entity_value (nurbsurface, "NURBSURFACE", "isolines", &isolines, NULL)
+        && isolines == nurbsurface->isolines)
+      pass ();
+    else
+      fail ("NURBSURFACE.isolines [BL] %u != %u", nurbsurface->isolines, isolines);
+    isolines++;
+    if (dwg_dynapi_entity_set_value (nurbsurface, "NURBSURFACE", "isolines", &isolines, 0)
+        && isolines == nurbsurface->isolines)
+      pass ();
+    else
+      fail ("NURBSURFACE.isolines [BL] set+1 %u != %u", nurbsurface->isolines, isolines);
+    nurbsurface->isolines--;
+  }
+  {
+    BITCODE_BS modeler_format_version;
+    if (dwg_dynapi_entity_value (nurbsurface, "NURBSURFACE", "modeler_format_version", &modeler_format_version, NULL)
+        && modeler_format_version == nurbsurface->modeler_format_version)
+      pass ();
+    else
+      fail ("NURBSURFACE.modeler_format_version [BS] %hu != %hu", nurbsurface->modeler_format_version, modeler_format_version);
+    modeler_format_version++;
+    if (dwg_dynapi_entity_set_value (nurbsurface, "NURBSURFACE", "modeler_format_version", &modeler_format_version, 0)
+        && modeler_format_version == nurbsurface->modeler_format_version)
+      pass ();
+    else
+      fail ("NURBSURFACE.modeler_format_version [BS] set+1 %hu != %hu", nurbsurface->modeler_format_version, modeler_format_version);
+    nurbsurface->modeler_format_version--;
+  }
+  {
+    BITCODE_BL num_blocks;
+    if (dwg_dynapi_entity_value (nurbsurface, "NURBSURFACE", "num_blocks", &num_blocks, NULL)
+        && num_blocks == nurbsurface->num_blocks)
+      pass ();
+    else
+      fail ("NURBSURFACE.num_blocks [BL] %u != %u", nurbsurface->num_blocks, num_blocks);
+    num_blocks++;
+    if (dwg_dynapi_entity_set_value (nurbsurface, "NURBSURFACE", "num_blocks", &num_blocks, 0)
+        && num_blocks == nurbsurface->num_blocks)
+      pass ();
+    else
+      fail ("NURBSURFACE.num_blocks [BL] set+1 %u != %u", nurbsurface->num_blocks, num_blocks);
+    nurbsurface->num_blocks--;
+  }
+  {
+    BITCODE_BL num_silhouettes;
+    if (dwg_dynapi_entity_value (nurbsurface, "NURBSURFACE", "num_silhouettes", &num_silhouettes, NULL)
+        && num_silhouettes == nurbsurface->num_silhouettes)
+      pass ();
+    else
+      fail ("NURBSURFACE.num_silhouettes [BL] %u != %u", nurbsurface->num_silhouettes, num_silhouettes);
+    num_silhouettes++;
+    if (dwg_dynapi_entity_set_value (nurbsurface, "NURBSURFACE", "num_silhouettes", &num_silhouettes, 0)
+        && num_silhouettes == nurbsurface->num_silhouettes)
+      pass ();
+    else
+      fail ("NURBSURFACE.num_silhouettes [BL] set+1 %u != %u", nurbsurface->num_silhouettes, num_silhouettes);
+    nurbsurface->num_silhouettes--;
+  }
+  {
+    BITCODE_BL num_wires;
+    if (dwg_dynapi_entity_value (nurbsurface, "NURBSURFACE", "num_wires", &num_wires, NULL)
+        && num_wires == nurbsurface->num_wires)
+      pass ();
+    else
+      fail ("NURBSURFACE.num_wires [BL] %u != %u", nurbsurface->num_wires, num_wires);
+    num_wires++;
+    if (dwg_dynapi_entity_set_value (nurbsurface, "NURBSURFACE", "num_wires", &num_wires, 0)
+        && num_wires == nurbsurface->num_wires)
+      pass ();
+    else
+      fail ("NURBSURFACE.num_wires [BL] set+1 %u != %u", nurbsurface->num_wires, num_wires);
+    nurbsurface->num_wires--;
+  }
+  {
+    struct _dwg_object_entity* parent;
+    if (dwg_dynapi_entity_value (nurbsurface, "NURBSURFACE", "parent", &parent, NULL)
+        && !memcmp (&parent, &nurbsurface->parent, sizeof (nurbsurface->parent)))
+        pass ();
+    else
+        fail ("NURBSURFACE.parent [struct _dwg_object_entity*]");
+  }
+  {
+    BITCODE_3BD point;
+    if (dwg_dynapi_entity_value (nurbsurface, "NURBSURFACE", "point", &point, NULL)
+        && !memcmp (&point, &nurbsurface->point, sizeof (nurbsurface->point)))
+        pass ();
+    else
+        fail ("NURBSURFACE.point [3BD]");
+  }
+  {
+    BITCODE_B point_present;
+    if (dwg_dynapi_entity_value (nurbsurface, "NURBSURFACE", "point_present", &point_present, NULL)
+        && point_present == nurbsurface->point_present)
+      pass ();
+    else
+      fail ("NURBSURFACE.point_present [B] " FORMAT_B " != " FORMAT_B "", nurbsurface->point_present, point_present);
+    point_present++;
+    if (dwg_dynapi_entity_set_value (nurbsurface, "NURBSURFACE", "point_present", &point_present, 0)
+        && point_present == nurbsurface->point_present)
+      pass ();
+    else
+      fail ("NURBSURFACE.point_present [B] set+1 " FORMAT_B " != " FORMAT_B "", nurbsurface->point_present, point_present);
+    nurbsurface->point_present--;
+  }
+  {
+    Dwg_3DSOLID_silhouette* silhouettes;
+    BITCODE_BL count = 0;
+    if (dwg_dynapi_entity_value (nurbsurface, "NURBSURFACE", "num_silhouettes", &count, NULL)
+        && dwg_dynapi_entity_value (nurbsurface, "NURBSURFACE", "silhouettes", &silhouettes, NULL)
+        && silhouettes == nurbsurface->silhouettes)
+      pass ();
+    else
+      fail ("NURBSURFACE.silhouettes [Dwg_3DSOLID_silhouette*] * %u num_silhouettes", count);
+  }
+  {
+    BITCODE_BS u_isolines;
+    if (dwg_dynapi_entity_value (nurbsurface, "NURBSURFACE", "u_isolines", &u_isolines, NULL)
+        && u_isolines == nurbsurface->u_isolines)
+      pass ();
+    else
+      fail ("NURBSURFACE.u_isolines [BS] %hu != %hu", nurbsurface->u_isolines, u_isolines);
+    u_isolines++;
+    if (dwg_dynapi_entity_set_value (nurbsurface, "NURBSURFACE", "u_isolines", &u_isolines, 0)
+        && u_isolines == nurbsurface->u_isolines)
+      pass ();
+    else
+      fail ("NURBSURFACE.u_isolines [BS] set+1 %hu != %hu", nurbsurface->u_isolines, u_isolines);
+    nurbsurface->u_isolines--;
+  }
+  {
+    BITCODE_B unknown;
+    if (dwg_dynapi_entity_value (nurbsurface, "NURBSURFACE", "unknown", &unknown, NULL)
+        && unknown == nurbsurface->unknown)
+      pass ();
+    else
+      fail ("NURBSURFACE.unknown [B] " FORMAT_B " != " FORMAT_B "", nurbsurface->unknown, unknown);
+    unknown++;
+    if (dwg_dynapi_entity_set_value (nurbsurface, "NURBSURFACE", "unknown", &unknown, 0)
+        && unknown == nurbsurface->unknown)
+      pass ();
+    else
+      fail ("NURBSURFACE.unknown [B] set+1 " FORMAT_B " != " FORMAT_B "", nurbsurface->unknown, unknown);
+    nurbsurface->unknown--;
+  }
+  {
+    BITCODE_BL unknown_2007;
+    if (dwg_dynapi_entity_value (nurbsurface, "NURBSURFACE", "unknown_2007", &unknown_2007, NULL)
+        && unknown_2007 == nurbsurface->unknown_2007)
+      pass ();
+    else
+      fail ("NURBSURFACE.unknown_2007 [BL] %u != %u", nurbsurface->unknown_2007, unknown_2007);
+    unknown_2007++;
+    if (dwg_dynapi_entity_set_value (nurbsurface, "NURBSURFACE", "unknown_2007", &unknown_2007, 0)
+        && unknown_2007 == nurbsurface->unknown_2007)
+      pass ();
+    else
+      fail ("NURBSURFACE.unknown_2007 [BL] set+1 %u != %u", nurbsurface->unknown_2007, unknown_2007);
+    nurbsurface->unknown_2007--;
+  }
+  {
+    BITCODE_BS v_isolines;
+    if (dwg_dynapi_entity_value (nurbsurface, "NURBSURFACE", "v_isolines", &v_isolines, NULL)
+        && v_isolines == nurbsurface->v_isolines)
+      pass ();
+    else
+      fail ("NURBSURFACE.v_isolines [BS] %hu != %hu", nurbsurface->v_isolines, v_isolines);
+    v_isolines++;
+    if (dwg_dynapi_entity_set_value (nurbsurface, "NURBSURFACE", "v_isolines", &v_isolines, 0)
+        && v_isolines == nurbsurface->v_isolines)
+      pass ();
+    else
+      fail ("NURBSURFACE.v_isolines [BS] set+1 %hu != %hu", nurbsurface->v_isolines, v_isolines);
+    nurbsurface->v_isolines--;
+  }
+  {
+    BITCODE_BS version;
+    if (dwg_dynapi_entity_value (nurbsurface, "NURBSURFACE", "version", &version, NULL)
+        && version == nurbsurface->version)
+      pass ();
+    else
+      fail ("NURBSURFACE.version [BS] %hu != %hu", nurbsurface->version, version);
+    version++;
+    if (dwg_dynapi_entity_set_value (nurbsurface, "NURBSURFACE", "version", &version, 0)
+        && version == nurbsurface->version)
+      pass ();
+    else
+      fail ("NURBSURFACE.version [BS] set+1 %hu != %hu", nurbsurface->version, version);
+    nurbsurface->version--;
+  }
+  {
+    BITCODE_B wireframe_data_present;
+    if (dwg_dynapi_entity_value (nurbsurface, "NURBSURFACE", "wireframe_data_present", &wireframe_data_present, NULL)
+        && wireframe_data_present == nurbsurface->wireframe_data_present)
+      pass ();
+    else
+      fail ("NURBSURFACE.wireframe_data_present [B] " FORMAT_B " != " FORMAT_B "", nurbsurface->wireframe_data_present, wireframe_data_present);
+    wireframe_data_present++;
+    if (dwg_dynapi_entity_set_value (nurbsurface, "NURBSURFACE", "wireframe_data_present", &wireframe_data_present, 0)
+        && wireframe_data_present == nurbsurface->wireframe_data_present)
+      pass ();
+    else
+      fail ("NURBSURFACE.wireframe_data_present [B] set+1 " FORMAT_B " != " FORMAT_B "", nurbsurface->wireframe_data_present, wireframe_data_present);
+    nurbsurface->wireframe_data_present--;
+  }
+  {
+    Dwg_3DSOLID_wire* wires;
+    BITCODE_BL count = 0;
+    if (dwg_dynapi_entity_value (nurbsurface, "NURBSURFACE", "num_wires", &count, NULL)
+        && dwg_dynapi_entity_value (nurbsurface, "NURBSURFACE", "wires", &wires, NULL)
+        && wires == nurbsurface->wires)
+      pass ();
+    else
+      fail ("NURBSURFACE.wires [Dwg_3DSOLID_wire*] * %u num_wires", count);
+  }
+  if (failed && (is_class_unstable ("NURBSURFACE") || is_class_debugging ("NURBSURFACE")))
+    {
+      ok ("%s failed %d tests (TODO unstable)", "NURBSURFACE", failed);
+      failed = 0;
+    }
+  return failed;
+}
 static int test_OLE2FRAME (const Dwg_Object *obj)
 {
   int error = 0;
@@ -14927,6 +16022,21 @@ static int test_PLANESURFACE (const Dwg_Object *obj)
     planesurface->isoline_present--;
   }
   {
+    BITCODE_BL isolines;
+    if (dwg_dynapi_entity_value (planesurface, "PLANESURFACE", "isolines", &isolines, NULL)
+        && isolines == planesurface->isolines)
+      pass ();
+    else
+      fail ("PLANESURFACE.isolines [BL] %u != %u", planesurface->isolines, isolines);
+    isolines++;
+    if (dwg_dynapi_entity_set_value (planesurface, "PLANESURFACE", "isolines", &isolines, 0)
+        && isolines == planesurface->isolines)
+      pass ();
+    else
+      fail ("PLANESURFACE.isolines [BL] set+1 %u != %u", planesurface->isolines, isolines);
+    planesurface->isolines--;
+  }
+  {
     BITCODE_BS modeler_format_version;
     if (dwg_dynapi_entity_value (planesurface, "PLANESURFACE", "modeler_format_version", &modeler_format_version, NULL)
         && modeler_format_version == planesurface->modeler_format_version)
@@ -14955,21 +16065,6 @@ static int test_PLANESURFACE (const Dwg_Object *obj)
     else
       fail ("PLANESURFACE.num_blocks [BL] set+1 %u != %u", planesurface->num_blocks, num_blocks);
     planesurface->num_blocks--;
-  }
-  {
-    BITCODE_BL num_isolines;
-    if (dwg_dynapi_entity_value (planesurface, "PLANESURFACE", "num_isolines", &num_isolines, NULL)
-        && num_isolines == planesurface->num_isolines)
-      pass ();
-    else
-      fail ("PLANESURFACE.num_isolines [BL] %u != %u", planesurface->num_isolines, num_isolines);
-    num_isolines++;
-    if (dwg_dynapi_entity_set_value (planesurface, "PLANESURFACE", "num_isolines", &num_isolines, 0)
-        && num_isolines == planesurface->num_isolines)
-      pass ();
-    else
-      fail ("PLANESURFACE.num_isolines [BL] set+1 %u != %u", planesurface->num_isolines, num_isolines);
-    planesurface->num_isolines--;
   }
   {
     BITCODE_BL num_silhouettes;
@@ -16248,6 +17343,21 @@ static int test_REVOLVEDSURFACE (const Dwg_Object *obj)
     revolvedsurface->isoline_present--;
   }
   {
+    BITCODE_BL isolines;
+    if (dwg_dynapi_entity_value (revolvedsurface, "REVOLVEDSURFACE", "isolines", &isolines, NULL)
+        && isolines == revolvedsurface->isolines)
+      pass ();
+    else
+      fail ("REVOLVEDSURFACE.isolines [BL] %u != %u", revolvedsurface->isolines, isolines);
+    isolines++;
+    if (dwg_dynapi_entity_set_value (revolvedsurface, "REVOLVEDSURFACE", "isolines", &isolines, 0)
+        && isolines == revolvedsurface->isolines)
+      pass ();
+    else
+      fail ("REVOLVEDSURFACE.isolines [BL] set+1 %u != %u", revolvedsurface->isolines, isolines);
+    revolvedsurface->isolines--;
+  }
+  {
     BITCODE_BS modeler_format_version;
     if (dwg_dynapi_entity_value (revolvedsurface, "REVOLVEDSURFACE", "modeler_format_version", &modeler_format_version, NULL)
         && modeler_format_version == revolvedsurface->modeler_format_version)
@@ -16276,21 +17386,6 @@ static int test_REVOLVEDSURFACE (const Dwg_Object *obj)
     else
       fail ("REVOLVEDSURFACE.num_blocks [BL] set+1 %u != %u", revolvedsurface->num_blocks, num_blocks);
     revolvedsurface->num_blocks--;
-  }
-  {
-    BITCODE_BL num_isolines;
-    if (dwg_dynapi_entity_value (revolvedsurface, "REVOLVEDSURFACE", "num_isolines", &num_isolines, NULL)
-        && num_isolines == revolvedsurface->num_isolines)
-      pass ();
-    else
-      fail ("REVOLVEDSURFACE.num_isolines [BL] %u != %u", revolvedsurface->num_isolines, num_isolines);
-    num_isolines++;
-    if (dwg_dynapi_entity_set_value (revolvedsurface, "REVOLVEDSURFACE", "num_isolines", &num_isolines, 0)
-        && num_isolines == revolvedsurface->num_isolines)
-      pass ();
-    else
-      fail ("REVOLVEDSURFACE.num_isolines [BL] set+1 %u != %u", revolvedsurface->num_isolines, num_isolines);
-    revolvedsurface->num_isolines--;
   }
   {
     BITCODE_BL num_silhouettes;
@@ -16534,6 +17629,106 @@ static int test_REVOLVEDSURFACE (const Dwg_Object *obj)
   if (failed && (is_class_unstable ("REVOLVEDSURFACE") || is_class_debugging ("REVOLVEDSURFACE")))
     {
       ok ("%s failed %d tests (TODO unstable)", "REVOLVEDSURFACE", failed);
+      failed = 0;
+    }
+  return failed;
+}
+static int test_RTEXT (const Dwg_Object *obj)
+{
+  int error = 0;
+  const Dwg_Object_Entity *restrict obj_obj = obj->tio.entity;
+  Dwg_Entity_RTEXT *restrict rtext = obj->tio.entity->tio.RTEXT;
+  failed = 0;
+  {
+    BITCODE_BE extrusion;
+    if (dwg_dynapi_entity_value (rtext, "RTEXT", "extrusion", &extrusion, NULL)
+        && !memcmp (&extrusion, &rtext->extrusion, sizeof (rtext->extrusion)))
+        pass ();
+    else
+        fail ("RTEXT.extrusion [BE]");
+  }
+  {
+    BITCODE_BS flags;
+    if (dwg_dynapi_entity_value (rtext, "RTEXT", "flags", &flags, NULL)
+        && flags == rtext->flags)
+      pass ();
+    else
+      fail ("RTEXT.flags [BS] %hu != %hu", rtext->flags, flags);
+    flags++;
+    if (dwg_dynapi_entity_set_value (rtext, "RTEXT", "flags", &flags, 0)
+        && flags == rtext->flags)
+      pass ();
+    else
+      fail ("RTEXT.flags [BS] set+1 %hu != %hu", rtext->flags, flags);
+    rtext->flags--;
+  }
+  {
+    BITCODE_BD height;
+    if (dwg_dynapi_entity_value (rtext, "RTEXT", "height", &height, NULL)
+        && height == rtext->height)
+      pass ();
+    else
+      fail ("RTEXT.height [BD] %g != %g", rtext->height, height);
+    height++;
+    if (dwg_dynapi_entity_set_value (rtext, "RTEXT", "height", &height, 0)
+        && height == rtext->height)
+      pass ();
+    else
+      fail ("RTEXT.height [BD] set+1 %g != %g", rtext->height, height);
+    rtext->height--;
+  }
+  {
+    struct _dwg_object_entity* parent;
+    if (dwg_dynapi_entity_value (rtext, "RTEXT", "parent", &parent, NULL)
+        && !memcmp (&parent, &rtext->parent, sizeof (rtext->parent)))
+        pass ();
+    else
+        fail ("RTEXT.parent [struct _dwg_object_entity*]");
+  }
+  {
+    BITCODE_3BD pt;
+    if (dwg_dynapi_entity_value (rtext, "RTEXT", "pt", &pt, NULL)
+        && !memcmp (&pt, &rtext->pt, sizeof (rtext->pt)))
+        pass ();
+    else
+        fail ("RTEXT.pt [3BD]");
+  }
+  {
+    BITCODE_BD rotation;
+    if (dwg_dynapi_entity_value (rtext, "RTEXT", "rotation", &rotation, NULL)
+        && rotation == rtext->rotation)
+      pass ();
+    else
+      fail ("RTEXT.rotation [BD] %g != %g", rtext->rotation, rotation);
+    rotation++;
+    if (dwg_dynapi_entity_set_value (rtext, "RTEXT", "rotation", &rotation, 0)
+        && rotation == rtext->rotation)
+      pass ();
+    else
+      fail ("RTEXT.rotation [BD] set+1 %g != %g", rtext->rotation, rotation);
+    rtext->rotation--;
+  }
+  {
+    BITCODE_H style;
+    if (dwg_dynapi_entity_value (rtext, "RTEXT", "style", &style, NULL)
+        && !memcmp (&style, &rtext->style, sizeof (rtext->style)))
+        pass ();
+    else
+        fail ("RTEXT.style [H]");
+  }
+  {
+    BITCODE_T text_value;
+    if (dwg_dynapi_entity_value (rtext, "RTEXT", "text_value", &text_value, NULL)
+        && text_value
+           ? strEQ ((char *)text_value, (char *)rtext->text_value)
+           : !rtext->text_value)
+      pass ();
+    else
+      fail ("RTEXT.text_value [T] '%s' <> '%s'", text_value, rtext->text_value);
+  }
+  if (failed && (is_class_unstable ("RTEXT") || is_class_debugging ("RTEXT")))
+    {
+      ok ("%s failed %d tests (TODO unstable)", "RTEXT", failed);
       failed = 0;
     }
   return failed;
@@ -17485,6 +18680,21 @@ static int test_SWEPTSURFACE (const Dwg_Object *obj)
     sweptsurface->isoline_present--;
   }
   {
+    BITCODE_BL isolines;
+    if (dwg_dynapi_entity_value (sweptsurface, "SWEPTSURFACE", "isolines", &isolines, NULL)
+        && isolines == sweptsurface->isolines)
+      pass ();
+    else
+      fail ("SWEPTSURFACE.isolines [BL] %u != %u", sweptsurface->isolines, isolines);
+    isolines++;
+    if (dwg_dynapi_entity_set_value (sweptsurface, "SWEPTSURFACE", "isolines", &isolines, 0)
+        && isolines == sweptsurface->isolines)
+      pass ();
+    else
+      fail ("SWEPTSURFACE.isolines [BL] set+1 %u != %u", sweptsurface->isolines, isolines);
+    sweptsurface->isolines--;
+  }
+  {
     BITCODE_BS modeler_format_version;
     if (dwg_dynapi_entity_value (sweptsurface, "SWEPTSURFACE", "modeler_format_version", &modeler_format_version, NULL)
         && modeler_format_version == sweptsurface->modeler_format_version)
@@ -17513,21 +18723,6 @@ static int test_SWEPTSURFACE (const Dwg_Object *obj)
     else
       fail ("SWEPTSURFACE.num_blocks [BL] set+1 %u != %u", sweptsurface->num_blocks, num_blocks);
     sweptsurface->num_blocks--;
-  }
-  {
-    BITCODE_BL num_isolines;
-    if (dwg_dynapi_entity_value (sweptsurface, "SWEPTSURFACE", "num_isolines", &num_isolines, NULL)
-        && num_isolines == sweptsurface->num_isolines)
-      pass ();
-    else
-      fail ("SWEPTSURFACE.num_isolines [BL] %u != %u", sweptsurface->num_isolines, num_isolines);
-    num_isolines++;
-    if (dwg_dynapi_entity_set_value (sweptsurface, "SWEPTSURFACE", "num_isolines", &num_isolines, 0)
-        && num_isolines == sweptsurface->num_isolines)
-      pass ();
-    else
-      fail ("SWEPTSURFACE.num_isolines [BL] set+1 %u != %u", sweptsurface->num_isolines, num_isolines);
-    sweptsurface->num_isolines--;
   }
   {
     BITCODE_BL num_silhouettes;
@@ -19813,14 +21008,14 @@ static int test_TOLERANCE (const Dwg_Object *obj)
         fail ("TOLERANCE.parent [struct _dwg_object_entity*]");
   }
   {
-    BITCODE_T text_string;
-    if (dwg_dynapi_entity_value (tolerance, "TOLERANCE", "text_string", &text_string, NULL)
-        && text_string
-           ? strEQ ((char *)text_string, (char *)tolerance->text_string)
-           : !tolerance->text_string)
+    BITCODE_T text_value;
+    if (dwg_dynapi_entity_value (tolerance, "TOLERANCE", "text_value", &text_value, NULL)
+        && text_value
+           ? strEQ ((char *)text_value, (char *)tolerance->text_value)
+           : !tolerance->text_value)
       pass ();
     else
-      fail ("TOLERANCE.text_string [T] '%s' <> '%s'", text_string, tolerance->text_string);
+      fail ("TOLERANCE.text_value [T] '%s' <> '%s'", text_value, tolerance->text_value);
   }
   {
     BITCODE_BS unknown_short;
@@ -20351,6 +21546,22 @@ static int test_VIEWPORT (const Dwg_Object *obj)
     viewport->back_clip_z--;
   }
   {
+    BITCODE_H background;
+    if (dwg_dynapi_entity_value (viewport, "VIEWPORT", "background", &background, NULL)
+        && !memcmp (&background, &viewport->background, sizeof (viewport->background)))
+        pass ();
+    else
+        fail ("VIEWPORT.background [H]");
+  }
+  {
+    BITCODE_H base_ucs;
+    if (dwg_dynapi_entity_value (viewport, "VIEWPORT", "base_ucs", &base_ucs, NULL)
+        && !memcmp (&base_ucs, &viewport->base_ucs, sizeof (viewport->base_ucs)))
+        pass ();
+    else
+        fail ("VIEWPORT.base_ucs [H]");
+  }
+  {
     BITCODE_BD brightness;
     if (dwg_dynapi_entity_value (viewport, "VIEWPORT", "brightness", &brightness, NULL)
         && brightness == viewport->brightness)
@@ -20387,6 +21598,14 @@ static int test_VIEWPORT (const Dwg_Object *obj)
     else
       fail ("VIEWPORT.circle_zoom [BS] set+1 %hu != %hu", viewport->circle_zoom, circle_zoom);
     viewport->circle_zoom--;
+  }
+  {
+    BITCODE_H clip_boundary;
+    if (dwg_dynapi_entity_value (viewport, "VIEWPORT", "clip_boundary", &clip_boundary, NULL)
+        && !memcmp (&clip_boundary, &viewport->clip_boundary, sizeof (viewport->clip_boundary)))
+        pass ();
+    else
+        fail ("VIEWPORT.clip_boundary [H]");
   }
   {
     BITCODE_BD contrast;
@@ -20432,6 +21651,16 @@ static int test_VIEWPORT (const Dwg_Object *obj)
     else
       fail ("VIEWPORT.front_clip_z [BD] set+1 %g != %g", viewport->front_clip_z, front_clip_z);
     viewport->front_clip_z--;
+  }
+  {
+    BITCODE_H* frozen_layers;
+    BITCODE_BL count = 0;
+    if (dwg_dynapi_entity_value (viewport, "VIEWPORT", "num_frozen_layers", &count, NULL)
+        && dwg_dynapi_entity_value (viewport, "VIEWPORT", "frozen_layers", &frozen_layers, NULL)
+        && frozen_layers == viewport->frozen_layers)
+      pass ();
+    else
+      fail ("VIEWPORT.frozen_layers [H*] * %u num_frozen_layers", count);
   }
   {
     BITCODE_BS grid_major;
@@ -20502,6 +21731,14 @@ static int test_VIEWPORT (const Dwg_Object *obj)
     viewport->lens_length--;
   }
   {
+    BITCODE_H named_ucs;
+    if (dwg_dynapi_entity_value (viewport, "VIEWPORT", "named_ucs", &named_ucs, NULL)
+        && !memcmp (&named_ucs, &viewport->named_ucs, sizeof (viewport->named_ucs)))
+        pass ();
+    else
+        fail ("VIEWPORT.named_ucs [H]");
+  }
+  {
     BITCODE_BL num_frozen_layers;
     if (dwg_dynapi_entity_value (viewport, "VIEWPORT", "num_frozen_layers", &num_frozen_layers, NULL)
         && num_frozen_layers == viewport->num_frozen_layers)
@@ -20553,6 +21790,14 @@ static int test_VIEWPORT (const Dwg_Object *obj)
     else
       fail ("VIEWPORT.render_mode [RC] set+1 %u != %u", viewport->render_mode, render_mode);
     viewport->render_mode--;
+  }
+  {
+    BITCODE_H shadeplot;
+    if (dwg_dynapi_entity_value (viewport, "VIEWPORT", "shadeplot", &shadeplot, NULL)
+        && !memcmp (&shadeplot, &viewport->shadeplot, sizeof (viewport->shadeplot)))
+        pass ();
+    else
+        fail ("VIEWPORT.shadeplot [H]");
   }
   {
     BITCODE_BS shadeplot_mode;
@@ -20624,6 +21869,14 @@ static int test_VIEWPORT (const Dwg_Object *obj)
       pass ();
     else
       fail ("VIEWPORT.style_sheet [T] '%s' <> '%s'", style_sheet, viewport->style_sheet);
+  }
+  {
+    BITCODE_H sun;
+    if (dwg_dynapi_entity_value (viewport, "VIEWPORT", "sun", &sun, NULL)
+        && !memcmp (&sun, &viewport->sun, sizeof (viewport->sun)))
+        pass ();
+    else
+        fail ("VIEWPORT.sun [H]");
   }
   {
     BITCODE_B ucs_at_origin;
@@ -20777,6 +22030,22 @@ static int test_VIEWPORT (const Dwg_Object *obj)
     else
       fail ("VIEWPORT.view_twist [BD] set+1 %g != %g", viewport->view_twist, view_twist);
     viewport->view_twist--;
+  }
+  {
+    BITCODE_H visualstyle;
+    if (dwg_dynapi_entity_value (viewport, "VIEWPORT", "visualstyle", &visualstyle, NULL)
+        && !memcmp (&visualstyle, &viewport->visualstyle, sizeof (viewport->visualstyle)))
+        pass ();
+    else
+        fail ("VIEWPORT.visualstyle [H]");
+  }
+  {
+    BITCODE_H vport_entity_header;
+    if (dwg_dynapi_entity_value (viewport, "VIEWPORT", "vport_entity_header", &vport_entity_header, NULL)
+        && !memcmp (&vport_entity_header, &viewport->vport_entity_header, sizeof (viewport->vport_entity_header)))
+        pass ();
+    else
+        fail ("VIEWPORT.vport_entity_header [H]");
   }
   {
     BITCODE_BD width;
@@ -22677,21 +23946,6 @@ static int test_ALDIMOBJECTCONTEXTDATA (const Dwg_Object *obj)
         fail ("ALDIMOBJECTCONTEXTDATA.def_pt [2RD]");
   }
   {
-    BITCODE_B defaultflag;
-    if (dwg_dynapi_entity_value (aldimobjectcontextdata, "ALDIMOBJECTCONTEXTDATA", "defaultflag", &defaultflag, NULL)
-        && defaultflag == aldimobjectcontextdata->defaultflag)
-      pass ();
-    else
-      fail ("ALDIMOBJECTCONTEXTDATA.defaultflag [B] " FORMAT_B " != " FORMAT_B "", aldimobjectcontextdata->defaultflag, defaultflag);
-    defaultflag++;
-    if (dwg_dynapi_entity_set_value (aldimobjectcontextdata, "ALDIMOBJECTCONTEXTDATA", "defaultflag", &defaultflag, 0)
-        && defaultflag == aldimobjectcontextdata->defaultflag)
-      pass ();
-    else
-      fail ("ALDIMOBJECTCONTEXTDATA.defaultflag [B] set+1 " FORMAT_B " != " FORMAT_B "", aldimobjectcontextdata->defaultflag, defaultflag);
-    aldimobjectcontextdata->defaultflag--;
-  }
-  {
     BITCODE_BS flag;
     if (dwg_dynapi_entity_value (aldimobjectcontextdata, "ALDIMOBJECTCONTEXTDATA", "flag", &flag, NULL)
         && flag == aldimobjectcontextdata->flag)
@@ -22707,19 +23961,34 @@ static int test_ALDIMOBJECTCONTEXTDATA (const Dwg_Object *obj)
     aldimobjectcontextdata->flag--;
   }
   {
-    BITCODE_B has_file;
-    if (dwg_dynapi_entity_value (aldimobjectcontextdata, "ALDIMOBJECTCONTEXTDATA", "has_file", &has_file, NULL)
-        && has_file == aldimobjectcontextdata->has_file)
+    BITCODE_B in_dwg;
+    if (dwg_dynapi_entity_value (aldimobjectcontextdata, "ALDIMOBJECTCONTEXTDATA", "in_dwg", &in_dwg, NULL)
+        && in_dwg == aldimobjectcontextdata->in_dwg)
       pass ();
     else
-      fail ("ALDIMOBJECTCONTEXTDATA.has_file [B] " FORMAT_B " != " FORMAT_B "", aldimobjectcontextdata->has_file, has_file);
-    has_file++;
-    if (dwg_dynapi_entity_set_value (aldimobjectcontextdata, "ALDIMOBJECTCONTEXTDATA", "has_file", &has_file, 0)
-        && has_file == aldimobjectcontextdata->has_file)
+      fail ("ALDIMOBJECTCONTEXTDATA.in_dwg [B] " FORMAT_B " != " FORMAT_B "", aldimobjectcontextdata->in_dwg, in_dwg);
+    in_dwg++;
+    if (dwg_dynapi_entity_set_value (aldimobjectcontextdata, "ALDIMOBJECTCONTEXTDATA", "in_dwg", &in_dwg, 0)
+        && in_dwg == aldimobjectcontextdata->in_dwg)
       pass ();
     else
-      fail ("ALDIMOBJECTCONTEXTDATA.has_file [B] set+1 " FORMAT_B " != " FORMAT_B "", aldimobjectcontextdata->has_file, has_file);
-    aldimobjectcontextdata->has_file--;
+      fail ("ALDIMOBJECTCONTEXTDATA.in_dwg [B] set+1 " FORMAT_B " != " FORMAT_B "", aldimobjectcontextdata->in_dwg, in_dwg);
+    aldimobjectcontextdata->in_dwg--;
+  }
+  {
+    BITCODE_B is_default;
+    if (dwg_dynapi_entity_value (aldimobjectcontextdata, "ALDIMOBJECTCONTEXTDATA", "is_default", &is_default, NULL)
+        && is_default == aldimobjectcontextdata->is_default)
+      pass ();
+    else
+      fail ("ALDIMOBJECTCONTEXTDATA.is_default [B] " FORMAT_B " != " FORMAT_B "", aldimobjectcontextdata->is_default, is_default);
+    is_default++;
+    if (dwg_dynapi_entity_set_value (aldimobjectcontextdata, "ALDIMOBJECTCONTEXTDATA", "is_default", &is_default, 0)
+        && is_default == aldimobjectcontextdata->is_default)
+      pass ();
+    else
+      fail ("ALDIMOBJECTCONTEXTDATA.is_default [B] set+1 " FORMAT_B " != " FORMAT_B "", aldimobjectcontextdata->is_default, is_default);
+    aldimobjectcontextdata->is_default--;
   }
   {
     BITCODE_T name;
@@ -22761,19 +24030,64 @@ static int test_APPID (const Dwg_Object *obj)
   Dwg_Object_APPID *restrict appid = obj->tio.object->tio.APPID;
   failed = 0;
   {
-    BITCODE_RC flag;
+    BITCODE_RS flag;
     if (dwg_dynapi_entity_value (appid, "APPID", "flag", &flag, NULL)
         && flag == appid->flag)
       pass ();
     else
-      fail ("APPID.flag [RC] %u != %u", appid->flag, flag);
+      fail ("APPID.flag [RS] %hu != %hu", appid->flag, flag);
     flag++;
     if (dwg_dynapi_entity_set_value (appid, "APPID", "flag", &flag, 0)
         && flag == appid->flag)
       pass ();
     else
-      fail ("APPID.flag [RC] set+1 %u != %u", appid->flag, flag);
+      fail ("APPID.flag [RS] set+1 %hu != %hu", appid->flag, flag);
     appid->flag--;
+  }
+  {
+    BITCODE_B is_xref_dep;
+    if (dwg_dynapi_entity_value (appid, "APPID", "is_xref_dep", &is_xref_dep, NULL)
+        && is_xref_dep == appid->is_xref_dep)
+      pass ();
+    else
+      fail ("APPID.is_xref_dep [B] " FORMAT_B " != " FORMAT_B "", appid->is_xref_dep, is_xref_dep);
+    is_xref_dep++;
+    if (dwg_dynapi_entity_set_value (appid, "APPID", "is_xref_dep", &is_xref_dep, 0)
+        && is_xref_dep == appid->is_xref_dep)
+      pass ();
+    else
+      fail ("APPID.is_xref_dep [B] set+1 " FORMAT_B " != " FORMAT_B "", appid->is_xref_dep, is_xref_dep);
+    appid->is_xref_dep--;
+  }
+  {
+    BITCODE_B is_xref_ref;
+    if (dwg_dynapi_entity_value (appid, "APPID", "is_xref_ref", &is_xref_ref, NULL)
+        && is_xref_ref == appid->is_xref_ref)
+      pass ();
+    else
+      fail ("APPID.is_xref_ref [B] " FORMAT_B " != " FORMAT_B "", appid->is_xref_ref, is_xref_ref);
+    is_xref_ref++;
+    if (dwg_dynapi_entity_set_value (appid, "APPID", "is_xref_ref", &is_xref_ref, 0)
+        && is_xref_ref == appid->is_xref_ref)
+      pass ();
+    else
+      fail ("APPID.is_xref_ref [B] set+1 " FORMAT_B " != " FORMAT_B "", appid->is_xref_ref, is_xref_ref);
+    appid->is_xref_ref--;
+  }
+  {
+    BITCODE_BS is_xref_resolved;
+    if (dwg_dynapi_entity_value (appid, "APPID", "is_xref_resolved", &is_xref_resolved, NULL)
+        && is_xref_resolved == appid->is_xref_resolved)
+      pass ();
+    else
+      fail ("APPID.is_xref_resolved [BS] %hu != %hu", appid->is_xref_resolved, is_xref_resolved);
+    is_xref_resolved++;
+    if (dwg_dynapi_entity_set_value (appid, "APPID", "is_xref_resolved", &is_xref_resolved, 0)
+        && is_xref_resolved == appid->is_xref_resolved)
+      pass ();
+    else
+      fail ("APPID.is_xref_resolved [BS] set+1 %hu != %hu", appid->is_xref_resolved, is_xref_resolved);
+    appid->is_xref_resolved--;
   }
   {
     BITCODE_TV name;
@@ -22784,14 +24098,6 @@ static int test_APPID (const Dwg_Object *obj)
       pass ();
     else
       fail ("APPID.name [TV] '%s' <> '%s'", name, appid->name);
-  }
-  {
-    BITCODE_H null_handle;
-    if (dwg_dynapi_entity_value (appid, "APPID", "null_handle", &null_handle, NULL)
-        && !memcmp (&null_handle, &appid->null_handle, sizeof (appid->null_handle)))
-        pass ();
-    else
-        fail ("APPID.null_handle [H]");
   }
   {
     struct _dwg_object_object* parent;
@@ -22832,49 +24138,12 @@ static int test_APPID (const Dwg_Object *obj)
     appid->used--;
   }
   {
-    BITCODE_B xrefdep;
-    if (dwg_dynapi_entity_value (appid, "APPID", "xrefdep", &xrefdep, NULL)
-        && xrefdep == appid->xrefdep)
-      pass ();
+    BITCODE_H xref;
+    if (dwg_dynapi_entity_value (appid, "APPID", "xref", &xref, NULL)
+        && !memcmp (&xref, &appid->xref, sizeof (appid->xref)))
+        pass ();
     else
-      fail ("APPID.xrefdep [B] " FORMAT_B " != " FORMAT_B "", appid->xrefdep, xrefdep);
-    xrefdep++;
-    if (dwg_dynapi_entity_set_value (appid, "APPID", "xrefdep", &xrefdep, 0)
-        && xrefdep == appid->xrefdep)
-      pass ();
-    else
-      fail ("APPID.xrefdep [B] set+1 " FORMAT_B " != " FORMAT_B "", appid->xrefdep, xrefdep);
-    appid->xrefdep--;
-  }
-  {
-    BITCODE_BS xrefindex_plus1;
-    if (dwg_dynapi_entity_value (appid, "APPID", "xrefindex_plus1", &xrefindex_plus1, NULL)
-        && xrefindex_plus1 == appid->xrefindex_plus1)
-      pass ();
-    else
-      fail ("APPID.xrefindex_plus1 [BS] %hu != %hu", appid->xrefindex_plus1, xrefindex_plus1);
-    xrefindex_plus1++;
-    if (dwg_dynapi_entity_set_value (appid, "APPID", "xrefindex_plus1", &xrefindex_plus1, 0)
-        && xrefindex_plus1 == appid->xrefindex_plus1)
-      pass ();
-    else
-      fail ("APPID.xrefindex_plus1 [BS] set+1 %hu != %hu", appid->xrefindex_plus1, xrefindex_plus1);
-    appid->xrefindex_plus1--;
-  }
-  {
-    BITCODE_B xrefref;
-    if (dwg_dynapi_entity_value (appid, "APPID", "xrefref", &xrefref, NULL)
-        && xrefref == appid->xrefref)
-      pass ();
-    else
-      fail ("APPID.xrefref [B] " FORMAT_B " != " FORMAT_B "", appid->xrefref, xrefref);
-    xrefref++;
-    if (dwg_dynapi_entity_set_value (appid, "APPID", "xrefref", &xrefref, 0)
-        && xrefref == appid->xrefref)
-      pass ();
-    else
-      fail ("APPID.xrefref [B] set+1 " FORMAT_B " != " FORMAT_B "", appid->xrefref, xrefref);
-    appid->xrefref--;
+        fail ("APPID.xref [H]");
   }
   if (failed && (is_class_unstable ("APPID") || is_class_debugging ("APPID")))
     {
@@ -22950,6 +24219,29 @@ static int test_ASSOC2DCONSTRAINTGROUP (const Dwg_Object *obj)
   const Dwg_Object_Object *restrict obj_obj = obj->tio.object;
   Dwg_Object_ASSOC2DCONSTRAINTGROUP *restrict assoc2dconstraintgroup = obj->tio.object->tio.ASSOC2DCONSTRAINTGROUP;
   failed = 0;
+  {
+    BITCODE_BL action_index;
+    if (dwg_dynapi_entity_value (assoc2dconstraintgroup, "ASSOC2DCONSTRAINTGROUP", "action_index", &action_index, NULL)
+        && action_index == assoc2dconstraintgroup->action_index)
+      pass ();
+    else
+      fail ("ASSOC2DCONSTRAINTGROUP.action_index [BL] %u != %u", assoc2dconstraintgroup->action_index, action_index);
+    action_index++;
+    if (dwg_dynapi_entity_set_value (assoc2dconstraintgroup, "ASSOC2DCONSTRAINTGROUP", "action_index", &action_index, 0)
+        && action_index == assoc2dconstraintgroup->action_index)
+      pass ();
+    else
+      fail ("ASSOC2DCONSTRAINTGROUP.action_index [BL] set+1 %u != %u", assoc2dconstraintgroup->action_index, action_index);
+    assoc2dconstraintgroup->action_index--;
+  }
+  {
+    BITCODE_H actionbody;
+    if (dwg_dynapi_entity_value (assoc2dconstraintgroup, "ASSOC2DCONSTRAINTGROUP", "actionbody", &actionbody, NULL)
+        && !memcmp (&actionbody, &assoc2dconstraintgroup->actionbody, sizeof (assoc2dconstraintgroup->actionbody)))
+        pass ();
+    else
+        fail ("ASSOC2DCONSTRAINTGROUP.actionbody [H]");
+  }
   {
     BITCODE_H* actions;
     BITCODE_BL count = 0;
@@ -23060,19 +24352,19 @@ static int test_ASSOC2DCONSTRAINTGROUP (const Dwg_Object *obj)
     assoc2dconstraintgroup->cl4--;
   }
   {
-    BITCODE_BL constraint_status;
-    if (dwg_dynapi_entity_value (assoc2dconstraintgroup, "ASSOC2DCONSTRAINTGROUP", "constraint_status", &constraint_status, NULL)
-        && constraint_status == assoc2dconstraintgroup->constraint_status)
+    BITCODE_BS class_version;
+    if (dwg_dynapi_entity_value (assoc2dconstraintgroup, "ASSOC2DCONSTRAINTGROUP", "class_version", &class_version, NULL)
+        && class_version == assoc2dconstraintgroup->class_version)
       pass ();
     else
-      fail ("ASSOC2DCONSTRAINTGROUP.constraint_status [BL] %u != %u", assoc2dconstraintgroup->constraint_status, constraint_status);
-    constraint_status++;
-    if (dwg_dynapi_entity_set_value (assoc2dconstraintgroup, "ASSOC2DCONSTRAINTGROUP", "constraint_status", &constraint_status, 0)
-        && constraint_status == assoc2dconstraintgroup->constraint_status)
+      fail ("ASSOC2DCONSTRAINTGROUP.class_version [BS] %hu != %hu", assoc2dconstraintgroup->class_version, class_version);
+    class_version++;
+    if (dwg_dynapi_entity_set_value (assoc2dconstraintgroup, "ASSOC2DCONSTRAINTGROUP", "class_version", &class_version, 0)
+        && class_version == assoc2dconstraintgroup->class_version)
       pass ();
     else
-      fail ("ASSOC2DCONSTRAINTGROUP.constraint_status [BL] set+1 %u != %u", assoc2dconstraintgroup->constraint_status, constraint_status);
-    assoc2dconstraintgroup->constraint_status--;
+      fail ("ASSOC2DCONSTRAINTGROUP.class_version [BS] set+1 %hu != %hu", assoc2dconstraintgroup->class_version, class_version);
+    assoc2dconstraintgroup->class_version--;
   }
   {
     BITCODE_RC cs1;
@@ -23090,19 +24382,14 @@ static int test_ASSOC2DCONSTRAINTGROUP (const Dwg_Object *obj)
     assoc2dconstraintgroup->cs1--;
   }
   {
-    BITCODE_BL dof;
-    if (dwg_dynapi_entity_value (assoc2dconstraintgroup, "ASSOC2DCONSTRAINTGROUP", "dof", &dof, NULL)
-        && dof == assoc2dconstraintgroup->dof)
+    Dwg_ASSOCACTION_Deps* deps;
+    BITCODE_BL count = 0;
+    if (dwg_dynapi_entity_value (assoc2dconstraintgroup, "ASSOC2DCONSTRAINTGROUP", "num_deps", &count, NULL)
+        && dwg_dynapi_entity_value (assoc2dconstraintgroup, "ASSOC2DCONSTRAINTGROUP", "deps", &deps, NULL)
+        && deps == assoc2dconstraintgroup->deps)
       pass ();
     else
-      fail ("ASSOC2DCONSTRAINTGROUP.dof [BL] %u != %u", assoc2dconstraintgroup->dof, dof);
-    dof++;
-    if (dwg_dynapi_entity_set_value (assoc2dconstraintgroup, "ASSOC2DCONSTRAINTGROUP", "dof", &dof, 0)
-        && dof == assoc2dconstraintgroup->dof)
-      pass ();
-    else
-      fail ("ASSOC2DCONSTRAINTGROUP.dof [BL] set+1 %u != %u", assoc2dconstraintgroup->dof, dof);
-    assoc2dconstraintgroup->dof--;
+      fail ("ASSOC2DCONSTRAINTGROUP.deps [Dwg_ASSOCACTION_Deps*] * %u num_deps", count);
   }
   {
     BITCODE_BL geometry_status;
@@ -23142,21 +24429,6 @@ static int test_ASSOC2DCONSTRAINTGROUP (const Dwg_Object *obj)
         pass ();
     else
         fail ("ASSOC2DCONSTRAINTGROUP.h3 [H]");
-  }
-  {
-    BITCODE_B is_body_a_proxy;
-    if (dwg_dynapi_entity_value (assoc2dconstraintgroup, "ASSOC2DCONSTRAINTGROUP", "is_body_a_proxy", &is_body_a_proxy, NULL)
-        && is_body_a_proxy == assoc2dconstraintgroup->is_body_a_proxy)
-      pass ();
-    else
-      fail ("ASSOC2DCONSTRAINTGROUP.is_body_a_proxy [B] " FORMAT_B " != " FORMAT_B "", assoc2dconstraintgroup->is_body_a_proxy, is_body_a_proxy);
-    is_body_a_proxy++;
-    if (dwg_dynapi_entity_set_value (assoc2dconstraintgroup, "ASSOC2DCONSTRAINTGROUP", "is_body_a_proxy", &is_body_a_proxy, 0)
-        && is_body_a_proxy == assoc2dconstraintgroup->is_body_a_proxy)
-      pass ();
-    else
-      fail ("ASSOC2DCONSTRAINTGROUP.is_body_a_proxy [B] set+1 " FORMAT_B " != " FORMAT_B "", assoc2dconstraintgroup->is_body_a_proxy, is_body_a_proxy);
-    assoc2dconstraintgroup->is_body_a_proxy--;
   }
   {
     BITCODE_BL l5;
@@ -23204,6 +24476,21 @@ static int test_ASSOC2DCONSTRAINTGROUP (const Dwg_Object *obj)
     assoc2dconstraintgroup->l8--;
   }
   {
+    BITCODE_BL max_assoc_dep_index;
+    if (dwg_dynapi_entity_value (assoc2dconstraintgroup, "ASSOC2DCONSTRAINTGROUP", "max_assoc_dep_index", &max_assoc_dep_index, NULL)
+        && max_assoc_dep_index == assoc2dconstraintgroup->max_assoc_dep_index)
+      pass ();
+    else
+      fail ("ASSOC2DCONSTRAINTGROUP.max_assoc_dep_index [BL] %u != %u", assoc2dconstraintgroup->max_assoc_dep_index, max_assoc_dep_index);
+    max_assoc_dep_index++;
+    if (dwg_dynapi_entity_set_value (assoc2dconstraintgroup, "ASSOC2DCONSTRAINTGROUP", "max_assoc_dep_index", &max_assoc_dep_index, 0)
+        && max_assoc_dep_index == assoc2dconstraintgroup->max_assoc_dep_index)
+      pass ();
+    else
+      fail ("ASSOC2DCONSTRAINTGROUP.max_assoc_dep_index [BL] set+1 %u != %u", assoc2dconstraintgroup->max_assoc_dep_index, max_assoc_dep_index);
+    assoc2dconstraintgroup->max_assoc_dep_index--;
+  }
+  {
     BITCODE_BL num_actions;
     if (dwg_dynapi_entity_value (assoc2dconstraintgroup, "ASSOC2DCONSTRAINTGROUP", "num_actions", &num_actions, NULL)
         && num_actions == assoc2dconstraintgroup->num_actions)
@@ -23219,35 +24506,85 @@ static int test_ASSOC2DCONSTRAINTGROUP (const Dwg_Object *obj)
     assoc2dconstraintgroup->num_actions--;
   }
   {
+    BITCODE_BL num_deps;
+    if (dwg_dynapi_entity_value (assoc2dconstraintgroup, "ASSOC2DCONSTRAINTGROUP", "num_deps", &num_deps, NULL)
+        && num_deps == assoc2dconstraintgroup->num_deps)
+      pass ();
+    else
+      fail ("ASSOC2DCONSTRAINTGROUP.num_deps [BL] %u != %u", assoc2dconstraintgroup->num_deps, num_deps);
+    num_deps++;
+    if (dwg_dynapi_entity_set_value (assoc2dconstraintgroup, "ASSOC2DCONSTRAINTGROUP", "num_deps", &num_deps, 0)
+        && num_deps == assoc2dconstraintgroup->num_deps)
+      pass ();
+    else
+      fail ("ASSOC2DCONSTRAINTGROUP.num_deps [BL] set+1 %u != %u", assoc2dconstraintgroup->num_deps, num_deps);
+    assoc2dconstraintgroup->num_deps--;
+  }
+  {
+    BITCODE_BL num_owned_params;
+    if (dwg_dynapi_entity_value (assoc2dconstraintgroup, "ASSOC2DCONSTRAINTGROUP", "num_owned_params", &num_owned_params, NULL)
+        && num_owned_params == assoc2dconstraintgroup->num_owned_params)
+      pass ();
+    else
+      fail ("ASSOC2DCONSTRAINTGROUP.num_owned_params [BL] %u != %u", assoc2dconstraintgroup->num_owned_params, num_owned_params);
+    num_owned_params++;
+    if (dwg_dynapi_entity_set_value (assoc2dconstraintgroup, "ASSOC2DCONSTRAINTGROUP", "num_owned_params", &num_owned_params, 0)
+        && num_owned_params == assoc2dconstraintgroup->num_owned_params)
+      pass ();
+    else
+      fail ("ASSOC2DCONSTRAINTGROUP.num_owned_params [BL] set+1 %u != %u", assoc2dconstraintgroup->num_owned_params, num_owned_params);
+    assoc2dconstraintgroup->num_owned_params--;
+  }
+  {
+    BITCODE_BL num_owned_value_param_names;
+    if (dwg_dynapi_entity_value (assoc2dconstraintgroup, "ASSOC2DCONSTRAINTGROUP", "num_owned_value_param_names", &num_owned_value_param_names, NULL)
+        && num_owned_value_param_names == assoc2dconstraintgroup->num_owned_value_param_names)
+      pass ();
+    else
+      fail ("ASSOC2DCONSTRAINTGROUP.num_owned_value_param_names [BL] %u != %u", assoc2dconstraintgroup->num_owned_value_param_names, num_owned_value_param_names);
+    num_owned_value_param_names++;
+    if (dwg_dynapi_entity_set_value (assoc2dconstraintgroup, "ASSOC2DCONSTRAINTGROUP", "num_owned_value_param_names", &num_owned_value_param_names, 0)
+        && num_owned_value_param_names == assoc2dconstraintgroup->num_owned_value_param_names)
+      pass ();
+    else
+      fail ("ASSOC2DCONSTRAINTGROUP.num_owned_value_param_names [BL] set+1 %u != %u", assoc2dconstraintgroup->num_owned_value_param_names, num_owned_value_param_names);
+    assoc2dconstraintgroup->num_owned_value_param_names--;
+  }
+  {
+    BITCODE_H* owned_params;
+    BITCODE_BL count = 0;
+    if (dwg_dynapi_entity_value (assoc2dconstraintgroup, "ASSOC2DCONSTRAINTGROUP", "num_owned_params", &count, NULL)
+        && dwg_dynapi_entity_value (assoc2dconstraintgroup, "ASSOC2DCONSTRAINTGROUP", "owned_params", &owned_params, NULL)
+        && owned_params == assoc2dconstraintgroup->owned_params)
+      pass ();
+    else
+      fail ("ASSOC2DCONSTRAINTGROUP.owned_params [H*] * %u num_owned_params", count);
+  }
+  {
+    BITCODE_H* owned_value_param_names;
+    BITCODE_BL count = 0;
+    if (dwg_dynapi_entity_value (assoc2dconstraintgroup, "ASSOC2DCONSTRAINTGROUP", "num_owned_value_param_names", &count, NULL)
+        && dwg_dynapi_entity_value (assoc2dconstraintgroup, "ASSOC2DCONSTRAINTGROUP", "owned_value_param_names", &owned_value_param_names, NULL)
+        && owned_value_param_names == assoc2dconstraintgroup->owned_value_param_names)
+      pass ();
+    else
+      fail ("ASSOC2DCONSTRAINTGROUP.owned_value_param_names [H*] * %u num_owned_value_param_names", count);
+  }
+  {
+    BITCODE_H owningnetwork;
+    if (dwg_dynapi_entity_value (assoc2dconstraintgroup, "ASSOC2DCONSTRAINTGROUP", "owningnetwork", &owningnetwork, NULL)
+        && !memcmp (&owningnetwork, &assoc2dconstraintgroup->owningnetwork, sizeof (assoc2dconstraintgroup->owningnetwork)))
+        pass ();
+    else
+        fail ("ASSOC2DCONSTRAINTGROUP.owningnetwork [H]");
+  }
+  {
     struct _dwg_object_object* parent;
     if (dwg_dynapi_entity_value (assoc2dconstraintgroup, "ASSOC2DCONSTRAINTGROUP", "parent", &parent, NULL)
         && !memcmp (&parent, &assoc2dconstraintgroup->parent, sizeof (assoc2dconstraintgroup->parent)))
         pass ();
     else
         fail ("ASSOC2DCONSTRAINTGROUP.parent [struct _dwg_object_object*]");
-  }
-  {
-    BITCODE_H readdep;
-    if (dwg_dynapi_entity_value (assoc2dconstraintgroup, "ASSOC2DCONSTRAINTGROUP", "readdep", &readdep, NULL)
-        && !memcmp (&readdep, &assoc2dconstraintgroup->readdep, sizeof (assoc2dconstraintgroup->readdep)))
-        pass ();
-    else
-        fail ("ASSOC2DCONSTRAINTGROUP.readdep [H]");
-  }
-  {
-    BITCODE_BL solution_status;
-    if (dwg_dynapi_entity_value (assoc2dconstraintgroup, "ASSOC2DCONSTRAINTGROUP", "solution_status", &solution_status, NULL)
-        && solution_status == assoc2dconstraintgroup->solution_status)
-      pass ();
-    else
-      fail ("ASSOC2DCONSTRAINTGROUP.solution_status [BL] %u != %u", assoc2dconstraintgroup->solution_status, solution_status);
-    solution_status++;
-    if (dwg_dynapi_entity_set_value (assoc2dconstraintgroup, "ASSOC2DCONSTRAINTGROUP", "solution_status", &solution_status, 0)
-        && solution_status == assoc2dconstraintgroup->solution_status)
-      pass ();
-    else
-      fail ("ASSOC2DCONSTRAINTGROUP.solution_status [BL] set+1 %u != %u", assoc2dconstraintgroup->solution_status, solution_status);
-    assoc2dconstraintgroup->solution_status--;
   }
   {
     BITCODE_T t1;
@@ -23322,14 +24659,6 @@ static int test_ASSOC2DCONSTRAINTGROUP (const Dwg_Object *obj)
     else
         fail ("ASSOC2DCONSTRAINTGROUP.workplane[3] [3BD]");
   }
-  {
-    BITCODE_H writedep;
-    if (dwg_dynapi_entity_value (assoc2dconstraintgroup, "ASSOC2DCONSTRAINTGROUP", "writedep", &writedep, NULL)
-        && !memcmp (&writedep, &assoc2dconstraintgroup->writedep, sizeof (assoc2dconstraintgroup->writedep)))
-        pass ();
-    else
-        fail ("ASSOC2DCONSTRAINTGROUP.writedep [H]");
-  }
   if (failed && (is_class_unstable ("ASSOC2DCONSTRAINTGROUP") || is_class_debugging ("ASSOC2DCONSTRAINTGROUP")))
     {
       ok ("%s failed %d tests (TODO unstable)", "ASSOC2DCONSTRAINTGROUP", failed);
@@ -23344,6 +24673,21 @@ static int test_ASSOCACTION (const Dwg_Object *obj)
   Dwg_Object_ASSOCACTION *restrict assocaction = obj->tio.object->tio.ASSOCACTION;
   failed = 0;
   {
+    BITCODE_BL action_index;
+    if (dwg_dynapi_entity_value (assocaction, "ASSOCACTION", "action_index", &action_index, NULL)
+        && action_index == assocaction->action_index)
+      pass ();
+    else
+      fail ("ASSOCACTION.action_index [BL] %u != %u", assocaction->action_index, action_index);
+    action_index++;
+    if (dwg_dynapi_entity_set_value (assocaction, "ASSOCACTION", "action_index", &action_index, 0)
+        && action_index == assocaction->action_index)
+      pass ();
+    else
+      fail ("ASSOCACTION.action_index [BL] set+1 %u != %u", assocaction->action_index, action_index);
+    assocaction->action_index--;
+  }
+  {
     BITCODE_H actionbody;
     if (dwg_dynapi_entity_value (assocaction, "ASSOCACTION", "actionbody", &actionbody, NULL)
         && !memcmp (&actionbody, &assocaction->actionbody, sizeof (assocaction->actionbody)))
@@ -23352,50 +24696,29 @@ static int test_ASSOCACTION (const Dwg_Object *obj)
         fail ("ASSOCACTION.actionbody [H]");
   }
   {
-    Dwg_ACTIONBODY body;
-    if (dwg_dynapi_entity_value (assocaction, "ASSOCACTION", "body", &body, NULL)
-        && !memcmp (&body, &assocaction->body, sizeof (assocaction->body)))
-        pass ();
+    BITCODE_BS class_version;
+    if (dwg_dynapi_entity_value (assocaction, "ASSOCACTION", "class_version", &class_version, NULL)
+        && class_version == assocaction->class_version)
+      pass ();
     else
-        fail ("ASSOCACTION.body [Dwg_ACTIONBODY]");
+      fail ("ASSOCACTION.class_version [BS] %hu != %hu", assocaction->class_version, class_version);
+    class_version++;
+    if (dwg_dynapi_entity_set_value (assocaction, "ASSOCACTION", "class_version", &class_version, 0)
+        && class_version == assocaction->class_version)
+      pass ();
+    else
+      fail ("ASSOCACTION.class_version [BS] set+1 %hu != %hu", assocaction->class_version, class_version);
+    assocaction->class_version--;
   }
   {
-    BITCODE_H callback;
-    if (dwg_dynapi_entity_value (assocaction, "ASSOCACTION", "callback", &callback, NULL)
-        && !memcmp (&callback, &assocaction->callback, sizeof (assocaction->callback)))
-        pass ();
-    else
-        fail ("ASSOCACTION.callback [H]");
-  }
-  {
-    BITCODE_BL constraint_status;
-    if (dwg_dynapi_entity_value (assocaction, "ASSOCACTION", "constraint_status", &constraint_status, NULL)
-        && constraint_status == assocaction->constraint_status)
+    Dwg_ASSOCACTION_Deps* deps;
+    BITCODE_BL count = 0;
+    if (dwg_dynapi_entity_value (assocaction, "ASSOCACTION", "num_deps", &count, NULL)
+        && dwg_dynapi_entity_value (assocaction, "ASSOCACTION", "deps", &deps, NULL)
+        && deps == assocaction->deps)
       pass ();
     else
-      fail ("ASSOCACTION.constraint_status [BL] %u != %u", assocaction->constraint_status, constraint_status);
-    constraint_status++;
-    if (dwg_dynapi_entity_set_value (assocaction, "ASSOCACTION", "constraint_status", &constraint_status, 0)
-        && constraint_status == assocaction->constraint_status)
-      pass ();
-    else
-      fail ("ASSOCACTION.constraint_status [BL] set+1 %u != %u", assocaction->constraint_status, constraint_status);
-    assocaction->constraint_status--;
-  }
-  {
-    BITCODE_BL dof;
-    if (dwg_dynapi_entity_value (assocaction, "ASSOCACTION", "dof", &dof, NULL)
-        && dof == assocaction->dof)
-      pass ();
-    else
-      fail ("ASSOCACTION.dof [BL] %u != %u", assocaction->dof, dof);
-    dof++;
-    if (dwg_dynapi_entity_set_value (assocaction, "ASSOCACTION", "dof", &dof, 0)
-        && dof == assocaction->dof)
-      pass ();
-    else
-      fail ("ASSOCACTION.dof [BL] set+1 %u != %u", assocaction->dof, dof);
-    assocaction->dof--;
+      fail ("ASSOCACTION.deps [Dwg_ASSOCACTION_Deps*] * %u num_deps", count);
   }
   {
     BITCODE_BL geometry_status;
@@ -23413,19 +24736,19 @@ static int test_ASSOCACTION (const Dwg_Object *obj)
     assocaction->geometry_status--;
   }
   {
-    BITCODE_B is_body_a_proxy;
-    if (dwg_dynapi_entity_value (assocaction, "ASSOCACTION", "is_body_a_proxy", &is_body_a_proxy, NULL)
-        && is_body_a_proxy == assocaction->is_body_a_proxy)
+    BITCODE_BL max_assoc_dep_index;
+    if (dwg_dynapi_entity_value (assocaction, "ASSOCACTION", "max_assoc_dep_index", &max_assoc_dep_index, NULL)
+        && max_assoc_dep_index == assocaction->max_assoc_dep_index)
       pass ();
     else
-      fail ("ASSOCACTION.is_body_a_proxy [B] " FORMAT_B " != " FORMAT_B "", assocaction->is_body_a_proxy, is_body_a_proxy);
-    is_body_a_proxy++;
-    if (dwg_dynapi_entity_set_value (assocaction, "ASSOCACTION", "is_body_a_proxy", &is_body_a_proxy, 0)
-        && is_body_a_proxy == assocaction->is_body_a_proxy)
+      fail ("ASSOCACTION.max_assoc_dep_index [BL] %u != %u", assocaction->max_assoc_dep_index, max_assoc_dep_index);
+    max_assoc_dep_index++;
+    if (dwg_dynapi_entity_set_value (assocaction, "ASSOCACTION", "max_assoc_dep_index", &max_assoc_dep_index, 0)
+        && max_assoc_dep_index == assocaction->max_assoc_dep_index)
       pass ();
     else
-      fail ("ASSOCACTION.is_body_a_proxy [B] set+1 " FORMAT_B " != " FORMAT_B "", assocaction->is_body_a_proxy, is_body_a_proxy);
-    assocaction->is_body_a_proxy--;
+      fail ("ASSOCACTION.max_assoc_dep_index [BL] set+1 %u != %u", assocaction->max_assoc_dep_index, max_assoc_dep_index);
+    assocaction->max_assoc_dep_index--;
   }
   {
     BITCODE_BL num_deps;
@@ -23443,6 +24766,56 @@ static int test_ASSOCACTION (const Dwg_Object *obj)
     assocaction->num_deps--;
   }
   {
+    BITCODE_BL num_owned_params;
+    if (dwg_dynapi_entity_value (assocaction, "ASSOCACTION", "num_owned_params", &num_owned_params, NULL)
+        && num_owned_params == assocaction->num_owned_params)
+      pass ();
+    else
+      fail ("ASSOCACTION.num_owned_params [BL] %u != %u", assocaction->num_owned_params, num_owned_params);
+    num_owned_params++;
+    if (dwg_dynapi_entity_set_value (assocaction, "ASSOCACTION", "num_owned_params", &num_owned_params, 0)
+        && num_owned_params == assocaction->num_owned_params)
+      pass ();
+    else
+      fail ("ASSOCACTION.num_owned_params [BL] set+1 %u != %u", assocaction->num_owned_params, num_owned_params);
+    assocaction->num_owned_params--;
+  }
+  {
+    BITCODE_BL num_owned_value_param_names;
+    if (dwg_dynapi_entity_value (assocaction, "ASSOCACTION", "num_owned_value_param_names", &num_owned_value_param_names, NULL)
+        && num_owned_value_param_names == assocaction->num_owned_value_param_names)
+      pass ();
+    else
+      fail ("ASSOCACTION.num_owned_value_param_names [BL] %u != %u", assocaction->num_owned_value_param_names, num_owned_value_param_names);
+    num_owned_value_param_names++;
+    if (dwg_dynapi_entity_set_value (assocaction, "ASSOCACTION", "num_owned_value_param_names", &num_owned_value_param_names, 0)
+        && num_owned_value_param_names == assocaction->num_owned_value_param_names)
+      pass ();
+    else
+      fail ("ASSOCACTION.num_owned_value_param_names [BL] set+1 %u != %u", assocaction->num_owned_value_param_names, num_owned_value_param_names);
+    assocaction->num_owned_value_param_names--;
+  }
+  {
+    BITCODE_H* owned_params;
+    BITCODE_BL count = 0;
+    if (dwg_dynapi_entity_value (assocaction, "ASSOCACTION", "num_owned_params", &count, NULL)
+        && dwg_dynapi_entity_value (assocaction, "ASSOCACTION", "owned_params", &owned_params, NULL)
+        && owned_params == assocaction->owned_params)
+      pass ();
+    else
+      fail ("ASSOCACTION.owned_params [H*] * %u num_owned_params", count);
+  }
+  {
+    BITCODE_H* owned_value_param_names;
+    BITCODE_BL count = 0;
+    if (dwg_dynapi_entity_value (assocaction, "ASSOCACTION", "num_owned_value_param_names", &count, NULL)
+        && dwg_dynapi_entity_value (assocaction, "ASSOCACTION", "owned_value_param_names", &owned_value_param_names, NULL)
+        && owned_value_param_names == assocaction->owned_value_param_names)
+      pass ();
+    else
+      fail ("ASSOCACTION.owned_value_param_names [H*] * %u num_owned_value_param_names", count);
+  }
+  {
     BITCODE_H owningnetwork;
     if (dwg_dynapi_entity_value (assocaction, "ASSOCACTION", "owningnetwork", &owningnetwork, NULL)
         && !memcmp (&owningnetwork, &assocaction->owningnetwork, sizeof (assocaction->owningnetwork)))
@@ -23458,52 +24831,6 @@ static int test_ASSOCACTION (const Dwg_Object *obj)
     else
         fail ("ASSOCACTION.parent [struct _dwg_object_object*]");
   }
-  {
-    BITCODE_H readdep;
-    if (dwg_dynapi_entity_value (assocaction, "ASSOCACTION", "readdep", &readdep, NULL)
-        && !memcmp (&readdep, &assocaction->readdep, sizeof (assocaction->readdep)))
-        pass ();
-    else
-        fail ("ASSOCACTION.readdep [H]");
-  }
-  {
-    BITCODE_BL solution_status;
-    if (dwg_dynapi_entity_value (assocaction, "ASSOCACTION", "solution_status", &solution_status, NULL)
-        && solution_status == assocaction->solution_status)
-      pass ();
-    else
-      fail ("ASSOCACTION.solution_status [BL] %u != %u", assocaction->solution_status, solution_status);
-    solution_status++;
-    if (dwg_dynapi_entity_set_value (assocaction, "ASSOCACTION", "solution_status", &solution_status, 0)
-        && solution_status == assocaction->solution_status)
-      pass ();
-    else
-      fail ("ASSOCACTION.solution_status [BL] set+1 %u != %u", assocaction->solution_status, solution_status);
-    assocaction->solution_status--;
-  }
-  {
-    BITCODE_BL status;
-    if (dwg_dynapi_entity_value (assocaction, "ASSOCACTION", "status", &status, NULL)
-        && status == assocaction->status)
-      pass ();
-    else
-      fail ("ASSOCACTION.status [BL] %u != %u", assocaction->status, status);
-    status++;
-    if (dwg_dynapi_entity_set_value (assocaction, "ASSOCACTION", "status", &status, 0)
-        && status == assocaction->status)
-      pass ();
-    else
-      fail ("ASSOCACTION.status [BL] set+1 %u != %u", assocaction->status, status);
-    assocaction->status--;
-  }
-  {
-    BITCODE_H writedep;
-    if (dwg_dynapi_entity_value (assocaction, "ASSOCACTION", "writedep", &writedep, NULL)
-        && !memcmp (&writedep, &assocaction->writedep, sizeof (assocaction->writedep)))
-        pass ();
-    else
-        fail ("ASSOCACTION.writedep [H]");
-  }
   if (failed && (is_class_unstable ("ASSOCACTION") || is_class_debugging ("ASSOCACTION")))
     {
       ok ("%s failed %d tests (TODO unstable)", "ASSOCACTION", failed);
@@ -23518,19 +24845,19 @@ static int test_ASSOCALIGNEDDIMACTIONBODY (const Dwg_Object *obj)
   Dwg_Object_ASSOCALIGNEDDIMACTIONBODY *restrict assocaligneddimactionbody = obj->tio.object->tio.ASSOCALIGNEDDIMACTIONBODY;
   failed = 0;
   {
-    BITCODE_BL aab_status;
-    if (dwg_dynapi_entity_value (assocaligneddimactionbody, "ASSOCALIGNEDDIMACTIONBODY", "aab_status", &aab_status, NULL)
-        && aab_status == assocaligneddimactionbody->aab_status)
+    BITCODE_BL aab_version;
+    if (dwg_dynapi_entity_value (assocaligneddimactionbody, "ASSOCALIGNEDDIMACTIONBODY", "aab_version", &aab_version, NULL)
+        && aab_version == assocaligneddimactionbody->aab_version)
       pass ();
     else
-      fail ("ASSOCALIGNEDDIMACTIONBODY.aab_status [BL] %u != %u", assocaligneddimactionbody->aab_status, aab_status);
-    aab_status++;
-    if (dwg_dynapi_entity_set_value (assocaligneddimactionbody, "ASSOCALIGNEDDIMACTIONBODY", "aab_status", &aab_status, 0)
-        && aab_status == assocaligneddimactionbody->aab_status)
+      fail ("ASSOCALIGNEDDIMACTIONBODY.aab_version [BL] %u != %u", assocaligneddimactionbody->aab_version, aab_version);
+    aab_version++;
+    if (dwg_dynapi_entity_set_value (assocaligneddimactionbody, "ASSOCALIGNEDDIMACTIONBODY", "aab_version", &aab_version, 0)
+        && aab_version == assocaligneddimactionbody->aab_version)
       pass ();
     else
-      fail ("ASSOCALIGNEDDIMACTIONBODY.aab_status [BL] set+1 %u != %u", assocaligneddimactionbody->aab_status, aab_status);
-    assocaligneddimactionbody->aab_status--;
+      fail ("ASSOCALIGNEDDIMACTIONBODY.aab_version [BL] set+1 %u != %u", assocaligneddimactionbody->aab_version, aab_version);
+    assocaligneddimactionbody->aab_version--;
   }
   {
     BITCODE_H d_node;
@@ -23879,19 +25206,19 @@ static int test_ASSOCEXTRUDEDSURFACEACTIONBODY (const Dwg_Object *obj)
   Dwg_Object_ASSOCEXTRUDEDSURFACEACTIONBODY *restrict assocextrudedsurfaceactionbody = obj->tio.object->tio.ASSOCEXTRUDEDSURFACEACTIONBODY;
   failed = 0;
   {
-    BITCODE_BL aab_status;
-    if (dwg_dynapi_entity_value (assocextrudedsurfaceactionbody, "ASSOCEXTRUDEDSURFACEACTIONBODY", "aab_status", &aab_status, NULL)
-        && aab_status == assocextrudedsurfaceactionbody->aab_status)
+    BITCODE_BL aab_version;
+    if (dwg_dynapi_entity_value (assocextrudedsurfaceactionbody, "ASSOCEXTRUDEDSURFACEACTIONBODY", "aab_version", &aab_version, NULL)
+        && aab_version == assocextrudedsurfaceactionbody->aab_version)
       pass ();
     else
-      fail ("ASSOCEXTRUDEDSURFACEACTIONBODY.aab_status [BL] %u != %u", assocextrudedsurfaceactionbody->aab_status, aab_status);
-    aab_status++;
-    if (dwg_dynapi_entity_set_value (assocextrudedsurfaceactionbody, "ASSOCEXTRUDEDSURFACEACTIONBODY", "aab_status", &aab_status, 0)
-        && aab_status == assocextrudedsurfaceactionbody->aab_status)
+      fail ("ASSOCEXTRUDEDSURFACEACTIONBODY.aab_version [BL] %u != %u", assocextrudedsurfaceactionbody->aab_version, aab_version);
+    aab_version++;
+    if (dwg_dynapi_entity_set_value (assocextrudedsurfaceactionbody, "ASSOCEXTRUDEDSURFACEACTIONBODY", "aab_version", &aab_version, 0)
+        && aab_version == assocextrudedsurfaceactionbody->aab_version)
       pass ();
     else
-      fail ("ASSOCEXTRUDEDSURFACEACTIONBODY.aab_status [BL] set+1 %u != %u", assocextrudedsurfaceactionbody->aab_status, aab_status);
-    assocextrudedsurfaceactionbody->aab_status--;
+      fail ("ASSOCEXTRUDEDSURFACEACTIONBODY.aab_version [BL] set+1 %u != %u", assocextrudedsurfaceactionbody->aab_version, aab_version);
+    assocextrudedsurfaceactionbody->aab_version--;
   }
   {
     BITCODE_TV* descriptions;
@@ -24368,19 +25695,19 @@ static int test_ASSOCLOFTEDSURFACEACTIONBODY (const Dwg_Object *obj)
   Dwg_Object_ASSOCLOFTEDSURFACEACTIONBODY *restrict assocloftedsurfaceactionbody = obj->tio.object->tio.ASSOCLOFTEDSURFACEACTIONBODY;
   failed = 0;
   {
-    BITCODE_BL aab_status;
-    if (dwg_dynapi_entity_value (assocloftedsurfaceactionbody, "ASSOCLOFTEDSURFACEACTIONBODY", "aab_status", &aab_status, NULL)
-        && aab_status == assocloftedsurfaceactionbody->aab_status)
+    BITCODE_BL aab_version;
+    if (dwg_dynapi_entity_value (assocloftedsurfaceactionbody, "ASSOCLOFTEDSURFACEACTIONBODY", "aab_version", &aab_version, NULL)
+        && aab_version == assocloftedsurfaceactionbody->aab_version)
       pass ();
     else
-      fail ("ASSOCLOFTEDSURFACEACTIONBODY.aab_status [BL] %u != %u", assocloftedsurfaceactionbody->aab_status, aab_status);
-    aab_status++;
-    if (dwg_dynapi_entity_set_value (assocloftedsurfaceactionbody, "ASSOCLOFTEDSURFACEACTIONBODY", "aab_status", &aab_status, 0)
-        && aab_status == assocloftedsurfaceactionbody->aab_status)
+      fail ("ASSOCLOFTEDSURFACEACTIONBODY.aab_version [BL] %u != %u", assocloftedsurfaceactionbody->aab_version, aab_version);
+    aab_version++;
+    if (dwg_dynapi_entity_set_value (assocloftedsurfaceactionbody, "ASSOCLOFTEDSURFACEACTIONBODY", "aab_version", &aab_version, 0)
+        && aab_version == assocloftedsurfaceactionbody->aab_version)
       pass ();
     else
-      fail ("ASSOCLOFTEDSURFACEACTIONBODY.aab_status [BL] set+1 %u != %u", assocloftedsurfaceactionbody->aab_status, aab_status);
-    assocloftedsurfaceactionbody->aab_status--;
+      fail ("ASSOCLOFTEDSURFACEACTIONBODY.aab_version [BL] set+1 %u != %u", assocloftedsurfaceactionbody->aab_version, aab_version);
+    assocloftedsurfaceactionbody->aab_version--;
   }
   {
     BITCODE_TV* descriptions;
@@ -24614,6 +25941,29 @@ static int test_ASSOCNETWORK (const Dwg_Object *obj)
   Dwg_Object_ASSOCNETWORK *restrict assocnetwork = obj->tio.object->tio.ASSOCNETWORK;
   failed = 0;
   {
+    BITCODE_BL action_index;
+    if (dwg_dynapi_entity_value (assocnetwork, "ASSOCNETWORK", "action_index", &action_index, NULL)
+        && action_index == assocnetwork->action_index)
+      pass ();
+    else
+      fail ("ASSOCNETWORK.action_index [BL] %u != %u", assocnetwork->action_index, action_index);
+    action_index++;
+    if (dwg_dynapi_entity_set_value (assocnetwork, "ASSOCNETWORK", "action_index", &action_index, 0)
+        && action_index == assocnetwork->action_index)
+      pass ();
+    else
+      fail ("ASSOCNETWORK.action_index [BL] set+1 %u != %u", assocnetwork->action_index, action_index);
+    assocnetwork->action_index--;
+  }
+  {
+    BITCODE_H actionbody;
+    if (dwg_dynapi_entity_value (assocnetwork, "ASSOCNETWORK", "actionbody", &actionbody, NULL)
+        && !memcmp (&actionbody, &assocnetwork->actionbody, sizeof (assocnetwork->actionbody)))
+        pass ();
+    else
+        fail ("ASSOCNETWORK.actionbody [H]");
+  }
+  {
     BITCODE_H* actions;
     BITCODE_BL count = 0;
     if (dwg_dynapi_entity_value (assocnetwork, "ASSOCNETWORK", "num_actions", &count, NULL)
@@ -24624,34 +25974,29 @@ static int test_ASSOCNETWORK (const Dwg_Object *obj)
       fail ("ASSOCNETWORK.actions [H*] * %u num_actions", count);
   }
   {
-    BITCODE_BL constraint_status;
-    if (dwg_dynapi_entity_value (assocnetwork, "ASSOCNETWORK", "constraint_status", &constraint_status, NULL)
-        && constraint_status == assocnetwork->constraint_status)
+    BITCODE_BS class_version;
+    if (dwg_dynapi_entity_value (assocnetwork, "ASSOCNETWORK", "class_version", &class_version, NULL)
+        && class_version == assocnetwork->class_version)
       pass ();
     else
-      fail ("ASSOCNETWORK.constraint_status [BL] %u != %u", assocnetwork->constraint_status, constraint_status);
-    constraint_status++;
-    if (dwg_dynapi_entity_set_value (assocnetwork, "ASSOCNETWORK", "constraint_status", &constraint_status, 0)
-        && constraint_status == assocnetwork->constraint_status)
+      fail ("ASSOCNETWORK.class_version [BS] %hu != %hu", assocnetwork->class_version, class_version);
+    class_version++;
+    if (dwg_dynapi_entity_set_value (assocnetwork, "ASSOCNETWORK", "class_version", &class_version, 0)
+        && class_version == assocnetwork->class_version)
       pass ();
     else
-      fail ("ASSOCNETWORK.constraint_status [BL] set+1 %u != %u", assocnetwork->constraint_status, constraint_status);
-    assocnetwork->constraint_status--;
+      fail ("ASSOCNETWORK.class_version [BS] set+1 %hu != %hu", assocnetwork->class_version, class_version);
+    assocnetwork->class_version--;
   }
   {
-    BITCODE_BL dof;
-    if (dwg_dynapi_entity_value (assocnetwork, "ASSOCNETWORK", "dof", &dof, NULL)
-        && dof == assocnetwork->dof)
+    Dwg_ASSOCACTION_Deps* deps;
+    BITCODE_BL count = 0;
+    if (dwg_dynapi_entity_value (assocnetwork, "ASSOCNETWORK", "num_deps", &count, NULL)
+        && dwg_dynapi_entity_value (assocnetwork, "ASSOCNETWORK", "deps", &deps, NULL)
+        && deps == assocnetwork->deps)
       pass ();
     else
-      fail ("ASSOCNETWORK.dof [BL] %u != %u", assocnetwork->dof, dof);
-    dof++;
-    if (dwg_dynapi_entity_set_value (assocnetwork, "ASSOCNETWORK", "dof", &dof, 0)
-        && dof == assocnetwork->dof)
-      pass ();
-    else
-      fail ("ASSOCNETWORK.dof [BL] set+1 %u != %u", assocnetwork->dof, dof);
-    assocnetwork->dof--;
+      fail ("ASSOCNETWORK.deps [Dwg_ASSOCACTION_Deps*] * %u num_deps", count);
   }
   {
     BITCODE_BL geometry_status;
@@ -24669,19 +26014,19 @@ static int test_ASSOCNETWORK (const Dwg_Object *obj)
     assocnetwork->geometry_status--;
   }
   {
-    BITCODE_B is_body_a_proxy;
-    if (dwg_dynapi_entity_value (assocnetwork, "ASSOCNETWORK", "is_body_a_proxy", &is_body_a_proxy, NULL)
-        && is_body_a_proxy == assocnetwork->is_body_a_proxy)
+    BITCODE_BL max_assoc_dep_index;
+    if (dwg_dynapi_entity_value (assocnetwork, "ASSOCNETWORK", "max_assoc_dep_index", &max_assoc_dep_index, NULL)
+        && max_assoc_dep_index == assocnetwork->max_assoc_dep_index)
       pass ();
     else
-      fail ("ASSOCNETWORK.is_body_a_proxy [B] " FORMAT_B " != " FORMAT_B "", assocnetwork->is_body_a_proxy, is_body_a_proxy);
-    is_body_a_proxy++;
-    if (dwg_dynapi_entity_set_value (assocnetwork, "ASSOCNETWORK", "is_body_a_proxy", &is_body_a_proxy, 0)
-        && is_body_a_proxy == assocnetwork->is_body_a_proxy)
+      fail ("ASSOCNETWORK.max_assoc_dep_index [BL] %u != %u", assocnetwork->max_assoc_dep_index, max_assoc_dep_index);
+    max_assoc_dep_index++;
+    if (dwg_dynapi_entity_set_value (assocnetwork, "ASSOCNETWORK", "max_assoc_dep_index", &max_assoc_dep_index, 0)
+        && max_assoc_dep_index == assocnetwork->max_assoc_dep_index)
       pass ();
     else
-      fail ("ASSOCNETWORK.is_body_a_proxy [B] set+1 " FORMAT_B " != " FORMAT_B "", assocnetwork->is_body_a_proxy, is_body_a_proxy);
-    assocnetwork->is_body_a_proxy--;
+      fail ("ASSOCNETWORK.max_assoc_dep_index [BL] set+1 %u != %u", assocnetwork->max_assoc_dep_index, max_assoc_dep_index);
+    assocnetwork->max_assoc_dep_index--;
   }
   {
     BITCODE_BL num_actions;
@@ -24699,35 +26044,85 @@ static int test_ASSOCNETWORK (const Dwg_Object *obj)
     assocnetwork->num_actions--;
   }
   {
+    BITCODE_BL num_deps;
+    if (dwg_dynapi_entity_value (assocnetwork, "ASSOCNETWORK", "num_deps", &num_deps, NULL)
+        && num_deps == assocnetwork->num_deps)
+      pass ();
+    else
+      fail ("ASSOCNETWORK.num_deps [BL] %u != %u", assocnetwork->num_deps, num_deps);
+    num_deps++;
+    if (dwg_dynapi_entity_set_value (assocnetwork, "ASSOCNETWORK", "num_deps", &num_deps, 0)
+        && num_deps == assocnetwork->num_deps)
+      pass ();
+    else
+      fail ("ASSOCNETWORK.num_deps [BL] set+1 %u != %u", assocnetwork->num_deps, num_deps);
+    assocnetwork->num_deps--;
+  }
+  {
+    BITCODE_BL num_owned_params;
+    if (dwg_dynapi_entity_value (assocnetwork, "ASSOCNETWORK", "num_owned_params", &num_owned_params, NULL)
+        && num_owned_params == assocnetwork->num_owned_params)
+      pass ();
+    else
+      fail ("ASSOCNETWORK.num_owned_params [BL] %u != %u", assocnetwork->num_owned_params, num_owned_params);
+    num_owned_params++;
+    if (dwg_dynapi_entity_set_value (assocnetwork, "ASSOCNETWORK", "num_owned_params", &num_owned_params, 0)
+        && num_owned_params == assocnetwork->num_owned_params)
+      pass ();
+    else
+      fail ("ASSOCNETWORK.num_owned_params [BL] set+1 %u != %u", assocnetwork->num_owned_params, num_owned_params);
+    assocnetwork->num_owned_params--;
+  }
+  {
+    BITCODE_BL num_owned_value_param_names;
+    if (dwg_dynapi_entity_value (assocnetwork, "ASSOCNETWORK", "num_owned_value_param_names", &num_owned_value_param_names, NULL)
+        && num_owned_value_param_names == assocnetwork->num_owned_value_param_names)
+      pass ();
+    else
+      fail ("ASSOCNETWORK.num_owned_value_param_names [BL] %u != %u", assocnetwork->num_owned_value_param_names, num_owned_value_param_names);
+    num_owned_value_param_names++;
+    if (dwg_dynapi_entity_set_value (assocnetwork, "ASSOCNETWORK", "num_owned_value_param_names", &num_owned_value_param_names, 0)
+        && num_owned_value_param_names == assocnetwork->num_owned_value_param_names)
+      pass ();
+    else
+      fail ("ASSOCNETWORK.num_owned_value_param_names [BL] set+1 %u != %u", assocnetwork->num_owned_value_param_names, num_owned_value_param_names);
+    assocnetwork->num_owned_value_param_names--;
+  }
+  {
+    BITCODE_H* owned_params;
+    BITCODE_BL count = 0;
+    if (dwg_dynapi_entity_value (assocnetwork, "ASSOCNETWORK", "num_owned_params", &count, NULL)
+        && dwg_dynapi_entity_value (assocnetwork, "ASSOCNETWORK", "owned_params", &owned_params, NULL)
+        && owned_params == assocnetwork->owned_params)
+      pass ();
+    else
+      fail ("ASSOCNETWORK.owned_params [H*] * %u num_owned_params", count);
+  }
+  {
+    BITCODE_H* owned_value_param_names;
+    BITCODE_BL count = 0;
+    if (dwg_dynapi_entity_value (assocnetwork, "ASSOCNETWORK", "num_owned_value_param_names", &count, NULL)
+        && dwg_dynapi_entity_value (assocnetwork, "ASSOCNETWORK", "owned_value_param_names", &owned_value_param_names, NULL)
+        && owned_value_param_names == assocnetwork->owned_value_param_names)
+      pass ();
+    else
+      fail ("ASSOCNETWORK.owned_value_param_names [H*] * %u num_owned_value_param_names", count);
+  }
+  {
+    BITCODE_H owningnetwork;
+    if (dwg_dynapi_entity_value (assocnetwork, "ASSOCNETWORK", "owningnetwork", &owningnetwork, NULL)
+        && !memcmp (&owningnetwork, &assocnetwork->owningnetwork, sizeof (assocnetwork->owningnetwork)))
+        pass ();
+    else
+        fail ("ASSOCNETWORK.owningnetwork [H]");
+  }
+  {
     struct _dwg_object_object* parent;
     if (dwg_dynapi_entity_value (assocnetwork, "ASSOCNETWORK", "parent", &parent, NULL)
         && !memcmp (&parent, &assocnetwork->parent, sizeof (assocnetwork->parent)))
         pass ();
     else
         fail ("ASSOCNETWORK.parent [struct _dwg_object_object*]");
-  }
-  {
-    BITCODE_H readdep;
-    if (dwg_dynapi_entity_value (assocnetwork, "ASSOCNETWORK", "readdep", &readdep, NULL)
-        && !memcmp (&readdep, &assocnetwork->readdep, sizeof (assocnetwork->readdep)))
-        pass ();
-    else
-        fail ("ASSOCNETWORK.readdep [H]");
-  }
-  {
-    BITCODE_BL solution_status;
-    if (dwg_dynapi_entity_value (assocnetwork, "ASSOCNETWORK", "solution_status", &solution_status, NULL)
-        && solution_status == assocnetwork->solution_status)
-      pass ();
-    else
-      fail ("ASSOCNETWORK.solution_status [BL] %u != %u", assocnetwork->solution_status, solution_status);
-    solution_status++;
-    if (dwg_dynapi_entity_set_value (assocnetwork, "ASSOCNETWORK", "solution_status", &solution_status, 0)
-        && solution_status == assocnetwork->solution_status)
-      pass ();
-    else
-      fail ("ASSOCNETWORK.solution_status [BL] set+1 %u != %u", assocnetwork->solution_status, solution_status);
-    assocnetwork->solution_status--;
   }
   {
     BITCODE_BL unknown_assoc;
@@ -24773,14 +26168,6 @@ static int test_ASSOCNETWORK (const Dwg_Object *obj)
     else
       fail ("ASSOCNETWORK.unknown_n2 [BL] set+1 %u != %u", assocnetwork->unknown_n2, unknown_n2);
     assocnetwork->unknown_n2--;
-  }
-  {
-    BITCODE_H writedep;
-    if (dwg_dynapi_entity_value (assocnetwork, "ASSOCNETWORK", "writedep", &writedep, NULL)
-        && !memcmp (&writedep, &assocnetwork->writedep, sizeof (assocnetwork->writedep)))
-        pass ();
-    else
-        fail ("ASSOCNETWORK.writedep [H]");
   }
   if (failed && (is_class_unstable ("ASSOCNETWORK") || is_class_debugging ("ASSOCNETWORK")))
     {
@@ -25556,19 +26943,19 @@ static int test_ASSOCPLANESURFACEACTIONBODY (const Dwg_Object *obj)
   Dwg_Object_ASSOCPLANESURFACEACTIONBODY *restrict assocplanesurfaceactionbody = obj->tio.object->tio.ASSOCPLANESURFACEACTIONBODY;
   failed = 0;
   {
-    BITCODE_BL aab_status;
-    if (dwg_dynapi_entity_value (assocplanesurfaceactionbody, "ASSOCPLANESURFACEACTIONBODY", "aab_status", &aab_status, NULL)
-        && aab_status == assocplanesurfaceactionbody->aab_status)
+    BITCODE_BL aab_version;
+    if (dwg_dynapi_entity_value (assocplanesurfaceactionbody, "ASSOCPLANESURFACEACTIONBODY", "aab_version", &aab_version, NULL)
+        && aab_version == assocplanesurfaceactionbody->aab_version)
       pass ();
     else
-      fail ("ASSOCPLANESURFACEACTIONBODY.aab_status [BL] %u != %u", assocplanesurfaceactionbody->aab_status, aab_status);
-    aab_status++;
-    if (dwg_dynapi_entity_set_value (assocplanesurfaceactionbody, "ASSOCPLANESURFACEACTIONBODY", "aab_status", &aab_status, 0)
-        && aab_status == assocplanesurfaceactionbody->aab_status)
+      fail ("ASSOCPLANESURFACEACTIONBODY.aab_version [BL] %u != %u", assocplanesurfaceactionbody->aab_version, aab_version);
+    aab_version++;
+    if (dwg_dynapi_entity_set_value (assocplanesurfaceactionbody, "ASSOCPLANESURFACEACTIONBODY", "aab_version", &aab_version, 0)
+        && aab_version == assocplanesurfaceactionbody->aab_version)
       pass ();
     else
-      fail ("ASSOCPLANESURFACEACTIONBODY.aab_status [BL] set+1 %u != %u", assocplanesurfaceactionbody->aab_status, aab_status);
-    assocplanesurfaceactionbody->aab_status--;
+      fail ("ASSOCPLANESURFACEACTIONBODY.aab_version [BL] set+1 %u != %u", assocplanesurfaceactionbody->aab_version, aab_version);
+    assocplanesurfaceactionbody->aab_version--;
   }
   {
     BITCODE_TV* descriptions;
@@ -25802,19 +27189,19 @@ static int test_ASSOCREVOLVEDSURFACEACTIONBODY (const Dwg_Object *obj)
   Dwg_Object_ASSOCREVOLVEDSURFACEACTIONBODY *restrict assocrevolvedsurfaceactionbody = obj->tio.object->tio.ASSOCREVOLVEDSURFACEACTIONBODY;
   failed = 0;
   {
-    BITCODE_BL aab_status;
-    if (dwg_dynapi_entity_value (assocrevolvedsurfaceactionbody, "ASSOCREVOLVEDSURFACEACTIONBODY", "aab_status", &aab_status, NULL)
-        && aab_status == assocrevolvedsurfaceactionbody->aab_status)
+    BITCODE_BL aab_version;
+    if (dwg_dynapi_entity_value (assocrevolvedsurfaceactionbody, "ASSOCREVOLVEDSURFACEACTIONBODY", "aab_version", &aab_version, NULL)
+        && aab_version == assocrevolvedsurfaceactionbody->aab_version)
       pass ();
     else
-      fail ("ASSOCREVOLVEDSURFACEACTIONBODY.aab_status [BL] %u != %u", assocrevolvedsurfaceactionbody->aab_status, aab_status);
-    aab_status++;
-    if (dwg_dynapi_entity_set_value (assocrevolvedsurfaceactionbody, "ASSOCREVOLVEDSURFACEACTIONBODY", "aab_status", &aab_status, 0)
-        && aab_status == assocrevolvedsurfaceactionbody->aab_status)
+      fail ("ASSOCREVOLVEDSURFACEACTIONBODY.aab_version [BL] %u != %u", assocrevolvedsurfaceactionbody->aab_version, aab_version);
+    aab_version++;
+    if (dwg_dynapi_entity_set_value (assocrevolvedsurfaceactionbody, "ASSOCREVOLVEDSURFACEACTIONBODY", "aab_version", &aab_version, 0)
+        && aab_version == assocrevolvedsurfaceactionbody->aab_version)
       pass ();
     else
-      fail ("ASSOCREVOLVEDSURFACEACTIONBODY.aab_status [BL] set+1 %u != %u", assocrevolvedsurfaceactionbody->aab_status, aab_status);
-    assocrevolvedsurfaceactionbody->aab_status--;
+      fail ("ASSOCREVOLVEDSURFACEACTIONBODY.aab_version [BL] set+1 %u != %u", assocrevolvedsurfaceactionbody->aab_version, aab_version);
+    assocrevolvedsurfaceactionbody->aab_version--;
   }
   {
     BITCODE_TV* descriptions;
@@ -26048,19 +27435,19 @@ static int test_ASSOCSWEPTSURFACEACTIONBODY (const Dwg_Object *obj)
   Dwg_Object_ASSOCSWEPTSURFACEACTIONBODY *restrict assocsweptsurfaceactionbody = obj->tio.object->tio.ASSOCSWEPTSURFACEACTIONBODY;
   failed = 0;
   {
-    BITCODE_BL aab_status;
-    if (dwg_dynapi_entity_value (assocsweptsurfaceactionbody, "ASSOCSWEPTSURFACEACTIONBODY", "aab_status", &aab_status, NULL)
-        && aab_status == assocsweptsurfaceactionbody->aab_status)
+    BITCODE_BL aab_version;
+    if (dwg_dynapi_entity_value (assocsweptsurfaceactionbody, "ASSOCSWEPTSURFACEACTIONBODY", "aab_version", &aab_version, NULL)
+        && aab_version == assocsweptsurfaceactionbody->aab_version)
       pass ();
     else
-      fail ("ASSOCSWEPTSURFACEACTIONBODY.aab_status [BL] %u != %u", assocsweptsurfaceactionbody->aab_status, aab_status);
-    aab_status++;
-    if (dwg_dynapi_entity_set_value (assocsweptsurfaceactionbody, "ASSOCSWEPTSURFACEACTIONBODY", "aab_status", &aab_status, 0)
-        && aab_status == assocsweptsurfaceactionbody->aab_status)
+      fail ("ASSOCSWEPTSURFACEACTIONBODY.aab_version [BL] %u != %u", assocsweptsurfaceactionbody->aab_version, aab_version);
+    aab_version++;
+    if (dwg_dynapi_entity_set_value (assocsweptsurfaceactionbody, "ASSOCSWEPTSURFACEACTIONBODY", "aab_version", &aab_version, 0)
+        && aab_version == assocsweptsurfaceactionbody->aab_version)
       pass ();
     else
-      fail ("ASSOCSWEPTSURFACEACTIONBODY.aab_status [BL] set+1 %u != %u", assocsweptsurfaceactionbody->aab_status, aab_status);
-    assocsweptsurfaceactionbody->aab_status--;
+      fail ("ASSOCSWEPTSURFACEACTIONBODY.aab_version [BL] set+1 %u != %u", assocsweptsurfaceactionbody->aab_version, aab_version);
+    assocsweptsurfaceactionbody->aab_version--;
   }
   {
     BITCODE_TV* descriptions;
@@ -26463,34 +27850,34 @@ static int test_BLKREFOBJECTCONTEXTDATA (const Dwg_Object *obj)
     blkrefobjectcontextdata->class_version--;
   }
   {
-    BITCODE_B defaultflag;
-    if (dwg_dynapi_entity_value (blkrefobjectcontextdata, "BLKREFOBJECTCONTEXTDATA", "defaultflag", &defaultflag, NULL)
-        && defaultflag == blkrefobjectcontextdata->defaultflag)
+    BITCODE_B in_dwg;
+    if (dwg_dynapi_entity_value (blkrefobjectcontextdata, "BLKREFOBJECTCONTEXTDATA", "in_dwg", &in_dwg, NULL)
+        && in_dwg == blkrefobjectcontextdata->in_dwg)
       pass ();
     else
-      fail ("BLKREFOBJECTCONTEXTDATA.defaultflag [B] " FORMAT_B " != " FORMAT_B "", blkrefobjectcontextdata->defaultflag, defaultflag);
-    defaultflag++;
-    if (dwg_dynapi_entity_set_value (blkrefobjectcontextdata, "BLKREFOBJECTCONTEXTDATA", "defaultflag", &defaultflag, 0)
-        && defaultflag == blkrefobjectcontextdata->defaultflag)
+      fail ("BLKREFOBJECTCONTEXTDATA.in_dwg [B] " FORMAT_B " != " FORMAT_B "", blkrefobjectcontextdata->in_dwg, in_dwg);
+    in_dwg++;
+    if (dwg_dynapi_entity_set_value (blkrefobjectcontextdata, "BLKREFOBJECTCONTEXTDATA", "in_dwg", &in_dwg, 0)
+        && in_dwg == blkrefobjectcontextdata->in_dwg)
       pass ();
     else
-      fail ("BLKREFOBJECTCONTEXTDATA.defaultflag [B] set+1 " FORMAT_B " != " FORMAT_B "", blkrefobjectcontextdata->defaultflag, defaultflag);
-    blkrefobjectcontextdata->defaultflag--;
+      fail ("BLKREFOBJECTCONTEXTDATA.in_dwg [B] set+1 " FORMAT_B " != " FORMAT_B "", blkrefobjectcontextdata->in_dwg, in_dwg);
+    blkrefobjectcontextdata->in_dwg--;
   }
   {
-    BITCODE_B has_file;
-    if (dwg_dynapi_entity_value (blkrefobjectcontextdata, "BLKREFOBJECTCONTEXTDATA", "has_file", &has_file, NULL)
-        && has_file == blkrefobjectcontextdata->has_file)
+    BITCODE_B is_default;
+    if (dwg_dynapi_entity_value (blkrefobjectcontextdata, "BLKREFOBJECTCONTEXTDATA", "is_default", &is_default, NULL)
+        && is_default == blkrefobjectcontextdata->is_default)
       pass ();
     else
-      fail ("BLKREFOBJECTCONTEXTDATA.has_file [B] " FORMAT_B " != " FORMAT_B "", blkrefobjectcontextdata->has_file, has_file);
-    has_file++;
-    if (dwg_dynapi_entity_set_value (blkrefobjectcontextdata, "BLKREFOBJECTCONTEXTDATA", "has_file", &has_file, 0)
-        && has_file == blkrefobjectcontextdata->has_file)
+      fail ("BLKREFOBJECTCONTEXTDATA.is_default [B] " FORMAT_B " != " FORMAT_B "", blkrefobjectcontextdata->is_default, is_default);
+    is_default++;
+    if (dwg_dynapi_entity_set_value (blkrefobjectcontextdata, "BLKREFOBJECTCONTEXTDATA", "is_default", &is_default, 0)
+        && is_default == blkrefobjectcontextdata->is_default)
       pass ();
     else
-      fail ("BLKREFOBJECTCONTEXTDATA.has_file [B] set+1 " FORMAT_B " != " FORMAT_B "", blkrefobjectcontextdata->has_file, has_file);
-    blkrefobjectcontextdata->has_file--;
+      fail ("BLKREFOBJECTCONTEXTDATA.is_default [B] set+1 " FORMAT_B " != " FORMAT_B "", blkrefobjectcontextdata->is_default, is_default);
+    blkrefobjectcontextdata->is_default--;
   }
   {
     struct _dwg_object_object* parent;
@@ -26726,18 +28113,18 @@ static int test_BLOCK_HEADER (const Dwg_Object *obj)
         fail ("BLOCK_HEADER.first_entity [H]");
   }
   {
-    BITCODE_RC flag;
+    BITCODE_RS flag;
     if (dwg_dynapi_entity_value (block_header, "BLOCK_HEADER", "flag", &flag, NULL)
         && flag == block_header->flag)
       pass ();
     else
-      fail ("BLOCK_HEADER.flag [RC] %u != %u", block_header->flag, flag);
+      fail ("BLOCK_HEADER.flag [RS] %hu != %hu", block_header->flag, flag);
     flag++;
     if (dwg_dynapi_entity_set_value (block_header, "BLOCK_HEADER", "flag", &flag, 0)
         && flag == block_header->flag)
       pass ();
     else
-      fail ("BLOCK_HEADER.flag [RC] set+1 %u != %u", block_header->flag, flag);
+      fail ("BLOCK_HEADER.flag [RS] set+1 %hu != %hu", block_header->flag, flag);
     block_header->flag--;
   }
   {
@@ -26811,6 +28198,51 @@ static int test_BLOCK_HEADER (const Dwg_Object *obj)
       fail ("BLOCK_HEADER.inserts [H*] * %u num_inserts", count);
   }
   {
+    BITCODE_B is_xref_dep;
+    if (dwg_dynapi_entity_value (block_header, "BLOCK_HEADER", "is_xref_dep", &is_xref_dep, NULL)
+        && is_xref_dep == block_header->is_xref_dep)
+      pass ();
+    else
+      fail ("BLOCK_HEADER.is_xref_dep [B] " FORMAT_B " != " FORMAT_B "", block_header->is_xref_dep, is_xref_dep);
+    is_xref_dep++;
+    if (dwg_dynapi_entity_set_value (block_header, "BLOCK_HEADER", "is_xref_dep", &is_xref_dep, 0)
+        && is_xref_dep == block_header->is_xref_dep)
+      pass ();
+    else
+      fail ("BLOCK_HEADER.is_xref_dep [B] set+1 " FORMAT_B " != " FORMAT_B "", block_header->is_xref_dep, is_xref_dep);
+    block_header->is_xref_dep--;
+  }
+  {
+    BITCODE_B is_xref_ref;
+    if (dwg_dynapi_entity_value (block_header, "BLOCK_HEADER", "is_xref_ref", &is_xref_ref, NULL)
+        && is_xref_ref == block_header->is_xref_ref)
+      pass ();
+    else
+      fail ("BLOCK_HEADER.is_xref_ref [B] " FORMAT_B " != " FORMAT_B "", block_header->is_xref_ref, is_xref_ref);
+    is_xref_ref++;
+    if (dwg_dynapi_entity_set_value (block_header, "BLOCK_HEADER", "is_xref_ref", &is_xref_ref, 0)
+        && is_xref_ref == block_header->is_xref_ref)
+      pass ();
+    else
+      fail ("BLOCK_HEADER.is_xref_ref [B] set+1 " FORMAT_B " != " FORMAT_B "", block_header->is_xref_ref, is_xref_ref);
+    block_header->is_xref_ref--;
+  }
+  {
+    BITCODE_BS is_xref_resolved;
+    if (dwg_dynapi_entity_value (block_header, "BLOCK_HEADER", "is_xref_resolved", &is_xref_resolved, NULL)
+        && is_xref_resolved == block_header->is_xref_resolved)
+      pass ();
+    else
+      fail ("BLOCK_HEADER.is_xref_resolved [BS] %hu != %hu", block_header->is_xref_resolved, is_xref_resolved);
+    is_xref_resolved++;
+    if (dwg_dynapi_entity_set_value (block_header, "BLOCK_HEADER", "is_xref_resolved", &is_xref_resolved, 0)
+        && is_xref_resolved == block_header->is_xref_resolved)
+      pass ();
+    else
+      fail ("BLOCK_HEADER.is_xref_resolved [BS] set+1 %hu != %hu", block_header->is_xref_resolved, is_xref_resolved);
+    block_header->is_xref_resolved--;
+  }
+  {
     BITCODE_H last_entity;
     if (dwg_dynapi_entity_value (block_header, "BLOCK_HEADER", "last_entity", &last_entity, NULL)
         && !memcmp (&last_entity, &block_header->last_entity, sizeof (block_header->last_entity)))
@@ -26850,14 +28282,6 @@ static int test_BLOCK_HEADER (const Dwg_Object *obj)
       pass ();
     else
       fail ("BLOCK_HEADER.name [TV] '%s' <> '%s'", name, block_header->name);
-  }
-  {
-    BITCODE_H null_handle;
-    if (dwg_dynapi_entity_value (block_header, "BLOCK_HEADER", "null_handle", &null_handle, NULL)
-        && !memcmp (&null_handle, &block_header->null_handle, sizeof (block_header->null_handle)))
-        pass ();
-    else
-        fail ("BLOCK_HEADER.null_handle [H]");
   }
   {
     BITCODE_RL num_inserts;
@@ -26936,6 +28360,14 @@ static int test_BLOCK_HEADER (const Dwg_Object *obj)
     block_header->used--;
   }
   {
+    BITCODE_H xref;
+    if (dwg_dynapi_entity_value (block_header, "BLOCK_HEADER", "xref", &xref, NULL)
+        && !memcmp (&xref, &block_header->xref, sizeof (block_header->xref)))
+        pass ();
+    else
+        fail ("BLOCK_HEADER.xref [H]");
+  }
+  {
     BITCODE_T xref_pname;
     if (dwg_dynapi_entity_value (block_header, "BLOCK_HEADER", "xref_pname", &xref_pname, NULL)
         && xref_pname
@@ -26944,36 +28376,6 @@ static int test_BLOCK_HEADER (const Dwg_Object *obj)
       pass ();
     else
       fail ("BLOCK_HEADER.xref_pname [T] '%s' <> '%s'", xref_pname, block_header->xref_pname);
-  }
-  {
-    BITCODE_B xrefdep;
-    if (dwg_dynapi_entity_value (block_header, "BLOCK_HEADER", "xrefdep", &xrefdep, NULL)
-        && xrefdep == block_header->xrefdep)
-      pass ();
-    else
-      fail ("BLOCK_HEADER.xrefdep [B] " FORMAT_B " != " FORMAT_B "", block_header->xrefdep, xrefdep);
-    xrefdep++;
-    if (dwg_dynapi_entity_set_value (block_header, "BLOCK_HEADER", "xrefdep", &xrefdep, 0)
-        && xrefdep == block_header->xrefdep)
-      pass ();
-    else
-      fail ("BLOCK_HEADER.xrefdep [B] set+1 " FORMAT_B " != " FORMAT_B "", block_header->xrefdep, xrefdep);
-    block_header->xrefdep--;
-  }
-  {
-    BITCODE_BS xrefindex_plus1;
-    if (dwg_dynapi_entity_value (block_header, "BLOCK_HEADER", "xrefindex_plus1", &xrefindex_plus1, NULL)
-        && xrefindex_plus1 == block_header->xrefindex_plus1)
-      pass ();
-    else
-      fail ("BLOCK_HEADER.xrefindex_plus1 [BS] %hu != %hu", block_header->xrefindex_plus1, xrefindex_plus1);
-    xrefindex_plus1++;
-    if (dwg_dynapi_entity_set_value (block_header, "BLOCK_HEADER", "xrefindex_plus1", &xrefindex_plus1, 0)
-        && xrefindex_plus1 == block_header->xrefindex_plus1)
-      pass ();
-    else
-      fail ("BLOCK_HEADER.xrefindex_plus1 [BS] set+1 %hu != %hu", block_header->xrefindex_plus1, xrefindex_plus1);
-    block_header->xrefindex_plus1--;
   }
   {
     BITCODE_B xrefoverlaid;
@@ -26989,21 +28391,6 @@ static int test_BLOCK_HEADER (const Dwg_Object *obj)
     else
       fail ("BLOCK_HEADER.xrefoverlaid [B] set+1 " FORMAT_B " != " FORMAT_B "", block_header->xrefoverlaid, xrefoverlaid);
     block_header->xrefoverlaid--;
-  }
-  {
-    BITCODE_B xrefref;
-    if (dwg_dynapi_entity_value (block_header, "BLOCK_HEADER", "xrefref", &xrefref, NULL)
-        && xrefref == block_header->xrefref)
-      pass ();
-    else
-      fail ("BLOCK_HEADER.xrefref [B] " FORMAT_B " != " FORMAT_B "", block_header->xrefref, xrefref);
-    xrefref++;
-    if (dwg_dynapi_entity_set_value (block_header, "BLOCK_HEADER", "xrefref", &xrefref, 0)
-        && xrefref == block_header->xrefref)
-      pass ();
-    else
-      fail ("BLOCK_HEADER.xrefref [B] set+1 " FORMAT_B " != " FORMAT_B "", block_header->xrefref, xrefref);
-    block_header->xrefref--;
   }
   if (failed && (is_class_unstable ("BLOCK_HEADER") || is_class_debugging ("BLOCK_HEADER")))
     {
@@ -27090,6 +28477,50 @@ static int test_CSACDOCUMENTOPTIONS (const Dwg_Object *obj)
   if (failed && (is_class_unstable ("CSACDOCUMENTOPTIONS") || is_class_debugging ("CSACDOCUMENTOPTIONS")))
     {
       ok ("%s failed %d tests (TODO unstable)", "CSACDOCUMENTOPTIONS", failed);
+      failed = 0;
+    }
+  return failed;
+}
+static int test_CURVEPATH (const Dwg_Object *obj)
+{
+  int error = 0;
+  const Dwg_Object_Object *restrict obj_obj = obj->tio.object;
+  Dwg_Object_CURVEPATH *restrict curvepath = obj->tio.object->tio.CURVEPATH;
+  failed = 0;
+  {
+    BITCODE_BS class_version;
+    if (dwg_dynapi_entity_value (curvepath, "CURVEPATH", "class_version", &class_version, NULL)
+        && class_version == curvepath->class_version)
+      pass ();
+    else
+      fail ("CURVEPATH.class_version [BS] %hu != %hu", curvepath->class_version, class_version);
+    class_version++;
+    if (dwg_dynapi_entity_set_value (curvepath, "CURVEPATH", "class_version", &class_version, 0)
+        && class_version == curvepath->class_version)
+      pass ();
+    else
+      fail ("CURVEPATH.class_version [BS] set+1 %hu != %hu", curvepath->class_version, class_version);
+    curvepath->class_version--;
+  }
+  {
+    BITCODE_H entity;
+    if (dwg_dynapi_entity_value (curvepath, "CURVEPATH", "entity", &entity, NULL)
+        && !memcmp (&entity, &curvepath->entity, sizeof (curvepath->entity)))
+        pass ();
+    else
+        fail ("CURVEPATH.entity [H]");
+  }
+  {
+    struct _dwg_object_object* parent;
+    if (dwg_dynapi_entity_value (curvepath, "CURVEPATH", "parent", &parent, NULL)
+        && !memcmp (&parent, &curvepath->parent, sizeof (curvepath->parent)))
+        pass ();
+    else
+        fail ("CURVEPATH.parent [struct _dwg_object_object*]");
+  }
+  if (failed && (is_class_unstable ("CURVEPATH") || is_class_debugging ("CURVEPATH")))
+    {
+      ok ("%s failed %d tests (TODO unstable)", "CURVEPATH", failed);
       failed = 0;
     }
   return failed;
@@ -28010,14 +29441,14 @@ static int test_DICTIONARY (const Dwg_Object *obj)
         fail ("DICTIONARY.parent [struct _dwg_object_object*]");
   }
   {
-    BITCODE_TV* texts;
+    BITCODE_T* texts;
     BITCODE_BL count = 0;
     if (dwg_dynapi_entity_value (dictionary, "DICTIONARY", "numitems", &count, NULL)
         && dwg_dynapi_entity_value (dictionary, "DICTIONARY", "texts", &texts, NULL)
         && texts == dictionary->texts)
       pass ();
     else
-      fail ("DICTIONARY.texts [TV*] * %u numitems", count);
+      fail ("DICTIONARY.texts [T*] * %u numitems", count);
   }
   if (failed && (is_class_unstable ("DICTIONARY") || is_class_debugging ("DICTIONARY")))
     {
@@ -29500,27 +30931,79 @@ static int test_DIMSTYLE (const Dwg_Object *obj)
     dimstyle->DIMZIN--;
   }
   {
-    BITCODE_H extref_handle;
-    if (dwg_dynapi_entity_value (dimstyle, "DIMSTYLE", "extref_handle", &extref_handle, NULL)
-        && !memcmp (&extref_handle, &dimstyle->extref_handle, sizeof (dimstyle->extref_handle)))
-        pass ();
-    else
-        fail ("DIMSTYLE.extref_handle [H]");
-  }
-  {
-    BITCODE_RC flag;
+    BITCODE_RS flag;
     if (dwg_dynapi_entity_value (dimstyle, "DIMSTYLE", "flag", &flag, NULL)
         && flag == dimstyle->flag)
       pass ();
     else
-      fail ("DIMSTYLE.flag [RC] %u != %u", dimstyle->flag, flag);
+      fail ("DIMSTYLE.flag [RS] %hu != %hu", dimstyle->flag, flag);
     flag++;
     if (dwg_dynapi_entity_set_value (dimstyle, "DIMSTYLE", "flag", &flag, 0)
         && flag == dimstyle->flag)
       pass ();
     else
-      fail ("DIMSTYLE.flag [RC] set+1 %u != %u", dimstyle->flag, flag);
+      fail ("DIMSTYLE.flag [RS] set+1 %hu != %hu", dimstyle->flag, flag);
     dimstyle->flag--;
+  }
+  {
+    BITCODE_B flag0;
+    if (dwg_dynapi_entity_value (dimstyle, "DIMSTYLE", "flag0", &flag0, NULL)
+        && flag0 == dimstyle->flag0)
+      pass ();
+    else
+      fail ("DIMSTYLE.flag0 [B] " FORMAT_B " != " FORMAT_B "", dimstyle->flag0, flag0);
+    flag0++;
+    if (dwg_dynapi_entity_set_value (dimstyle, "DIMSTYLE", "flag0", &flag0, 0)
+        && flag0 == dimstyle->flag0)
+      pass ();
+    else
+      fail ("DIMSTYLE.flag0 [B] set+1 " FORMAT_B " != " FORMAT_B "", dimstyle->flag0, flag0);
+    dimstyle->flag0--;
+  }
+  {
+    BITCODE_B is_xref_dep;
+    if (dwg_dynapi_entity_value (dimstyle, "DIMSTYLE", "is_xref_dep", &is_xref_dep, NULL)
+        && is_xref_dep == dimstyle->is_xref_dep)
+      pass ();
+    else
+      fail ("DIMSTYLE.is_xref_dep [B] " FORMAT_B " != " FORMAT_B "", dimstyle->is_xref_dep, is_xref_dep);
+    is_xref_dep++;
+    if (dwg_dynapi_entity_set_value (dimstyle, "DIMSTYLE", "is_xref_dep", &is_xref_dep, 0)
+        && is_xref_dep == dimstyle->is_xref_dep)
+      pass ();
+    else
+      fail ("DIMSTYLE.is_xref_dep [B] set+1 " FORMAT_B " != " FORMAT_B "", dimstyle->is_xref_dep, is_xref_dep);
+    dimstyle->is_xref_dep--;
+  }
+  {
+    BITCODE_B is_xref_ref;
+    if (dwg_dynapi_entity_value (dimstyle, "DIMSTYLE", "is_xref_ref", &is_xref_ref, NULL)
+        && is_xref_ref == dimstyle->is_xref_ref)
+      pass ();
+    else
+      fail ("DIMSTYLE.is_xref_ref [B] " FORMAT_B " != " FORMAT_B "", dimstyle->is_xref_ref, is_xref_ref);
+    is_xref_ref++;
+    if (dwg_dynapi_entity_set_value (dimstyle, "DIMSTYLE", "is_xref_ref", &is_xref_ref, 0)
+        && is_xref_ref == dimstyle->is_xref_ref)
+      pass ();
+    else
+      fail ("DIMSTYLE.is_xref_ref [B] set+1 " FORMAT_B " != " FORMAT_B "", dimstyle->is_xref_ref, is_xref_ref);
+    dimstyle->is_xref_ref--;
+  }
+  {
+    BITCODE_BS is_xref_resolved;
+    if (dwg_dynapi_entity_value (dimstyle, "DIMSTYLE", "is_xref_resolved", &is_xref_resolved, NULL)
+        && is_xref_resolved == dimstyle->is_xref_resolved)
+      pass ();
+    else
+      fail ("DIMSTYLE.is_xref_resolved [BS] %hu != %hu", dimstyle->is_xref_resolved, is_xref_resolved);
+    is_xref_resolved++;
+    if (dwg_dynapi_entity_set_value (dimstyle, "DIMSTYLE", "is_xref_resolved", &is_xref_resolved, 0)
+        && is_xref_resolved == dimstyle->is_xref_resolved)
+      pass ();
+    else
+      fail ("DIMSTYLE.is_xref_resolved [BS] set+1 %hu != %hu", dimstyle->is_xref_resolved, is_xref_resolved);
+    dimstyle->is_xref_resolved--;
   }
   {
     BITCODE_TV name;
@@ -29556,49 +31039,12 @@ static int test_DIMSTYLE (const Dwg_Object *obj)
     dimstyle->used--;
   }
   {
-    BITCODE_B xrefdep;
-    if (dwg_dynapi_entity_value (dimstyle, "DIMSTYLE", "xrefdep", &xrefdep, NULL)
-        && xrefdep == dimstyle->xrefdep)
-      pass ();
+    BITCODE_H xref;
+    if (dwg_dynapi_entity_value (dimstyle, "DIMSTYLE", "xref", &xref, NULL)
+        && !memcmp (&xref, &dimstyle->xref, sizeof (dimstyle->xref)))
+        pass ();
     else
-      fail ("DIMSTYLE.xrefdep [B] " FORMAT_B " != " FORMAT_B "", dimstyle->xrefdep, xrefdep);
-    xrefdep++;
-    if (dwg_dynapi_entity_set_value (dimstyle, "DIMSTYLE", "xrefdep", &xrefdep, 0)
-        && xrefdep == dimstyle->xrefdep)
-      pass ();
-    else
-      fail ("DIMSTYLE.xrefdep [B] set+1 " FORMAT_B " != " FORMAT_B "", dimstyle->xrefdep, xrefdep);
-    dimstyle->xrefdep--;
-  }
-  {
-    BITCODE_BS xrefindex_plus1;
-    if (dwg_dynapi_entity_value (dimstyle, "DIMSTYLE", "xrefindex_plus1", &xrefindex_plus1, NULL)
-        && xrefindex_plus1 == dimstyle->xrefindex_plus1)
-      pass ();
-    else
-      fail ("DIMSTYLE.xrefindex_plus1 [BS] %hu != %hu", dimstyle->xrefindex_plus1, xrefindex_plus1);
-    xrefindex_plus1++;
-    if (dwg_dynapi_entity_set_value (dimstyle, "DIMSTYLE", "xrefindex_plus1", &xrefindex_plus1, 0)
-        && xrefindex_plus1 == dimstyle->xrefindex_plus1)
-      pass ();
-    else
-      fail ("DIMSTYLE.xrefindex_plus1 [BS] set+1 %hu != %hu", dimstyle->xrefindex_plus1, xrefindex_plus1);
-    dimstyle->xrefindex_plus1--;
-  }
-  {
-    BITCODE_B xrefref;
-    if (dwg_dynapi_entity_value (dimstyle, "DIMSTYLE", "xrefref", &xrefref, NULL)
-        && xrefref == dimstyle->xrefref)
-      pass ();
-    else
-      fail ("DIMSTYLE.xrefref [B] " FORMAT_B " != " FORMAT_B "", dimstyle->xrefref, xrefref);
-    xrefref++;
-    if (dwg_dynapi_entity_set_value (dimstyle, "DIMSTYLE", "xrefref", &xrefref, 0)
-        && xrefref == dimstyle->xrefref)
-      pass ();
-    else
-      fail ("DIMSTYLE.xrefref [B] set+1 " FORMAT_B " != " FORMAT_B "", dimstyle->xrefref, xrefref);
-    dimstyle->xrefref--;
+        fail ("DIMSTYLE.xref [H]");
   }
   if (failed && (is_class_unstable ("DIMSTYLE") || is_class_debugging ("DIMSTYLE")))
     {
@@ -30508,6 +31954,14 @@ static int test_GEODATA (const Dwg_Object *obj)
     geodata->obsolete_false--;
   }
   {
+    BITCODE_3BD one3pt;
+    if (dwg_dynapi_entity_value (geodata, "GEODATA", "one3pt", &one3pt, NULL)
+        && !memcmp (&one3pt, &geodata->one3pt, sizeof (geodata->one3pt)))
+        pass ();
+    else
+        fail ("GEODATA.one3pt [3BD_1]");
+  }
+  {
     struct _dwg_object_object* parent;
     if (dwg_dynapi_entity_value (geodata, "GEODATA", "parent", &parent, NULL)
         && !memcmp (&parent, &geodata->parent, sizeof (geodata->parent)))
@@ -30521,67 +31975,23 @@ static int test_GEODATA (const Dwg_Object *obj)
         && !memcmp (&ref_pt, &geodata->ref_pt, sizeof (geodata->ref_pt)))
         pass ();
     else
-        fail ("GEODATA.ref_pt [3BD]");
+        fail ("GEODATA.ref_pt [3BD_1]");
   }
   {
-    BITCODE_RD refpt0x;
-    if (dwg_dynapi_entity_value (geodata, "GEODATA", "refpt0x", &refpt0x, NULL)
-        && refpt0x == geodata->refpt0x)
-      pass ();
+    BITCODE_2BD refpt0;
+    if (dwg_dynapi_entity_value (geodata, "GEODATA", "refpt0", &refpt0, NULL)
+        && !memcmp (&refpt0, &geodata->refpt0, sizeof (geodata->refpt0)))
+        pass ();
     else
-      fail ("GEODATA.refpt0x [RD] %g != %g", geodata->refpt0x, refpt0x);
-    refpt0x++;
-    if (dwg_dynapi_entity_set_value (geodata, "GEODATA", "refpt0x", &refpt0x, 0)
-        && refpt0x == geodata->refpt0x)
-      pass ();
-    else
-      fail ("GEODATA.refpt0x [RD] set+1 %g != %g", geodata->refpt0x, refpt0x);
-    geodata->refpt0x--;
+        fail ("GEODATA.refpt0 [2BD]");
   }
   {
-    BITCODE_RD refpt0y;
-    if (dwg_dynapi_entity_value (geodata, "GEODATA", "refpt0y", &refpt0y, NULL)
-        && refpt0y == geodata->refpt0y)
-      pass ();
+    BITCODE_2BD refpt1;
+    if (dwg_dynapi_entity_value (geodata, "GEODATA", "refpt1", &refpt1, NULL)
+        && !memcmp (&refpt1, &geodata->refpt1, sizeof (geodata->refpt1)))
+        pass ();
     else
-      fail ("GEODATA.refpt0y [RD] %g != %g", geodata->refpt0y, refpt0y);
-    refpt0y++;
-    if (dwg_dynapi_entity_set_value (geodata, "GEODATA", "refpt0y", &refpt0y, 0)
-        && refpt0y == geodata->refpt0y)
-      pass ();
-    else
-      fail ("GEODATA.refpt0y [RD] set+1 %g != %g", geodata->refpt0y, refpt0y);
-    geodata->refpt0y--;
-  }
-  {
-    BITCODE_RD refpt1x;
-    if (dwg_dynapi_entity_value (geodata, "GEODATA", "refpt1x", &refpt1x, NULL)
-        && refpt1x == geodata->refpt1x)
-      pass ();
-    else
-      fail ("GEODATA.refpt1x [RD] %g != %g", geodata->refpt1x, refpt1x);
-    refpt1x++;
-    if (dwg_dynapi_entity_set_value (geodata, "GEODATA", "refpt1x", &refpt1x, 0)
-        && refpt1x == geodata->refpt1x)
-      pass ();
-    else
-      fail ("GEODATA.refpt1x [RD] set+1 %g != %g", geodata->refpt1x, refpt1x);
-    geodata->refpt1x--;
-  }
-  {
-    BITCODE_RD refpt1y;
-    if (dwg_dynapi_entity_value (geodata, "GEODATA", "refpt1y", &refpt1y, NULL)
-        && refpt1y == geodata->refpt1y)
-      pass ();
-    else
-      fail ("GEODATA.refpt1y [RD] %g != %g", geodata->refpt1y, refpt1y);
-    refpt1y++;
-    if (dwg_dynapi_entity_set_value (geodata, "GEODATA", "refpt1y", &refpt1y, 0)
-        && refpt1y == geodata->refpt1y)
-      pass ();
-    else
-      fail ("GEODATA.refpt1y [RD] set+1 %g != %g", geodata->refpt1y, refpt1y);
-    geodata->refpt1y--;
+        fail ("GEODATA.refpt1 [2BD]");
   }
   {
     BITCODE_BL scale_est;
@@ -30757,20 +32167,12 @@ static int test_GEODATA (const Dwg_Object *obj)
     geodata->user_scale_factor--;
   }
   {
-    BITCODE_2RD zero0;
-    if (dwg_dynapi_entity_value (geodata, "GEODATA", "zero0", &zero0, NULL)
-        && !memcmp (&zero0, &geodata->zero0, sizeof (geodata->zero0)))
-        pass ();
-    else
-        fail ("GEODATA.zero0 [2RD]");
-  }
-  {
-    BITCODE_2RD zero1;
+    BITCODE_3BD zero1;
     if (dwg_dynapi_entity_value (geodata, "GEODATA", "zero1", &zero1, NULL)
         && !memcmp (&zero1, &geodata->zero1, sizeof (geodata->zero1)))
         pass ();
     else
-        fail ("GEODATA.zero1 [2RD]");
+        fail ("GEODATA.zero1 [3BD]");
   }
   if (failed && (is_class_unstable ("GEODATA") || is_class_debugging ("GEODATA")))
     {
@@ -31461,18 +32863,18 @@ static int test_LAYER (const Dwg_Object *obj)
     layer->color_rs--;
   }
   {
-    BITCODE_BS flag;
+    BITCODE_RS flag;
     if (dwg_dynapi_entity_value (layer, "LAYER", "flag", &flag, NULL)
         && flag == layer->flag)
       pass ();
     else
-      fail ("LAYER.flag [BS] %hu != %hu", layer->flag, flag);
+      fail ("LAYER.flag [RS] %hu != %hu", layer->flag, flag);
     flag++;
     if (dwg_dynapi_entity_set_value (layer, "LAYER", "flag", &flag, 0)
         && flag == layer->flag)
       pass ();
     else
-      fail ("LAYER.flag [BS] set+1 %hu != %hu", layer->flag, flag);
+      fail ("LAYER.flag [RS] set+1 %hu != %hu", layer->flag, flag);
     layer->flag--;
   }
   {
@@ -31504,6 +32906,51 @@ static int test_LAYER (const Dwg_Object *obj)
     else
       fail ("LAYER.frozen_in_new [B] set+1 " FORMAT_B " != " FORMAT_B "", layer->frozen_in_new, frozen_in_new);
     layer->frozen_in_new--;
+  }
+  {
+    BITCODE_B is_xref_dep;
+    if (dwg_dynapi_entity_value (layer, "LAYER", "is_xref_dep", &is_xref_dep, NULL)
+        && is_xref_dep == layer->is_xref_dep)
+      pass ();
+    else
+      fail ("LAYER.is_xref_dep [B] " FORMAT_B " != " FORMAT_B "", layer->is_xref_dep, is_xref_dep);
+    is_xref_dep++;
+    if (dwg_dynapi_entity_set_value (layer, "LAYER", "is_xref_dep", &is_xref_dep, 0)
+        && is_xref_dep == layer->is_xref_dep)
+      pass ();
+    else
+      fail ("LAYER.is_xref_dep [B] set+1 " FORMAT_B " != " FORMAT_B "", layer->is_xref_dep, is_xref_dep);
+    layer->is_xref_dep--;
+  }
+  {
+    BITCODE_B is_xref_ref;
+    if (dwg_dynapi_entity_value (layer, "LAYER", "is_xref_ref", &is_xref_ref, NULL)
+        && is_xref_ref == layer->is_xref_ref)
+      pass ();
+    else
+      fail ("LAYER.is_xref_ref [B] " FORMAT_B " != " FORMAT_B "", layer->is_xref_ref, is_xref_ref);
+    is_xref_ref++;
+    if (dwg_dynapi_entity_set_value (layer, "LAYER", "is_xref_ref", &is_xref_ref, 0)
+        && is_xref_ref == layer->is_xref_ref)
+      pass ();
+    else
+      fail ("LAYER.is_xref_ref [B] set+1 " FORMAT_B " != " FORMAT_B "", layer->is_xref_ref, is_xref_ref);
+    layer->is_xref_ref--;
+  }
+  {
+    BITCODE_BS is_xref_resolved;
+    if (dwg_dynapi_entity_value (layer, "LAYER", "is_xref_resolved", &is_xref_resolved, NULL)
+        && is_xref_resolved == layer->is_xref_resolved)
+      pass ();
+    else
+      fail ("LAYER.is_xref_resolved [BS] %hu != %hu", layer->is_xref_resolved, is_xref_resolved);
+    is_xref_resolved++;
+    if (dwg_dynapi_entity_set_value (layer, "LAYER", "is_xref_resolved", &is_xref_resolved, 0)
+        && is_xref_resolved == layer->is_xref_resolved)
+      pass ();
+    else
+      fail ("LAYER.is_xref_resolved [BS] set+1 %hu != %hu", layer->is_xref_resolved, is_xref_resolved);
+    layer->is_xref_resolved--;
   }
   {
     BITCODE_RC linewt;
@@ -31644,51 +33091,6 @@ static int test_LAYER (const Dwg_Object *obj)
         pass ();
     else
         fail ("LAYER.xref [H]");
-  }
-  {
-    BITCODE_B xrefdep;
-    if (dwg_dynapi_entity_value (layer, "LAYER", "xrefdep", &xrefdep, NULL)
-        && xrefdep == layer->xrefdep)
-      pass ();
-    else
-      fail ("LAYER.xrefdep [B] " FORMAT_B " != " FORMAT_B "", layer->xrefdep, xrefdep);
-    xrefdep++;
-    if (dwg_dynapi_entity_set_value (layer, "LAYER", "xrefdep", &xrefdep, 0)
-        && xrefdep == layer->xrefdep)
-      pass ();
-    else
-      fail ("LAYER.xrefdep [B] set+1 " FORMAT_B " != " FORMAT_B "", layer->xrefdep, xrefdep);
-    layer->xrefdep--;
-  }
-  {
-    BITCODE_BS xrefindex_plus1;
-    if (dwg_dynapi_entity_value (layer, "LAYER", "xrefindex_plus1", &xrefindex_plus1, NULL)
-        && xrefindex_plus1 == layer->xrefindex_plus1)
-      pass ();
-    else
-      fail ("LAYER.xrefindex_plus1 [BS] %hu != %hu", layer->xrefindex_plus1, xrefindex_plus1);
-    xrefindex_plus1++;
-    if (dwg_dynapi_entity_set_value (layer, "LAYER", "xrefindex_plus1", &xrefindex_plus1, 0)
-        && xrefindex_plus1 == layer->xrefindex_plus1)
-      pass ();
-    else
-      fail ("LAYER.xrefindex_plus1 [BS] set+1 %hu != %hu", layer->xrefindex_plus1, xrefindex_plus1);
-    layer->xrefindex_plus1--;
-  }
-  {
-    BITCODE_B xrefref;
-    if (dwg_dynapi_entity_value (layer, "LAYER", "xrefref", &xrefref, NULL)
-        && xrefref == layer->xrefref)
-      pass ();
-    else
-      fail ("LAYER.xrefref [B] " FORMAT_B " != " FORMAT_B "", layer->xrefref, xrefref);
-    xrefref++;
-    if (dwg_dynapi_entity_set_value (layer, "LAYER", "xrefref", &xrefref, 0)
-        && xrefref == layer->xrefref)
-      pass ();
-    else
-      fail ("LAYER.xrefref [B] set+1 " FORMAT_B " != " FORMAT_B "", layer->xrefref, xrefref);
-    layer->xrefref--;
   }
   if (failed && (is_class_unstable ("LAYER") || is_class_debugging ("LAYER")))
     {
@@ -31831,16 +33233,6 @@ static int test_LAYER_INDEX (const Dwg_Object *obj)
       fail ("LAYER_INDEX.entries [Dwg_LAYER_entry*] * %u num_entries", count);
   }
   {
-    BITCODE_H* layer_entries;
-    BITCODE_BL count = 0;
-    if (dwg_dynapi_entity_value (layer_index, "LAYER_INDEX", "num_entries", &count, NULL)
-        && dwg_dynapi_entity_value (layer_index, "LAYER_INDEX", "layer_entries", &layer_entries, NULL)
-        && layer_entries == layer_index->layer_entries)
-      pass ();
-    else
-      fail ("LAYER_INDEX.layer_entries [H*] * %u num_entries", count);
-  }
-  {
     BITCODE_BL num_entries;
     if (dwg_dynapi_entity_value (layer_index, "LAYER_INDEX", "num_entries", &num_entries, NULL)
         && num_entries == layer_index->num_entries)
@@ -31862,36 +33254,6 @@ static int test_LAYER_INDEX (const Dwg_Object *obj)
         pass ();
     else
         fail ("LAYER_INDEX.parent [struct _dwg_object_object*]");
-  }
-  {
-    BITCODE_BL timestamp1;
-    if (dwg_dynapi_entity_value (layer_index, "LAYER_INDEX", "timestamp1", &timestamp1, NULL)
-        && timestamp1 == layer_index->timestamp1)
-      pass ();
-    else
-      fail ("LAYER_INDEX.timestamp1 [BL] %u != %u", layer_index->timestamp1, timestamp1);
-    timestamp1++;
-    if (dwg_dynapi_entity_set_value (layer_index, "LAYER_INDEX", "timestamp1", &timestamp1, 0)
-        && timestamp1 == layer_index->timestamp1)
-      pass ();
-    else
-      fail ("LAYER_INDEX.timestamp1 [BL] set+1 %u != %u", layer_index->timestamp1, timestamp1);
-    layer_index->timestamp1--;
-  }
-  {
-    BITCODE_BL timestamp2;
-    if (dwg_dynapi_entity_value (layer_index, "LAYER_INDEX", "timestamp2", &timestamp2, NULL)
-        && timestamp2 == layer_index->timestamp2)
-      pass ();
-    else
-      fail ("LAYER_INDEX.timestamp2 [BL] %u != %u", layer_index->timestamp2, timestamp2);
-    timestamp2++;
-    if (dwg_dynapi_entity_set_value (layer_index, "LAYER_INDEX", "timestamp2", &timestamp2, 0)
-        && timestamp2 == layer_index->timestamp2)
-      pass ();
-    else
-      fail ("LAYER_INDEX.timestamp2 [BL] set+1 %u != %u", layer_index->timestamp2, timestamp2);
-    layer_index->timestamp2--;
   }
   if (failed && (is_class_unstable ("LAYER_INDEX") || is_class_debugging ("LAYER_INDEX")))
     {
@@ -32553,21 +33915,6 @@ static int test_LEADEROBJECTCONTEXTDATA (const Dwg_Object *obj)
     leaderobjectcontextdata->class_version--;
   }
   {
-    BITCODE_B defaultflag;
-    if (dwg_dynapi_entity_value (leaderobjectcontextdata, "LEADEROBJECTCONTEXTDATA", "defaultflag", &defaultflag, NULL)
-        && defaultflag == leaderobjectcontextdata->defaultflag)
-      pass ();
-    else
-      fail ("LEADEROBJECTCONTEXTDATA.defaultflag [B] " FORMAT_B " != " FORMAT_B "", leaderobjectcontextdata->defaultflag, defaultflag);
-    defaultflag++;
-    if (dwg_dynapi_entity_set_value (leaderobjectcontextdata, "LEADEROBJECTCONTEXTDATA", "defaultflag", &defaultflag, 0)
-        && defaultflag == leaderobjectcontextdata->defaultflag)
-      pass ();
-    else
-      fail ("LEADEROBJECTCONTEXTDATA.defaultflag [B] set+1 " FORMAT_B " != " FORMAT_B "", leaderobjectcontextdata->defaultflag, defaultflag);
-    leaderobjectcontextdata->defaultflag--;
-  }
-  {
     BITCODE_3DPOINT endptproj;
     if (dwg_dynapi_entity_value (leaderobjectcontextdata, "LEADEROBJECTCONTEXTDATA", "endptproj", &endptproj, NULL)
         && !memcmp (&endptproj, &leaderobjectcontextdata->endptproj, sizeof (leaderobjectcontextdata->endptproj)))
@@ -32576,19 +33923,19 @@ static int test_LEADEROBJECTCONTEXTDATA (const Dwg_Object *obj)
         fail ("LEADEROBJECTCONTEXTDATA.endptproj [3DPOINT]");
   }
   {
-    BITCODE_B has_file;
-    if (dwg_dynapi_entity_value (leaderobjectcontextdata, "LEADEROBJECTCONTEXTDATA", "has_file", &has_file, NULL)
-        && has_file == leaderobjectcontextdata->has_file)
+    BITCODE_B in_dwg;
+    if (dwg_dynapi_entity_value (leaderobjectcontextdata, "LEADEROBJECTCONTEXTDATA", "in_dwg", &in_dwg, NULL)
+        && in_dwg == leaderobjectcontextdata->in_dwg)
       pass ();
     else
-      fail ("LEADEROBJECTCONTEXTDATA.has_file [B] " FORMAT_B " != " FORMAT_B "", leaderobjectcontextdata->has_file, has_file);
-    has_file++;
-    if (dwg_dynapi_entity_set_value (leaderobjectcontextdata, "LEADEROBJECTCONTEXTDATA", "has_file", &has_file, 0)
-        && has_file == leaderobjectcontextdata->has_file)
+      fail ("LEADEROBJECTCONTEXTDATA.in_dwg [B] " FORMAT_B " != " FORMAT_B "", leaderobjectcontextdata->in_dwg, in_dwg);
+    in_dwg++;
+    if (dwg_dynapi_entity_set_value (leaderobjectcontextdata, "LEADEROBJECTCONTEXTDATA", "in_dwg", &in_dwg, 0)
+        && in_dwg == leaderobjectcontextdata->in_dwg)
       pass ();
     else
-      fail ("LEADEROBJECTCONTEXTDATA.has_file [B] set+1 " FORMAT_B " != " FORMAT_B "", leaderobjectcontextdata->has_file, has_file);
-    leaderobjectcontextdata->has_file--;
+      fail ("LEADEROBJECTCONTEXTDATA.in_dwg [B] set+1 " FORMAT_B " != " FORMAT_B "", leaderobjectcontextdata->in_dwg, in_dwg);
+    leaderobjectcontextdata->in_dwg--;
   }
   {
     BITCODE_3DPOINT inspt_offset;
@@ -32597,6 +33944,21 @@ static int test_LEADEROBJECTCONTEXTDATA (const Dwg_Object *obj)
         pass ();
     else
         fail ("LEADEROBJECTCONTEXTDATA.inspt_offset [3DPOINT]");
+  }
+  {
+    BITCODE_B is_default;
+    if (dwg_dynapi_entity_value (leaderobjectcontextdata, "LEADEROBJECTCONTEXTDATA", "is_default", &is_default, NULL)
+        && is_default == leaderobjectcontextdata->is_default)
+      pass ();
+    else
+      fail ("LEADEROBJECTCONTEXTDATA.is_default [B] " FORMAT_B " != " FORMAT_B "", leaderobjectcontextdata->is_default, is_default);
+    is_default++;
+    if (dwg_dynapi_entity_set_value (leaderobjectcontextdata, "LEADEROBJECTCONTEXTDATA", "is_default", &is_default, 0)
+        && is_default == leaderobjectcontextdata->is_default)
+      pass ();
+    else
+      fail ("LEADEROBJECTCONTEXTDATA.is_default [B] set+1 " FORMAT_B " != " FORMAT_B "", leaderobjectcontextdata->is_default, is_default);
+    leaderobjectcontextdata->is_default--;
   }
   {
     BITCODE_BL num_points;
@@ -32661,61 +34023,43 @@ static int test_LIGHTLIST (const Dwg_Object *obj)
   Dwg_Object_LIGHTLIST *restrict lightlist = obj->tio.object->tio.LIGHTLIST;
   failed = 0;
   {
-    BITCODE_BS class_version;
+    BITCODE_BL class_version;
     if (dwg_dynapi_entity_value (lightlist, "LIGHTLIST", "class_version", &class_version, NULL)
         && class_version == lightlist->class_version)
       pass ();
     else
-      fail ("LIGHTLIST.class_version [BS] %hu != %hu", lightlist->class_version, class_version);
+      fail ("LIGHTLIST.class_version [BL] %u != %u", lightlist->class_version, class_version);
     class_version++;
     if (dwg_dynapi_entity_set_value (lightlist, "LIGHTLIST", "class_version", &class_version, 0)
         && class_version == lightlist->class_version)
       pass ();
     else
-      fail ("LIGHTLIST.class_version [BS] set+1 %hu != %hu", lightlist->class_version, class_version);
+      fail ("LIGHTLIST.class_version [BL] set+1 %u != %u", lightlist->class_version, class_version);
     lightlist->class_version--;
   }
   {
-    BITCODE_H dictionary;
-    if (dwg_dynapi_entity_value (lightlist, "LIGHTLIST", "dictionary", &dictionary, NULL)
-        && !memcmp (&dictionary, &lightlist->dictionary, sizeof (lightlist->dictionary)))
-        pass ();
-    else
-        fail ("LIGHTLIST.dictionary [H]");
-  }
-  {
-    BITCODE_H* lights_handles;
+    Dwg_LIGHTLIST_light* lights;
     BITCODE_BL count = 0;
-    if (dwg_dynapi_entity_value (lightlist, "LIGHTLIST", "num_lights_handles", &count, NULL)
-        && dwg_dynapi_entity_value (lightlist, "LIGHTLIST", "lights_handles", &lights_handles, NULL)
-        && lights_handles == lightlist->lights_handles)
+    if (dwg_dynapi_entity_value (lightlist, "LIGHTLIST", "num_lights", &count, NULL)
+        && dwg_dynapi_entity_value (lightlist, "LIGHTLIST", "lights", &lights, NULL)
+        && lights == lightlist->lights)
       pass ();
     else
-      fail ("LIGHTLIST.lights_handles [H*] * %u num_lights_handles", count);
+      fail ("LIGHTLIST.lights [Dwg_LIGHTLIST_light*] * %u num_lights", count);
   }
   {
-    BITCODE_TV* lights_names;
-    BITCODE_BL count = 0;
-    if (dwg_dynapi_entity_value (lightlist, "LIGHTLIST", "num_lights_names", &count, NULL)
-        && dwg_dynapi_entity_value (lightlist, "LIGHTLIST", "lights_names", &lights_names, NULL)
-        && lights_names == lightlist->lights_names)
-      pass ();
-    else
-      fail ("LIGHTLIST.lights_names [TV*] * %u num_lights_names", count);
-  }
-  {
-    BITCODE_BS num_lights;
+    BITCODE_BL num_lights;
     if (dwg_dynapi_entity_value (lightlist, "LIGHTLIST", "num_lights", &num_lights, NULL)
         && num_lights == lightlist->num_lights)
       pass ();
     else
-      fail ("LIGHTLIST.num_lights [BS] %hu != %hu", lightlist->num_lights, num_lights);
+      fail ("LIGHTLIST.num_lights [BL] %u != %u", lightlist->num_lights, num_lights);
     num_lights++;
     if (dwg_dynapi_entity_set_value (lightlist, "LIGHTLIST", "num_lights", &num_lights, 0)
         && num_lights == lightlist->num_lights)
       pass ();
     else
-      fail ("LIGHTLIST.num_lights [BS] set+1 %hu != %hu", lightlist->num_lights, num_lights);
+      fail ("LIGHTLIST.num_lights [BL] set+1 %u != %u", lightlist->num_lights, num_lights);
     lightlist->num_lights--;
   }
   {
@@ -32806,26 +34150,18 @@ static int test_LTYPE (const Dwg_Object *obj)
       fail ("LTYPE.description [T] '%s' <> '%s'", description, ltype->description);
   }
   {
-    BITCODE_H extref_handle;
-    if (dwg_dynapi_entity_value (ltype, "LTYPE", "extref_handle", &extref_handle, NULL)
-        && !memcmp (&extref_handle, &ltype->extref_handle, sizeof (ltype->extref_handle)))
-        pass ();
-    else
-        fail ("LTYPE.extref_handle [H]");
-  }
-  {
-    BITCODE_RC flag;
+    BITCODE_RS flag;
     if (dwg_dynapi_entity_value (ltype, "LTYPE", "flag", &flag, NULL)
         && flag == ltype->flag)
       pass ();
     else
-      fail ("LTYPE.flag [RC] %u != %u", ltype->flag, flag);
+      fail ("LTYPE.flag [RS] %hu != %hu", ltype->flag, flag);
     flag++;
     if (dwg_dynapi_entity_set_value (ltype, "LTYPE", "flag", &flag, 0)
         && flag == ltype->flag)
       pass ();
     else
-      fail ("LTYPE.flag [RC] set+1 %u != %u", ltype->flag, flag);
+      fail ("LTYPE.flag [RS] set+1 %hu != %hu", ltype->flag, flag);
     ltype->flag--;
   }
   {
@@ -32842,6 +34178,51 @@ static int test_LTYPE (const Dwg_Object *obj)
     else
       fail ("LTYPE.has_strings_area [B] set+1 " FORMAT_B " != " FORMAT_B "", ltype->has_strings_area, has_strings_area);
     ltype->has_strings_area--;
+  }
+  {
+    BITCODE_B is_xref_dep;
+    if (dwg_dynapi_entity_value (ltype, "LTYPE", "is_xref_dep", &is_xref_dep, NULL)
+        && is_xref_dep == ltype->is_xref_dep)
+      pass ();
+    else
+      fail ("LTYPE.is_xref_dep [B] " FORMAT_B " != " FORMAT_B "", ltype->is_xref_dep, is_xref_dep);
+    is_xref_dep++;
+    if (dwg_dynapi_entity_set_value (ltype, "LTYPE", "is_xref_dep", &is_xref_dep, 0)
+        && is_xref_dep == ltype->is_xref_dep)
+      pass ();
+    else
+      fail ("LTYPE.is_xref_dep [B] set+1 " FORMAT_B " != " FORMAT_B "", ltype->is_xref_dep, is_xref_dep);
+    ltype->is_xref_dep--;
+  }
+  {
+    BITCODE_B is_xref_ref;
+    if (dwg_dynapi_entity_value (ltype, "LTYPE", "is_xref_ref", &is_xref_ref, NULL)
+        && is_xref_ref == ltype->is_xref_ref)
+      pass ();
+    else
+      fail ("LTYPE.is_xref_ref [B] " FORMAT_B " != " FORMAT_B "", ltype->is_xref_ref, is_xref_ref);
+    is_xref_ref++;
+    if (dwg_dynapi_entity_set_value (ltype, "LTYPE", "is_xref_ref", &is_xref_ref, 0)
+        && is_xref_ref == ltype->is_xref_ref)
+      pass ();
+    else
+      fail ("LTYPE.is_xref_ref [B] set+1 " FORMAT_B " != " FORMAT_B "", ltype->is_xref_ref, is_xref_ref);
+    ltype->is_xref_ref--;
+  }
+  {
+    BITCODE_BS is_xref_resolved;
+    if (dwg_dynapi_entity_value (ltype, "LTYPE", "is_xref_resolved", &is_xref_resolved, NULL)
+        && is_xref_resolved == ltype->is_xref_resolved)
+      pass ();
+    else
+      fail ("LTYPE.is_xref_resolved [BS] %hu != %hu", ltype->is_xref_resolved, is_xref_resolved);
+    is_xref_resolved++;
+    if (dwg_dynapi_entity_set_value (ltype, "LTYPE", "is_xref_resolved", &is_xref_resolved, 0)
+        && is_xref_resolved == ltype->is_xref_resolved)
+      pass ();
+    else
+      fail ("LTYPE.is_xref_resolved [BS] set+1 %hu != %hu", ltype->is_xref_resolved, is_xref_resolved);
+    ltype->is_xref_resolved--;
   }
   {
     BITCODE_TV name;
@@ -32915,49 +34296,12 @@ static int test_LTYPE (const Dwg_Object *obj)
     ltype->used--;
   }
   {
-    BITCODE_B xrefdep;
-    if (dwg_dynapi_entity_value (ltype, "LTYPE", "xrefdep", &xrefdep, NULL)
-        && xrefdep == ltype->xrefdep)
-      pass ();
+    BITCODE_H xref;
+    if (dwg_dynapi_entity_value (ltype, "LTYPE", "xref", &xref, NULL)
+        && !memcmp (&xref, &ltype->xref, sizeof (ltype->xref)))
+        pass ();
     else
-      fail ("LTYPE.xrefdep [B] " FORMAT_B " != " FORMAT_B "", ltype->xrefdep, xrefdep);
-    xrefdep++;
-    if (dwg_dynapi_entity_set_value (ltype, "LTYPE", "xrefdep", &xrefdep, 0)
-        && xrefdep == ltype->xrefdep)
-      pass ();
-    else
-      fail ("LTYPE.xrefdep [B] set+1 " FORMAT_B " != " FORMAT_B "", ltype->xrefdep, xrefdep);
-    ltype->xrefdep--;
-  }
-  {
-    BITCODE_BS xrefindex_plus1;
-    if (dwg_dynapi_entity_value (ltype, "LTYPE", "xrefindex_plus1", &xrefindex_plus1, NULL)
-        && xrefindex_plus1 == ltype->xrefindex_plus1)
-      pass ();
-    else
-      fail ("LTYPE.xrefindex_plus1 [BS] %hu != %hu", ltype->xrefindex_plus1, xrefindex_plus1);
-    xrefindex_plus1++;
-    if (dwg_dynapi_entity_set_value (ltype, "LTYPE", "xrefindex_plus1", &xrefindex_plus1, 0)
-        && xrefindex_plus1 == ltype->xrefindex_plus1)
-      pass ();
-    else
-      fail ("LTYPE.xrefindex_plus1 [BS] set+1 %hu != %hu", ltype->xrefindex_plus1, xrefindex_plus1);
-    ltype->xrefindex_plus1--;
-  }
-  {
-    BITCODE_B xrefref;
-    if (dwg_dynapi_entity_value (ltype, "LTYPE", "xrefref", &xrefref, NULL)
-        && xrefref == ltype->xrefref)
-      pass ();
-    else
-      fail ("LTYPE.xrefref [B] " FORMAT_B " != " FORMAT_B "", ltype->xrefref, xrefref);
-    xrefref++;
-    if (dwg_dynapi_entity_set_value (ltype, "LTYPE", "xrefref", &xrefref, 0)
-        && xrefref == ltype->xrefref)
-      pass ();
-    else
-      fail ("LTYPE.xrefref [B] set+1 " FORMAT_B " != " FORMAT_B "", ltype->xrefref, xrefref);
-    ltype->xrefref--;
+        fail ("LTYPE.xref [H]");
   }
   if (failed && (is_class_unstable ("LTYPE") || is_class_debugging ("LTYPE")))
     {
@@ -33050,135 +34394,20 @@ static int test_MATERIAL (const Dwg_Object *obj)
   Dwg_Object_MATERIAL *restrict material = obj->tio.object->tio.MATERIAL;
   failed = 0;
   {
-    BITCODE_CMC ambient_color;
+    Dwg_MATERIAL_color ambient_color;
     if (dwg_dynapi_entity_value (material, "MATERIAL", "ambient_color", &ambient_color, NULL)
         && !memcmp (&ambient_color, &material->ambient_color, sizeof (material->ambient_color)))
         pass ();
     else
-        fail ("MATERIAL.ambient_color [CMC]");
+        fail ("MATERIAL.ambient_color [Dwg_MATERIAL_color]");
   }
   {
-    BITCODE_BD ambient_color_factor;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "ambient_color_factor", &ambient_color_factor, NULL)
-        && ambient_color_factor == material->ambient_color_factor)
-      pass ();
-    else
-      fail ("MATERIAL.ambient_color_factor [BD] %g != %g", material->ambient_color_factor, ambient_color_factor);
-    ambient_color_factor++;
-    if (dwg_dynapi_entity_set_value (material, "MATERIAL", "ambient_color_factor", &ambient_color_factor, 0)
-        && ambient_color_factor == material->ambient_color_factor)
-      pass ();
-    else
-      fail ("MATERIAL.ambient_color_factor [BD] set+1 %g != %g", material->ambient_color_factor, ambient_color_factor);
-    material->ambient_color_factor--;
-  }
-  {
-    BITCODE_BS ambient_color_flag;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "ambient_color_flag", &ambient_color_flag, NULL)
-        && ambient_color_flag == material->ambient_color_flag)
-      pass ();
-    else
-      fail ("MATERIAL.ambient_color_flag [BS] %hu != %hu", material->ambient_color_flag, ambient_color_flag);
-    ambient_color_flag++;
-    if (dwg_dynapi_entity_set_value (material, "MATERIAL", "ambient_color_flag", &ambient_color_flag, 0)
-        && ambient_color_flag == material->ambient_color_flag)
-      pass ();
-    else
-      fail ("MATERIAL.ambient_color_flag [BS] set+1 %hu != %hu", material->ambient_color_flag, ambient_color_flag);
-    material->ambient_color_flag--;
-  }
-  {
-    BITCODE_BS bumpmap_autotransform;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "bumpmap_autotransform", &bumpmap_autotransform, NULL)
-        && bumpmap_autotransform == material->bumpmap_autotransform)
-      pass ();
-    else
-      fail ("MATERIAL.bumpmap_autotransform [BS] %hu != %hu", material->bumpmap_autotransform, bumpmap_autotransform);
-    bumpmap_autotransform++;
-    if (dwg_dynapi_entity_set_value (material, "MATERIAL", "bumpmap_autotransform", &bumpmap_autotransform, 0)
-        && bumpmap_autotransform == material->bumpmap_autotransform)
-      pass ();
-    else
-      fail ("MATERIAL.bumpmap_autotransform [BS] set+1 %hu != %hu", material->bumpmap_autotransform, bumpmap_autotransform);
-    material->bumpmap_autotransform--;
-  }
-  {
-    BITCODE_BD bumpmap_blendfactor;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "bumpmap_blendfactor", &bumpmap_blendfactor, NULL)
-        && bumpmap_blendfactor == material->bumpmap_blendfactor)
-      pass ();
-    else
-      fail ("MATERIAL.bumpmap_blendfactor [BD] %g != %g", material->bumpmap_blendfactor, bumpmap_blendfactor);
-    bumpmap_blendfactor++;
-    if (dwg_dynapi_entity_set_value (material, "MATERIAL", "bumpmap_blendfactor", &bumpmap_blendfactor, 0)
-        && bumpmap_blendfactor == material->bumpmap_blendfactor)
-      pass ();
-    else
-      fail ("MATERIAL.bumpmap_blendfactor [BD] set+1 %g != %g", material->bumpmap_blendfactor, bumpmap_blendfactor);
-    material->bumpmap_blendfactor--;
-  }
-  {
-    BITCODE_T bumpmap_filename;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "bumpmap_filename", &bumpmap_filename, NULL)
-        && bumpmap_filename
-           ? strEQ ((char *)bumpmap_filename, (char *)material->bumpmap_filename)
-           : !material->bumpmap_filename)
-      pass ();
-    else
-      fail ("MATERIAL.bumpmap_filename [T] '%s' <> '%s'", bumpmap_filename, material->bumpmap_filename);
-  }
-  {
-    BITCODE_BS bumpmap_projection;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "bumpmap_projection", &bumpmap_projection, NULL)
-        && bumpmap_projection == material->bumpmap_projection)
-      pass ();
-    else
-      fail ("MATERIAL.bumpmap_projection [BS] %hu != %hu", material->bumpmap_projection, bumpmap_projection);
-    bumpmap_projection++;
-    if (dwg_dynapi_entity_set_value (material, "MATERIAL", "bumpmap_projection", &bumpmap_projection, 0)
-        && bumpmap_projection == material->bumpmap_projection)
-      pass ();
-    else
-      fail ("MATERIAL.bumpmap_projection [BS] set+1 %hu != %hu", material->bumpmap_projection, bumpmap_projection);
-    material->bumpmap_projection--;
-  }
-  {
-    BITCODE_BS bumpmap_source;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "bumpmap_source", &bumpmap_source, NULL)
-        && bumpmap_source == material->bumpmap_source)
-      pass ();
-    else
-      fail ("MATERIAL.bumpmap_source [BS] %hu != %hu", material->bumpmap_source, bumpmap_source);
-    bumpmap_source++;
-    if (dwg_dynapi_entity_set_value (material, "MATERIAL", "bumpmap_source", &bumpmap_source, 0)
-        && bumpmap_source == material->bumpmap_source)
-      pass ();
-    else
-      fail ("MATERIAL.bumpmap_source [BS] set+1 %hu != %hu", material->bumpmap_source, bumpmap_source);
-    material->bumpmap_source--;
-  }
-  {
-    BITCODE_BS bumpmap_tiling;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "bumpmap_tiling", &bumpmap_tiling, NULL)
-        && bumpmap_tiling == material->bumpmap_tiling)
-      pass ();
-    else
-      fail ("MATERIAL.bumpmap_tiling [BS] %hu != %hu", material->bumpmap_tiling, bumpmap_tiling);
-    bumpmap_tiling++;
-    if (dwg_dynapi_entity_set_value (material, "MATERIAL", "bumpmap_tiling", &bumpmap_tiling, 0)
-        && bumpmap_tiling == material->bumpmap_tiling)
-      pass ();
-    else
-      fail ("MATERIAL.bumpmap_tiling [BS] set+1 %hu != %hu", material->bumpmap_tiling, bumpmap_tiling);
-    material->bumpmap_tiling--;
-  }
-  {
-    BITCODE_BD* bumpmap_transmatrix;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "bumpmap_transmatrix", &bumpmap_transmatrix, NULL)
-        && !memcmp (&bumpmap_transmatrix, &material->bumpmap_transmatrix, sizeof (material->bumpmap_transmatrix)))
+    Dwg_MATERIAL_mapper bumpmap;
+    if (dwg_dynapi_entity_value (material, "MATERIAL", "bumpmap", &bumpmap, NULL)
+        && !memcmp (&bumpmap, &material->bumpmap, sizeof (material->bumpmap)))
         pass ();
     else
-        fail ("MATERIAL.bumpmap_transmatrix [BD*]");
+        fail ("MATERIAL.bumpmap [Dwg_MATERIAL_mapper]");
   }
   {
     BITCODE_BL channel_flags;
@@ -33221,150 +34450,20 @@ static int test_MATERIAL (const Dwg_Object *obj)
       fail ("MATERIAL.description [T] '%s' <> '%s'", description, material->description);
   }
   {
-    BITCODE_CMC diffuse_color;
+    Dwg_MATERIAL_color diffuse_color;
     if (dwg_dynapi_entity_value (material, "MATERIAL", "diffuse_color", &diffuse_color, NULL)
         && !memcmp (&diffuse_color, &material->diffuse_color, sizeof (material->diffuse_color)))
         pass ();
     else
-        fail ("MATERIAL.diffuse_color [CMC]");
+        fail ("MATERIAL.diffuse_color [Dwg_MATERIAL_color]");
   }
   {
-    BITCODE_BD diffuse_color_factor;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "diffuse_color_factor", &diffuse_color_factor, NULL)
-        && diffuse_color_factor == material->diffuse_color_factor)
-      pass ();
-    else
-      fail ("MATERIAL.diffuse_color_factor [BD] %g != %g", material->diffuse_color_factor, diffuse_color_factor);
-    diffuse_color_factor++;
-    if (dwg_dynapi_entity_set_value (material, "MATERIAL", "diffuse_color_factor", &diffuse_color_factor, 0)
-        && diffuse_color_factor == material->diffuse_color_factor)
-      pass ();
-    else
-      fail ("MATERIAL.diffuse_color_factor [BD] set+1 %g != %g", material->diffuse_color_factor, diffuse_color_factor);
-    material->diffuse_color_factor--;
-  }
-  {
-    BITCODE_BS diffuse_color_flag;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "diffuse_color_flag", &diffuse_color_flag, NULL)
-        && diffuse_color_flag == material->diffuse_color_flag)
-      pass ();
-    else
-      fail ("MATERIAL.diffuse_color_flag [BS] %hu != %hu", material->diffuse_color_flag, diffuse_color_flag);
-    diffuse_color_flag++;
-    if (dwg_dynapi_entity_set_value (material, "MATERIAL", "diffuse_color_flag", &diffuse_color_flag, 0)
-        && diffuse_color_flag == material->diffuse_color_flag)
-      pass ();
-    else
-      fail ("MATERIAL.diffuse_color_flag [BS] set+1 %hu != %hu", material->diffuse_color_flag, diffuse_color_flag);
-    material->diffuse_color_flag--;
-  }
-  {
-    BITCODE_BS diffusemap_autotransform;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "diffusemap_autotransform", &diffusemap_autotransform, NULL)
-        && diffusemap_autotransform == material->diffusemap_autotransform)
-      pass ();
-    else
-      fail ("MATERIAL.diffusemap_autotransform [BS] %hu != %hu", material->diffusemap_autotransform, diffusemap_autotransform);
-    diffusemap_autotransform++;
-    if (dwg_dynapi_entity_set_value (material, "MATERIAL", "diffusemap_autotransform", &diffusemap_autotransform, 0)
-        && diffusemap_autotransform == material->diffusemap_autotransform)
-      pass ();
-    else
-      fail ("MATERIAL.diffusemap_autotransform [BS] set+1 %hu != %hu", material->diffusemap_autotransform, diffusemap_autotransform);
-    material->diffusemap_autotransform--;
-  }
-  {
-    BITCODE_BD diffusemap_blendfactor;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "diffusemap_blendfactor", &diffusemap_blendfactor, NULL)
-        && diffusemap_blendfactor == material->diffusemap_blendfactor)
-      pass ();
-    else
-      fail ("MATERIAL.diffusemap_blendfactor [BD] %g != %g", material->diffusemap_blendfactor, diffusemap_blendfactor);
-    diffusemap_blendfactor++;
-    if (dwg_dynapi_entity_set_value (material, "MATERIAL", "diffusemap_blendfactor", &diffusemap_blendfactor, 0)
-        && diffusemap_blendfactor == material->diffusemap_blendfactor)
-      pass ();
-    else
-      fail ("MATERIAL.diffusemap_blendfactor [BD] set+1 %g != %g", material->diffusemap_blendfactor, diffusemap_blendfactor);
-    material->diffusemap_blendfactor--;
-  }
-  {
-    BITCODE_T diffusemap_filename;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "diffusemap_filename", &diffusemap_filename, NULL)
-        && diffusemap_filename
-           ? strEQ ((char *)diffusemap_filename, (char *)material->diffusemap_filename)
-           : !material->diffusemap_filename)
-      pass ();
-    else
-      fail ("MATERIAL.diffusemap_filename [T] '%s' <> '%s'", diffusemap_filename, material->diffusemap_filename);
-  }
-  {
-    BITCODE_BS diffusemap_projection;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "diffusemap_projection", &diffusemap_projection, NULL)
-        && diffusemap_projection == material->diffusemap_projection)
-      pass ();
-    else
-      fail ("MATERIAL.diffusemap_projection [BS] %hu != %hu", material->diffusemap_projection, diffusemap_projection);
-    diffusemap_projection++;
-    if (dwg_dynapi_entity_set_value (material, "MATERIAL", "diffusemap_projection", &diffusemap_projection, 0)
-        && diffusemap_projection == material->diffusemap_projection)
-      pass ();
-    else
-      fail ("MATERIAL.diffusemap_projection [BS] set+1 %hu != %hu", material->diffusemap_projection, diffusemap_projection);
-    material->diffusemap_projection--;
-  }
-  {
-    BITCODE_BS diffusemap_source;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "diffusemap_source", &diffusemap_source, NULL)
-        && diffusemap_source == material->diffusemap_source)
-      pass ();
-    else
-      fail ("MATERIAL.diffusemap_source [BS] %hu != %hu", material->diffusemap_source, diffusemap_source);
-    diffusemap_source++;
-    if (dwg_dynapi_entity_set_value (material, "MATERIAL", "diffusemap_source", &diffusemap_source, 0)
-        && diffusemap_source == material->diffusemap_source)
-      pass ();
-    else
-      fail ("MATERIAL.diffusemap_source [BS] set+1 %hu != %hu", material->diffusemap_source, diffusemap_source);
-    material->diffusemap_source--;
-  }
-  {
-    BITCODE_BS diffusemap_tiling;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "diffusemap_tiling", &diffusemap_tiling, NULL)
-        && diffusemap_tiling == material->diffusemap_tiling)
-      pass ();
-    else
-      fail ("MATERIAL.diffusemap_tiling [BS] %hu != %hu", material->diffusemap_tiling, diffusemap_tiling);
-    diffusemap_tiling++;
-    if (dwg_dynapi_entity_set_value (material, "MATERIAL", "diffusemap_tiling", &diffusemap_tiling, 0)
-        && diffusemap_tiling == material->diffusemap_tiling)
-      pass ();
-    else
-      fail ("MATERIAL.diffusemap_tiling [BS] set+1 %hu != %hu", material->diffusemap_tiling, diffusemap_tiling);
-    material->diffusemap_tiling--;
-  }
-  {
-    BITCODE_BD* diffusemap_transmatrix;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "diffusemap_transmatrix", &diffusemap_transmatrix, NULL)
-        && !memcmp (&diffusemap_transmatrix, &material->diffusemap_transmatrix, sizeof (material->diffusemap_transmatrix)))
+    Dwg_MATERIAL_mapper diffusemap;
+    if (dwg_dynapi_entity_value (material, "MATERIAL", "diffusemap", &diffusemap, NULL)
+        && !memcmp (&diffusemap, &material->diffusemap, sizeof (material->diffusemap)))
         pass ();
     else
-        fail ("MATERIAL.diffusemap_transmatrix [BD*]");
-  }
-  {
-    BITCODE_BS final_gather_mode;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "final_gather_mode", &final_gather_mode, NULL)
-        && final_gather_mode == material->final_gather_mode)
-      pass ();
-    else
-      fail ("MATERIAL.final_gather_mode [BS] %hu != %hu", material->final_gather_mode, final_gather_mode);
-    final_gather_mode++;
-    if (dwg_dynapi_entity_set_value (material, "MATERIAL", "final_gather_mode", &final_gather_mode, 0)
-        && final_gather_mode == material->final_gather_mode)
-      pass ();
-    else
-      fail ("MATERIAL.final_gather_mode [BS] set+1 %hu != %hu", material->final_gather_mode, final_gather_mode);
-    material->final_gather_mode--;
+        fail ("MATERIAL.diffusemap [Dwg_MATERIAL_mapper]");
   }
   {
     BITCODE_T genprocname;
@@ -33392,6 +34491,21 @@ static int test_MATERIAL (const Dwg_Object *obj)
     material->genproctableend--;
   }
   {
+    BITCODE_BS genproctype;
+    if (dwg_dynapi_entity_value (material, "MATERIAL", "genproctype", &genproctype, NULL)
+        && genproctype == material->genproctype)
+      pass ();
+    else
+      fail ("MATERIAL.genproctype [BS] %hu != %hu", material->genproctype, genproctype);
+    genproctype++;
+    if (dwg_dynapi_entity_set_value (material, "MATERIAL", "genproctype", &genproctype, 0)
+        && genproctype == material->genproctype)
+      pass ();
+    else
+      fail ("MATERIAL.genproctype [BS] set+1 %hu != %hu", material->genproctype, genproctype);
+    material->genproctype--;
+  }
+  {
     BITCODE_B genprocvalbool;
     if (dwg_dynapi_entity_value (material, "MATERIAL", "genprocvalbool", &genprocvalbool, NULL)
         && genprocvalbool == material->genprocvalbool)
@@ -33407,37 +34521,12 @@ static int test_MATERIAL (const Dwg_Object *obj)
     material->genprocvalbool--;
   }
   {
-    BITCODE_CMC genprocvalcolorindex;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "genprocvalcolorindex", &genprocvalcolorindex, NULL)
-        && !memcmp (&genprocvalcolorindex, &material->genprocvalcolorindex, sizeof (material->genprocvalcolorindex)))
+    BITCODE_CMC genprocvalcolor;
+    if (dwg_dynapi_entity_value (material, "MATERIAL", "genprocvalcolor", &genprocvalcolor, NULL)
+        && !memcmp (&genprocvalcolor, &material->genprocvalcolor, sizeof (material->genprocvalcolor)))
         pass ();
     else
-        fail ("MATERIAL.genprocvalcolorindex [CMC]");
-  }
-  {
-    BITCODE_T genprocvalcolorname;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "genprocvalcolorname", &genprocvalcolorname, NULL)
-        && genprocvalcolorname
-           ? strEQ ((char *)genprocvalcolorname, (char *)material->genprocvalcolorname)
-           : !material->genprocvalcolorname)
-      pass ();
-    else
-      fail ("MATERIAL.genprocvalcolorname [T] '%s' <> '%s'", genprocvalcolorname, material->genprocvalcolorname);
-  }
-  {
-    BITCODE_BS genprocvalcolorrgb;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "genprocvalcolorrgb", &genprocvalcolorrgb, NULL)
-        && genprocvalcolorrgb == material->genprocvalcolorrgb)
-      pass ();
-    else
-      fail ("MATERIAL.genprocvalcolorrgb [BS] %hu != %hu", material->genprocvalcolorrgb, genprocvalcolorrgb);
-    genprocvalcolorrgb++;
-    if (dwg_dynapi_entity_set_value (material, "MATERIAL", "genprocvalcolorrgb", &genprocvalcolorrgb, 0)
-        && genprocvalcolorrgb == material->genprocvalcolorrgb)
-      pass ();
-    else
-      fail ("MATERIAL.genprocvalcolorrgb [BS] set+1 %hu != %hu", material->genprocvalcolorrgb, genprocvalcolorrgb);
-    material->genprocvalcolorrgb--;
+        fail ("MATERIAL.genprocvalcolor [CMC]");
   }
   {
     BITCODE_BS genprocvalint;
@@ -33480,19 +34569,14 @@ static int test_MATERIAL (const Dwg_Object *obj)
       fail ("MATERIAL.genprocvaltext [T] '%s' <> '%s'", genprocvaltext, material->genprocvaltext);
   }
   {
-    BITCODE_BS global_illumination_mode;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "global_illumination_mode", &global_illumination_mode, NULL)
-        && global_illumination_mode == material->global_illumination_mode)
+    void* gentextures;
+    BITCODE_BL count = 0;
+    if (dwg_dynapi_entity_value (material, "MATERIAL", "num_gentextures", &count, NULL)
+        && dwg_dynapi_entity_value (material, "MATERIAL", "gentextures", &gentextures, NULL)
+        && gentextures == material->gentextures)
       pass ();
     else
-      fail ("MATERIAL.global_illumination_mode [BS] %hu != %hu", material->global_illumination_mode, global_illumination_mode);
-    global_illumination_mode++;
-    if (dwg_dynapi_entity_set_value (material, "MATERIAL", "global_illumination_mode", &global_illumination_mode, 0)
-        && global_illumination_mode == material->global_illumination_mode)
-      pass ();
-    else
-      fail ("MATERIAL.global_illumination_mode [BS] set+1 %hu != %hu", material->global_illumination_mode, global_illumination_mode);
-    material->global_illumination_mode--;
+      fail ("MATERIAL.gentextures [void*] * %u num_gentextures", count);
   }
   {
     BITCODE_BL illumination_model;
@@ -33510,19 +34594,19 @@ static int test_MATERIAL (const Dwg_Object *obj)
     material->illumination_model--;
   }
   {
-    BITCODE_BD indirect_dump_scale;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "indirect_dump_scale", &indirect_dump_scale, NULL)
-        && indirect_dump_scale == material->indirect_dump_scale)
+    BITCODE_BD indirect_bump_scale;
+    if (dwg_dynapi_entity_value (material, "MATERIAL", "indirect_bump_scale", &indirect_bump_scale, NULL)
+        && indirect_bump_scale == material->indirect_bump_scale)
       pass ();
     else
-      fail ("MATERIAL.indirect_dump_scale [BD] %g != %g", material->indirect_dump_scale, indirect_dump_scale);
-    indirect_dump_scale++;
-    if (dwg_dynapi_entity_set_value (material, "MATERIAL", "indirect_dump_scale", &indirect_dump_scale, 0)
-        && indirect_dump_scale == material->indirect_dump_scale)
+      fail ("MATERIAL.indirect_bump_scale [BD] %g != %g", material->indirect_bump_scale, indirect_bump_scale);
+    indirect_bump_scale++;
+    if (dwg_dynapi_entity_set_value (material, "MATERIAL", "indirect_bump_scale", &indirect_bump_scale, 0)
+        && indirect_bump_scale == material->indirect_bump_scale)
       pass ();
     else
-      fail ("MATERIAL.indirect_dump_scale [BD] set+1 %g != %g", material->indirect_dump_scale, indirect_dump_scale);
-    material->indirect_dump_scale--;
+      fail ("MATERIAL.indirect_bump_scale [BD] set+1 %g != %g", material->indirect_bump_scale, indirect_bump_scale);
+    material->indirect_bump_scale--;
   }
   {
     BITCODE_BD luminance;
@@ -33555,34 +34639,19 @@ static int test_MATERIAL (const Dwg_Object *obj)
     material->luminance_mode--;
   }
   {
-    BITCODE_BS map_utile;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "map_utile", &map_utile, NULL)
-        && map_utile == material->map_utile)
+    BITCODE_BL mode;
+    if (dwg_dynapi_entity_value (material, "MATERIAL", "mode", &mode, NULL)
+        && mode == material->mode)
       pass ();
     else
-      fail ("MATERIAL.map_utile [BS] %hu != %hu", material->map_utile, map_utile);
-    map_utile++;
-    if (dwg_dynapi_entity_set_value (material, "MATERIAL", "map_utile", &map_utile, 0)
-        && map_utile == material->map_utile)
+      fail ("MATERIAL.mode [BL] %u != %u", material->mode, mode);
+    mode++;
+    if (dwg_dynapi_entity_set_value (material, "MATERIAL", "mode", &mode, 0)
+        && mode == material->mode)
       pass ();
     else
-      fail ("MATERIAL.map_utile [BS] set+1 %hu != %hu", material->map_utile, map_utile);
-    material->map_utile--;
-  }
-  {
-    BITCODE_B materials_anonymous;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "materials_anonymous", &materials_anonymous, NULL)
-        && materials_anonymous == material->materials_anonymous)
-      pass ();
-    else
-      fail ("MATERIAL.materials_anonymous [B] " FORMAT_B " != " FORMAT_B "", material->materials_anonymous, materials_anonymous);
-    materials_anonymous++;
-    if (dwg_dynapi_entity_set_value (material, "MATERIAL", "materials_anonymous", &materials_anonymous, 0)
-        && materials_anonymous == material->materials_anonymous)
-      pass ();
-    else
-      fail ("MATERIAL.materials_anonymous [B] set+1 " FORMAT_B " != " FORMAT_B "", material->materials_anonymous, materials_anonymous);
-    material->materials_anonymous--;
+      fail ("MATERIAL.mode [BL] set+1 %u != %u", material->mode, mode);
+    material->mode--;
   }
   {
     BITCODE_T name;
@@ -33595,127 +34664,19 @@ static int test_MATERIAL (const Dwg_Object *obj)
       fail ("MATERIAL.name [T] '%s' <> '%s'", name, material->name);
   }
   {
-    BITCODE_BS normalmap_autotransform;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "normalmap_autotransform", &normalmap_autotransform, NULL)
-        && normalmap_autotransform == material->normalmap_autotransform)
+    BITCODE_BS num_gentextures;
+    if (dwg_dynapi_entity_value (material, "MATERIAL", "num_gentextures", &num_gentextures, NULL)
+        && num_gentextures == material->num_gentextures)
       pass ();
     else
-      fail ("MATERIAL.normalmap_autotransform [BS] %hu != %hu", material->normalmap_autotransform, normalmap_autotransform);
-    normalmap_autotransform++;
-    if (dwg_dynapi_entity_set_value (material, "MATERIAL", "normalmap_autotransform", &normalmap_autotransform, 0)
-        && normalmap_autotransform == material->normalmap_autotransform)
+      fail ("MATERIAL.num_gentextures [BS] %hu != %hu", material->num_gentextures, num_gentextures);
+    num_gentextures++;
+    if (dwg_dynapi_entity_set_value (material, "MATERIAL", "num_gentextures", &num_gentextures, 0)
+        && num_gentextures == material->num_gentextures)
       pass ();
     else
-      fail ("MATERIAL.normalmap_autotransform [BS] set+1 %hu != %hu", material->normalmap_autotransform, normalmap_autotransform);
-    material->normalmap_autotransform--;
-  }
-  {
-    BITCODE_BD normalmap_blendfactor;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "normalmap_blendfactor", &normalmap_blendfactor, NULL)
-        && normalmap_blendfactor == material->normalmap_blendfactor)
-      pass ();
-    else
-      fail ("MATERIAL.normalmap_blendfactor [BD] %g != %g", material->normalmap_blendfactor, normalmap_blendfactor);
-    normalmap_blendfactor++;
-    if (dwg_dynapi_entity_set_value (material, "MATERIAL", "normalmap_blendfactor", &normalmap_blendfactor, 0)
-        && normalmap_blendfactor == material->normalmap_blendfactor)
-      pass ();
-    else
-      fail ("MATERIAL.normalmap_blendfactor [BD] set+1 %g != %g", material->normalmap_blendfactor, normalmap_blendfactor);
-    material->normalmap_blendfactor--;
-  }
-  {
-    BITCODE_T normalmap_filename;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "normalmap_filename", &normalmap_filename, NULL)
-        && normalmap_filename
-           ? strEQ ((char *)normalmap_filename, (char *)material->normalmap_filename)
-           : !material->normalmap_filename)
-      pass ();
-    else
-      fail ("MATERIAL.normalmap_filename [T] '%s' <> '%s'", normalmap_filename, material->normalmap_filename);
-  }
-  {
-    BITCODE_BS normalmap_method;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "normalmap_method", &normalmap_method, NULL)
-        && normalmap_method == material->normalmap_method)
-      pass ();
-    else
-      fail ("MATERIAL.normalmap_method [BS] %hu != %hu", material->normalmap_method, normalmap_method);
-    normalmap_method++;
-    if (dwg_dynapi_entity_set_value (material, "MATERIAL", "normalmap_method", &normalmap_method, 0)
-        && normalmap_method == material->normalmap_method)
-      pass ();
-    else
-      fail ("MATERIAL.normalmap_method [BS] set+1 %hu != %hu", material->normalmap_method, normalmap_method);
-    material->normalmap_method--;
-  }
-  {
-    BITCODE_BS normalmap_projection;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "normalmap_projection", &normalmap_projection, NULL)
-        && normalmap_projection == material->normalmap_projection)
-      pass ();
-    else
-      fail ("MATERIAL.normalmap_projection [BS] %hu != %hu", material->normalmap_projection, normalmap_projection);
-    normalmap_projection++;
-    if (dwg_dynapi_entity_set_value (material, "MATERIAL", "normalmap_projection", &normalmap_projection, 0)
-        && normalmap_projection == material->normalmap_projection)
-      pass ();
-    else
-      fail ("MATERIAL.normalmap_projection [BS] set+1 %hu != %hu", material->normalmap_projection, normalmap_projection);
-    material->normalmap_projection--;
-  }
-  {
-    BITCODE_BS normalmap_source;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "normalmap_source", &normalmap_source, NULL)
-        && normalmap_source == material->normalmap_source)
-      pass ();
-    else
-      fail ("MATERIAL.normalmap_source [BS] %hu != %hu", material->normalmap_source, normalmap_source);
-    normalmap_source++;
-    if (dwg_dynapi_entity_set_value (material, "MATERIAL", "normalmap_source", &normalmap_source, 0)
-        && normalmap_source == material->normalmap_source)
-      pass ();
-    else
-      fail ("MATERIAL.normalmap_source [BS] set+1 %hu != %hu", material->normalmap_source, normalmap_source);
-    material->normalmap_source--;
-  }
-  {
-    BITCODE_BD normalmap_strength;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "normalmap_strength", &normalmap_strength, NULL)
-        && normalmap_strength == material->normalmap_strength)
-      pass ();
-    else
-      fail ("MATERIAL.normalmap_strength [BD] %g != %g", material->normalmap_strength, normalmap_strength);
-    normalmap_strength++;
-    if (dwg_dynapi_entity_set_value (material, "MATERIAL", "normalmap_strength", &normalmap_strength, 0)
-        && normalmap_strength == material->normalmap_strength)
-      pass ();
-    else
-      fail ("MATERIAL.normalmap_strength [BD] set+1 %g != %g", material->normalmap_strength, normalmap_strength);
-    material->normalmap_strength--;
-  }
-  {
-    BITCODE_BS normalmap_tiling;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "normalmap_tiling", &normalmap_tiling, NULL)
-        && normalmap_tiling == material->normalmap_tiling)
-      pass ();
-    else
-      fail ("MATERIAL.normalmap_tiling [BS] %hu != %hu", material->normalmap_tiling, normalmap_tiling);
-    normalmap_tiling++;
-    if (dwg_dynapi_entity_set_value (material, "MATERIAL", "normalmap_tiling", &normalmap_tiling, 0)
-        && normalmap_tiling == material->normalmap_tiling)
-      pass ();
-    else
-      fail ("MATERIAL.normalmap_tiling [BS] set+1 %hu != %hu", material->normalmap_tiling, normalmap_tiling);
-    material->normalmap_tiling--;
-  }
-  {
-    BITCODE_BD* normalmap_transmatrix;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "normalmap_transmatrix", &normalmap_transmatrix, NULL)
-        && !memcmp (&normalmap_transmatrix, &material->normalmap_transmatrix, sizeof (material->normalmap_transmatrix)))
-        pass ();
-    else
-        fail ("MATERIAL.normalmap_transmatrix [BD*]");
+      fail ("MATERIAL.num_gentextures [BS] set+1 %hu != %hu", material->num_gentextures, num_gentextures);
+    material->num_gentextures--;
   }
   {
     BITCODE_BD opacity_percent;
@@ -33733,97 +34694,12 @@ static int test_MATERIAL (const Dwg_Object *obj)
     material->opacity_percent--;
   }
   {
-    BITCODE_BS opacitymap_autotransform;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "opacitymap_autotransform", &opacitymap_autotransform, NULL)
-        && opacitymap_autotransform == material->opacitymap_autotransform)
-      pass ();
-    else
-      fail ("MATERIAL.opacitymap_autotransform [BS] %hu != %hu", material->opacitymap_autotransform, opacitymap_autotransform);
-    opacitymap_autotransform++;
-    if (dwg_dynapi_entity_set_value (material, "MATERIAL", "opacitymap_autotransform", &opacitymap_autotransform, 0)
-        && opacitymap_autotransform == material->opacitymap_autotransform)
-      pass ();
-    else
-      fail ("MATERIAL.opacitymap_autotransform [BS] set+1 %hu != %hu", material->opacitymap_autotransform, opacitymap_autotransform);
-    material->opacitymap_autotransform--;
-  }
-  {
-    BITCODE_BD opacitymap_blendfactor;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "opacitymap_blendfactor", &opacitymap_blendfactor, NULL)
-        && opacitymap_blendfactor == material->opacitymap_blendfactor)
-      pass ();
-    else
-      fail ("MATERIAL.opacitymap_blendfactor [BD] %g != %g", material->opacitymap_blendfactor, opacitymap_blendfactor);
-    opacitymap_blendfactor++;
-    if (dwg_dynapi_entity_set_value (material, "MATERIAL", "opacitymap_blendfactor", &opacitymap_blendfactor, 0)
-        && opacitymap_blendfactor == material->opacitymap_blendfactor)
-      pass ();
-    else
-      fail ("MATERIAL.opacitymap_blendfactor [BD] set+1 %g != %g", material->opacitymap_blendfactor, opacitymap_blendfactor);
-    material->opacitymap_blendfactor--;
-  }
-  {
-    BITCODE_T opacitymap_filename;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "opacitymap_filename", &opacitymap_filename, NULL)
-        && opacitymap_filename
-           ? strEQ ((char *)opacitymap_filename, (char *)material->opacitymap_filename)
-           : !material->opacitymap_filename)
-      pass ();
-    else
-      fail ("MATERIAL.opacitymap_filename [T] '%s' <> '%s'", opacitymap_filename, material->opacitymap_filename);
-  }
-  {
-    BITCODE_BS opacitymap_projection;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "opacitymap_projection", &opacitymap_projection, NULL)
-        && opacitymap_projection == material->opacitymap_projection)
-      pass ();
-    else
-      fail ("MATERIAL.opacitymap_projection [BS] %hu != %hu", material->opacitymap_projection, opacitymap_projection);
-    opacitymap_projection++;
-    if (dwg_dynapi_entity_set_value (material, "MATERIAL", "opacitymap_projection", &opacitymap_projection, 0)
-        && opacitymap_projection == material->opacitymap_projection)
-      pass ();
-    else
-      fail ("MATERIAL.opacitymap_projection [BS] set+1 %hu != %hu", material->opacitymap_projection, opacitymap_projection);
-    material->opacitymap_projection--;
-  }
-  {
-    BITCODE_BS opacitymap_source;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "opacitymap_source", &opacitymap_source, NULL)
-        && opacitymap_source == material->opacitymap_source)
-      pass ();
-    else
-      fail ("MATERIAL.opacitymap_source [BS] %hu != %hu", material->opacitymap_source, opacitymap_source);
-    opacitymap_source++;
-    if (dwg_dynapi_entity_set_value (material, "MATERIAL", "opacitymap_source", &opacitymap_source, 0)
-        && opacitymap_source == material->opacitymap_source)
-      pass ();
-    else
-      fail ("MATERIAL.opacitymap_source [BS] set+1 %hu != %hu", material->opacitymap_source, opacitymap_source);
-    material->opacitymap_source--;
-  }
-  {
-    BITCODE_BS opacitymap_tiling;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "opacitymap_tiling", &opacitymap_tiling, NULL)
-        && opacitymap_tiling == material->opacitymap_tiling)
-      pass ();
-    else
-      fail ("MATERIAL.opacitymap_tiling [BS] %hu != %hu", material->opacitymap_tiling, opacitymap_tiling);
-    opacitymap_tiling++;
-    if (dwg_dynapi_entity_set_value (material, "MATERIAL", "opacitymap_tiling", &opacitymap_tiling, 0)
-        && opacitymap_tiling == material->opacitymap_tiling)
-      pass ();
-    else
-      fail ("MATERIAL.opacitymap_tiling [BS] set+1 %hu != %hu", material->opacitymap_tiling, opacitymap_tiling);
-    material->opacitymap_tiling--;
-  }
-  {
-    BITCODE_BD* opacitymap_transmatrix;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "opacitymap_transmatrix", &opacitymap_transmatrix, NULL)
-        && !memcmp (&opacitymap_transmatrix, &material->opacitymap_transmatrix, sizeof (material->opacitymap_transmatrix)))
+    Dwg_MATERIAL_mapper opacitymap;
+    if (dwg_dynapi_entity_value (material, "MATERIAL", "opacitymap", &opacitymap, NULL)
+        && !memcmp (&opacitymap, &material->opacitymap, sizeof (material->opacitymap)))
         pass ();
     else
-        fail ("MATERIAL.opacitymap_transmatrix [BD*]");
+        fail ("MATERIAL.opacitymap [Dwg_MATERIAL_mapper]");
   }
   {
     struct _dwg_object_object* parent;
@@ -33849,97 +34725,12 @@ static int test_MATERIAL (const Dwg_Object *obj)
     material->reflectance_scale--;
   }
   {
-    BITCODE_BS reflectionmap_autotransform;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "reflectionmap_autotransform", &reflectionmap_autotransform, NULL)
-        && reflectionmap_autotransform == material->reflectionmap_autotransform)
-      pass ();
-    else
-      fail ("MATERIAL.reflectionmap_autotransform [BS] %hu != %hu", material->reflectionmap_autotransform, reflectionmap_autotransform);
-    reflectionmap_autotransform++;
-    if (dwg_dynapi_entity_set_value (material, "MATERIAL", "reflectionmap_autotransform", &reflectionmap_autotransform, 0)
-        && reflectionmap_autotransform == material->reflectionmap_autotransform)
-      pass ();
-    else
-      fail ("MATERIAL.reflectionmap_autotransform [BS] set+1 %hu != %hu", material->reflectionmap_autotransform, reflectionmap_autotransform);
-    material->reflectionmap_autotransform--;
-  }
-  {
-    BITCODE_BD reflectionmap_blendfactor;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "reflectionmap_blendfactor", &reflectionmap_blendfactor, NULL)
-        && reflectionmap_blendfactor == material->reflectionmap_blendfactor)
-      pass ();
-    else
-      fail ("MATERIAL.reflectionmap_blendfactor [BD] %g != %g", material->reflectionmap_blendfactor, reflectionmap_blendfactor);
-    reflectionmap_blendfactor++;
-    if (dwg_dynapi_entity_set_value (material, "MATERIAL", "reflectionmap_blendfactor", &reflectionmap_blendfactor, 0)
-        && reflectionmap_blendfactor == material->reflectionmap_blendfactor)
-      pass ();
-    else
-      fail ("MATERIAL.reflectionmap_blendfactor [BD] set+1 %g != %g", material->reflectionmap_blendfactor, reflectionmap_blendfactor);
-    material->reflectionmap_blendfactor--;
-  }
-  {
-    BITCODE_T reflectionmap_filename;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "reflectionmap_filename", &reflectionmap_filename, NULL)
-        && reflectionmap_filename
-           ? strEQ ((char *)reflectionmap_filename, (char *)material->reflectionmap_filename)
-           : !material->reflectionmap_filename)
-      pass ();
-    else
-      fail ("MATERIAL.reflectionmap_filename [T] '%s' <> '%s'", reflectionmap_filename, material->reflectionmap_filename);
-  }
-  {
-    BITCODE_BS reflectionmap_projection;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "reflectionmap_projection", &reflectionmap_projection, NULL)
-        && reflectionmap_projection == material->reflectionmap_projection)
-      pass ();
-    else
-      fail ("MATERIAL.reflectionmap_projection [BS] %hu != %hu", material->reflectionmap_projection, reflectionmap_projection);
-    reflectionmap_projection++;
-    if (dwg_dynapi_entity_set_value (material, "MATERIAL", "reflectionmap_projection", &reflectionmap_projection, 0)
-        && reflectionmap_projection == material->reflectionmap_projection)
-      pass ();
-    else
-      fail ("MATERIAL.reflectionmap_projection [BS] set+1 %hu != %hu", material->reflectionmap_projection, reflectionmap_projection);
-    material->reflectionmap_projection--;
-  }
-  {
-    BITCODE_BS reflectionmap_source;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "reflectionmap_source", &reflectionmap_source, NULL)
-        && reflectionmap_source == material->reflectionmap_source)
-      pass ();
-    else
-      fail ("MATERIAL.reflectionmap_source [BS] %hu != %hu", material->reflectionmap_source, reflectionmap_source);
-    reflectionmap_source++;
-    if (dwg_dynapi_entity_set_value (material, "MATERIAL", "reflectionmap_source", &reflectionmap_source, 0)
-        && reflectionmap_source == material->reflectionmap_source)
-      pass ();
-    else
-      fail ("MATERIAL.reflectionmap_source [BS] set+1 %hu != %hu", material->reflectionmap_source, reflectionmap_source);
-    material->reflectionmap_source--;
-  }
-  {
-    BITCODE_BS reflectionmap_tiling;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "reflectionmap_tiling", &reflectionmap_tiling, NULL)
-        && reflectionmap_tiling == material->reflectionmap_tiling)
-      pass ();
-    else
-      fail ("MATERIAL.reflectionmap_tiling [BS] %hu != %hu", material->reflectionmap_tiling, reflectionmap_tiling);
-    reflectionmap_tiling++;
-    if (dwg_dynapi_entity_set_value (material, "MATERIAL", "reflectionmap_tiling", &reflectionmap_tiling, 0)
-        && reflectionmap_tiling == material->reflectionmap_tiling)
-      pass ();
-    else
-      fail ("MATERIAL.reflectionmap_tiling [BS] set+1 %hu != %hu", material->reflectionmap_tiling, reflectionmap_tiling);
-    material->reflectionmap_tiling--;
-  }
-  {
-    BITCODE_BD* reflectionmap_transmatrix;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "reflectionmap_transmatrix", &reflectionmap_transmatrix, NULL)
-        && !memcmp (&reflectionmap_transmatrix, &material->reflectionmap_transmatrix, sizeof (material->reflectionmap_transmatrix)))
+    Dwg_MATERIAL_mapper reflectionmap;
+    if (dwg_dynapi_entity_value (material, "MATERIAL", "reflectionmap", &reflectionmap, NULL)
+        && !memcmp (&reflectionmap, &material->reflectionmap, sizeof (material->reflectionmap)))
         pass ();
     else
-        fail ("MATERIAL.reflectionmap_transmatrix [BD*]");
+        fail ("MATERIAL.reflectionmap [Dwg_MATERIAL_mapper]");
   }
   {
     BITCODE_BD reflectivity;
@@ -33972,150 +34763,35 @@ static int test_MATERIAL (const Dwg_Object *obj)
     material->refraction_index--;
   }
   {
-    BITCODE_BS refractionmap_autotransform;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "refractionmap_autotransform", &refractionmap_autotransform, NULL)
-        && refractionmap_autotransform == material->refractionmap_autotransform)
-      pass ();
-    else
-      fail ("MATERIAL.refractionmap_autotransform [BS] %hu != %hu", material->refractionmap_autotransform, refractionmap_autotransform);
-    refractionmap_autotransform++;
-    if (dwg_dynapi_entity_set_value (material, "MATERIAL", "refractionmap_autotransform", &refractionmap_autotransform, 0)
-        && refractionmap_autotransform == material->refractionmap_autotransform)
-      pass ();
-    else
-      fail ("MATERIAL.refractionmap_autotransform [BS] set+1 %hu != %hu", material->refractionmap_autotransform, refractionmap_autotransform);
-    material->refractionmap_autotransform--;
-  }
-  {
-    BITCODE_BD refractionmap_blendfactor;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "refractionmap_blendfactor", &refractionmap_blendfactor, NULL)
-        && refractionmap_blendfactor == material->refractionmap_blendfactor)
-      pass ();
-    else
-      fail ("MATERIAL.refractionmap_blendfactor [BD] %g != %g", material->refractionmap_blendfactor, refractionmap_blendfactor);
-    refractionmap_blendfactor++;
-    if (dwg_dynapi_entity_set_value (material, "MATERIAL", "refractionmap_blendfactor", &refractionmap_blendfactor, 0)
-        && refractionmap_blendfactor == material->refractionmap_blendfactor)
-      pass ();
-    else
-      fail ("MATERIAL.refractionmap_blendfactor [BD] set+1 %g != %g", material->refractionmap_blendfactor, refractionmap_blendfactor);
-    material->refractionmap_blendfactor--;
-  }
-  {
-    BITCODE_T refractionmap_filename;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "refractionmap_filename", &refractionmap_filename, NULL)
-        && refractionmap_filename
-           ? strEQ ((char *)refractionmap_filename, (char *)material->refractionmap_filename)
-           : !material->refractionmap_filename)
-      pass ();
-    else
-      fail ("MATERIAL.refractionmap_filename [T] '%s' <> '%s'", refractionmap_filename, material->refractionmap_filename);
-  }
-  {
-    BITCODE_BS refractionmap_projection;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "refractionmap_projection", &refractionmap_projection, NULL)
-        && refractionmap_projection == material->refractionmap_projection)
-      pass ();
-    else
-      fail ("MATERIAL.refractionmap_projection [BS] %hu != %hu", material->refractionmap_projection, refractionmap_projection);
-    refractionmap_projection++;
-    if (dwg_dynapi_entity_set_value (material, "MATERIAL", "refractionmap_projection", &refractionmap_projection, 0)
-        && refractionmap_projection == material->refractionmap_projection)
-      pass ();
-    else
-      fail ("MATERIAL.refractionmap_projection [BS] set+1 %hu != %hu", material->refractionmap_projection, refractionmap_projection);
-    material->refractionmap_projection--;
-  }
-  {
-    BITCODE_BS refractionmap_source;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "refractionmap_source", &refractionmap_source, NULL)
-        && refractionmap_source == material->refractionmap_source)
-      pass ();
-    else
-      fail ("MATERIAL.refractionmap_source [BS] %hu != %hu", material->refractionmap_source, refractionmap_source);
-    refractionmap_source++;
-    if (dwg_dynapi_entity_set_value (material, "MATERIAL", "refractionmap_source", &refractionmap_source, 0)
-        && refractionmap_source == material->refractionmap_source)
-      pass ();
-    else
-      fail ("MATERIAL.refractionmap_source [BS] set+1 %hu != %hu", material->refractionmap_source, refractionmap_source);
-    material->refractionmap_source--;
-  }
-  {
-    BITCODE_BS refractionmap_tiling;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "refractionmap_tiling", &refractionmap_tiling, NULL)
-        && refractionmap_tiling == material->refractionmap_tiling)
-      pass ();
-    else
-      fail ("MATERIAL.refractionmap_tiling [BS] %hu != %hu", material->refractionmap_tiling, refractionmap_tiling);
-    refractionmap_tiling++;
-    if (dwg_dynapi_entity_set_value (material, "MATERIAL", "refractionmap_tiling", &refractionmap_tiling, 0)
-        && refractionmap_tiling == material->refractionmap_tiling)
-      pass ();
-    else
-      fail ("MATERIAL.refractionmap_tiling [BS] set+1 %hu != %hu", material->refractionmap_tiling, refractionmap_tiling);
-    material->refractionmap_tiling--;
-  }
-  {
-    BITCODE_BD* refractionmap_transmatrix;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "refractionmap_transmatrix", &refractionmap_transmatrix, NULL)
-        && !memcmp (&refractionmap_transmatrix, &material->refractionmap_transmatrix, sizeof (material->refractionmap_transmatrix)))
+    Dwg_MATERIAL_mapper refractionmap;
+    if (dwg_dynapi_entity_value (material, "MATERIAL", "refractionmap", &refractionmap, NULL)
+        && !memcmp (&refractionmap, &material->refractionmap, sizeof (material->refractionmap)))
         pass ();
     else
-        fail ("MATERIAL.refractionmap_transmatrix [BD*]");
+        fail ("MATERIAL.refractionmap [Dwg_MATERIAL_mapper]");
   }
   {
-    BITCODE_BL self_illumination;
+    BITCODE_BD self_illumination;
     if (dwg_dynapi_entity_value (material, "MATERIAL", "self_illumination", &self_illumination, NULL)
         && self_illumination == material->self_illumination)
       pass ();
     else
-      fail ("MATERIAL.self_illumination [BL] %u != %u", material->self_illumination, self_illumination);
+      fail ("MATERIAL.self_illumination [BD] %g != %g", material->self_illumination, self_illumination);
     self_illumination++;
     if (dwg_dynapi_entity_set_value (material, "MATERIAL", "self_illumination", &self_illumination, 0)
         && self_illumination == material->self_illumination)
       pass ();
     else
-      fail ("MATERIAL.self_illumination [BL] set+1 %u != %u", material->self_illumination, self_illumination);
+      fail ("MATERIAL.self_illumination [BD] set+1 %g != %g", material->self_illumination, self_illumination);
     material->self_illumination--;
   }
   {
-    BITCODE_CMC specular_color;
+    Dwg_MATERIAL_color specular_color;
     if (dwg_dynapi_entity_value (material, "MATERIAL", "specular_color", &specular_color, NULL)
         && !memcmp (&specular_color, &material->specular_color, sizeof (material->specular_color)))
         pass ();
     else
-        fail ("MATERIAL.specular_color [CMC]");
-  }
-  {
-    BITCODE_BD specular_color_factor;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "specular_color_factor", &specular_color_factor, NULL)
-        && specular_color_factor == material->specular_color_factor)
-      pass ();
-    else
-      fail ("MATERIAL.specular_color_factor [BD] %g != %g", material->specular_color_factor, specular_color_factor);
-    specular_color_factor++;
-    if (dwg_dynapi_entity_set_value (material, "MATERIAL", "specular_color_factor", &specular_color_factor, 0)
-        && specular_color_factor == material->specular_color_factor)
-      pass ();
-    else
-      fail ("MATERIAL.specular_color_factor [BD] set+1 %g != %g", material->specular_color_factor, specular_color_factor);
-    material->specular_color_factor--;
-  }
-  {
-    BITCODE_BS specular_color_flag;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "specular_color_flag", &specular_color_flag, NULL)
-        && specular_color_flag == material->specular_color_flag)
-      pass ();
-    else
-      fail ("MATERIAL.specular_color_flag [BS] %hu != %hu", material->specular_color_flag, specular_color_flag);
-    specular_color_flag++;
-    if (dwg_dynapi_entity_set_value (material, "MATERIAL", "specular_color_flag", &specular_color_flag, 0)
-        && specular_color_flag == material->specular_color_flag)
-      pass ();
-    else
-      fail ("MATERIAL.specular_color_flag [BS] set+1 %hu != %hu", material->specular_color_flag, specular_color_flag);
-    material->specular_color_flag--;
+        fail ("MATERIAL.specular_color [Dwg_MATERIAL_color]");
   }
   {
     BITCODE_BD specular_gloss_factor;
@@ -34133,97 +34809,12 @@ static int test_MATERIAL (const Dwg_Object *obj)
     material->specular_gloss_factor--;
   }
   {
-    BITCODE_BS specularmap_autotransform;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "specularmap_autotransform", &specularmap_autotransform, NULL)
-        && specularmap_autotransform == material->specularmap_autotransform)
-      pass ();
-    else
-      fail ("MATERIAL.specularmap_autotransform [BS] %hu != %hu", material->specularmap_autotransform, specularmap_autotransform);
-    specularmap_autotransform++;
-    if (dwg_dynapi_entity_set_value (material, "MATERIAL", "specularmap_autotransform", &specularmap_autotransform, 0)
-        && specularmap_autotransform == material->specularmap_autotransform)
-      pass ();
-    else
-      fail ("MATERIAL.specularmap_autotransform [BS] set+1 %hu != %hu", material->specularmap_autotransform, specularmap_autotransform);
-    material->specularmap_autotransform--;
-  }
-  {
-    BITCODE_BD specularmap_blendfactor;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "specularmap_blendfactor", &specularmap_blendfactor, NULL)
-        && specularmap_blendfactor == material->specularmap_blendfactor)
-      pass ();
-    else
-      fail ("MATERIAL.specularmap_blendfactor [BD] %g != %g", material->specularmap_blendfactor, specularmap_blendfactor);
-    specularmap_blendfactor++;
-    if (dwg_dynapi_entity_set_value (material, "MATERIAL", "specularmap_blendfactor", &specularmap_blendfactor, 0)
-        && specularmap_blendfactor == material->specularmap_blendfactor)
-      pass ();
-    else
-      fail ("MATERIAL.specularmap_blendfactor [BD] set+1 %g != %g", material->specularmap_blendfactor, specularmap_blendfactor);
-    material->specularmap_blendfactor--;
-  }
-  {
-    BITCODE_T specularmap_filename;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "specularmap_filename", &specularmap_filename, NULL)
-        && specularmap_filename
-           ? strEQ ((char *)specularmap_filename, (char *)material->specularmap_filename)
-           : !material->specularmap_filename)
-      pass ();
-    else
-      fail ("MATERIAL.specularmap_filename [T] '%s' <> '%s'", specularmap_filename, material->specularmap_filename);
-  }
-  {
-    BITCODE_BS specularmap_projection;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "specularmap_projection", &specularmap_projection, NULL)
-        && specularmap_projection == material->specularmap_projection)
-      pass ();
-    else
-      fail ("MATERIAL.specularmap_projection [BS] %hu != %hu", material->specularmap_projection, specularmap_projection);
-    specularmap_projection++;
-    if (dwg_dynapi_entity_set_value (material, "MATERIAL", "specularmap_projection", &specularmap_projection, 0)
-        && specularmap_projection == material->specularmap_projection)
-      pass ();
-    else
-      fail ("MATERIAL.specularmap_projection [BS] set+1 %hu != %hu", material->specularmap_projection, specularmap_projection);
-    material->specularmap_projection--;
-  }
-  {
-    BITCODE_BS specularmap_source;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "specularmap_source", &specularmap_source, NULL)
-        && specularmap_source == material->specularmap_source)
-      pass ();
-    else
-      fail ("MATERIAL.specularmap_source [BS] %hu != %hu", material->specularmap_source, specularmap_source);
-    specularmap_source++;
-    if (dwg_dynapi_entity_set_value (material, "MATERIAL", "specularmap_source", &specularmap_source, 0)
-        && specularmap_source == material->specularmap_source)
-      pass ();
-    else
-      fail ("MATERIAL.specularmap_source [BS] set+1 %hu != %hu", material->specularmap_source, specularmap_source);
-    material->specularmap_source--;
-  }
-  {
-    BITCODE_BS specularmap_tiling;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "specularmap_tiling", &specularmap_tiling, NULL)
-        && specularmap_tiling == material->specularmap_tiling)
-      pass ();
-    else
-      fail ("MATERIAL.specularmap_tiling [BS] %hu != %hu", material->specularmap_tiling, specularmap_tiling);
-    specularmap_tiling++;
-    if (dwg_dynapi_entity_set_value (material, "MATERIAL", "specularmap_tiling", &specularmap_tiling, 0)
-        && specularmap_tiling == material->specularmap_tiling)
-      pass ();
-    else
-      fail ("MATERIAL.specularmap_tiling [BS] set+1 %hu != %hu", material->specularmap_tiling, specularmap_tiling);
-    material->specularmap_tiling--;
-  }
-  {
-    BITCODE_BD* specularmap_transmatrix;
-    if (dwg_dynapi_entity_value (material, "MATERIAL", "specularmap_transmatrix", &specularmap_transmatrix, NULL)
-        && !memcmp (&specularmap_transmatrix, &material->specularmap_transmatrix, sizeof (material->specularmap_transmatrix)))
+    Dwg_MATERIAL_mapper specularmap;
+    if (dwg_dynapi_entity_value (material, "MATERIAL", "specularmap", &specularmap, NULL)
+        && !memcmp (&specularmap, &material->specularmap, sizeof (material->specularmap)))
         pass ();
     else
-        fail ("MATERIAL.specularmap_transmatrix [BD*]");
+        fail ("MATERIAL.specularmap [Dwg_MATERIAL_mapper]");
   }
   {
     BITCODE_BD translucence;
@@ -34284,484 +34875,19 @@ static int test_MENTALRAYRENDERSETTINGS (const Dwg_Object *obj)
   Dwg_Object_MENTALRAYRENDERSETTINGS *restrict mentalrayrendersettings = obj->tio.object->tio.MENTALRAYRENDERSETTINGS;
   failed = 0;
   {
-    BITCODE_B b290_1;
-    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "b290_1", &b290_1, NULL)
-        && b290_1 == mentalrayrendersettings->b290_1)
+    BITCODE_B backfaces_enabled;
+    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "backfaces_enabled", &backfaces_enabled, NULL)
+        && backfaces_enabled == mentalrayrendersettings->backfaces_enabled)
       pass ();
     else
-      fail ("MENTALRAYRENDERSETTINGS.b290_1 [B] " FORMAT_B " != " FORMAT_B "", mentalrayrendersettings->b290_1, b290_1);
-    b290_1++;
-    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "b290_1", &b290_1, 0)
-        && b290_1 == mentalrayrendersettings->b290_1)
+      fail ("MENTALRAYRENDERSETTINGS.backfaces_enabled [B] " FORMAT_B " != " FORMAT_B "", mentalrayrendersettings->backfaces_enabled, backfaces_enabled);
+    backfaces_enabled++;
+    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "backfaces_enabled", &backfaces_enabled, 0)
+        && backfaces_enabled == mentalrayrendersettings->backfaces_enabled)
       pass ();
     else
-      fail ("MENTALRAYRENDERSETTINGS.b290_1 [B] set+1 " FORMAT_B " != " FORMAT_B "", mentalrayrendersettings->b290_1, b290_1);
-    mentalrayrendersettings->b290_1--;
-  }
-  {
-    BITCODE_B b290_10;
-    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "b290_10", &b290_10, NULL)
-        && b290_10 == mentalrayrendersettings->b290_10)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.b290_10 [B] " FORMAT_B " != " FORMAT_B "", mentalrayrendersettings->b290_10, b290_10);
-    b290_10++;
-    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "b290_10", &b290_10, 0)
-        && b290_10 == mentalrayrendersettings->b290_10)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.b290_10 [B] set+1 " FORMAT_B " != " FORMAT_B "", mentalrayrendersettings->b290_10, b290_10);
-    mentalrayrendersettings->b290_10--;
-  }
-  {
-    BITCODE_B b290_11;
-    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "b290_11", &b290_11, NULL)
-        && b290_11 == mentalrayrendersettings->b290_11)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.b290_11 [B] " FORMAT_B " != " FORMAT_B "", mentalrayrendersettings->b290_11, b290_11);
-    b290_11++;
-    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "b290_11", &b290_11, 0)
-        && b290_11 == mentalrayrendersettings->b290_11)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.b290_11 [B] set+1 " FORMAT_B " != " FORMAT_B "", mentalrayrendersettings->b290_11, b290_11);
-    mentalrayrendersettings->b290_11--;
-  }
-  {
-    BITCODE_B b290_12;
-    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "b290_12", &b290_12, NULL)
-        && b290_12 == mentalrayrendersettings->b290_12)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.b290_12 [B] " FORMAT_B " != " FORMAT_B "", mentalrayrendersettings->b290_12, b290_12);
-    b290_12++;
-    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "b290_12", &b290_12, 0)
-        && b290_12 == mentalrayrendersettings->b290_12)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.b290_12 [B] set+1 " FORMAT_B " != " FORMAT_B "", mentalrayrendersettings->b290_12, b290_12);
-    mentalrayrendersettings->b290_12--;
-  }
-  {
-    BITCODE_B b290_3;
-    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "b290_3", &b290_3, NULL)
-        && b290_3 == mentalrayrendersettings->b290_3)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.b290_3 [B] " FORMAT_B " != " FORMAT_B "", mentalrayrendersettings->b290_3, b290_3);
-    b290_3++;
-    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "b290_3", &b290_3, 0)
-        && b290_3 == mentalrayrendersettings->b290_3)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.b290_3 [B] set+1 " FORMAT_B " != " FORMAT_B "", mentalrayrendersettings->b290_3, b290_3);
-    mentalrayrendersettings->b290_3--;
-  }
-  {
-    BITCODE_B b290_4;
-    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "b290_4", &b290_4, NULL)
-        && b290_4 == mentalrayrendersettings->b290_4)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.b290_4 [B] " FORMAT_B " != " FORMAT_B "", mentalrayrendersettings->b290_4, b290_4);
-    b290_4++;
-    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "b290_4", &b290_4, 0)
-        && b290_4 == mentalrayrendersettings->b290_4)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.b290_4 [B] set+1 " FORMAT_B " != " FORMAT_B "", mentalrayrendersettings->b290_4, b290_4);
-    mentalrayrendersettings->b290_4--;
-  }
-  {
-    BITCODE_B b290_5;
-    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "b290_5", &b290_5, NULL)
-        && b290_5 == mentalrayrendersettings->b290_5)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.b290_5 [B] " FORMAT_B " != " FORMAT_B "", mentalrayrendersettings->b290_5, b290_5);
-    b290_5++;
-    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "b290_5", &b290_5, 0)
-        && b290_5 == mentalrayrendersettings->b290_5)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.b290_5 [B] set+1 " FORMAT_B " != " FORMAT_B "", mentalrayrendersettings->b290_5, b290_5);
-    mentalrayrendersettings->b290_5--;
-  }
-  {
-    BITCODE_B b290_6;
-    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "b290_6", &b290_6, NULL)
-        && b290_6 == mentalrayrendersettings->b290_6)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.b290_6 [B] " FORMAT_B " != " FORMAT_B "", mentalrayrendersettings->b290_6, b290_6);
-    b290_6++;
-    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "b290_6", &b290_6, 0)
-        && b290_6 == mentalrayrendersettings->b290_6)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.b290_6 [B] set+1 " FORMAT_B " != " FORMAT_B "", mentalrayrendersettings->b290_6, b290_6);
-    mentalrayrendersettings->b290_6--;
-  }
-  {
-    BITCODE_B b290_7;
-    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "b290_7", &b290_7, NULL)
-        && b290_7 == mentalrayrendersettings->b290_7)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.b290_7 [B] " FORMAT_B " != " FORMAT_B "", mentalrayrendersettings->b290_7, b290_7);
-    b290_7++;
-    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "b290_7", &b290_7, 0)
-        && b290_7 == mentalrayrendersettings->b290_7)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.b290_7 [B] set+1 " FORMAT_B " != " FORMAT_B "", mentalrayrendersettings->b290_7, b290_7);
-    mentalrayrendersettings->b290_7--;
-  }
-  {
-    BITCODE_B b290_8;
-    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "b290_8", &b290_8, NULL)
-        && b290_8 == mentalrayrendersettings->b290_8)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.b290_8 [B] " FORMAT_B " != " FORMAT_B "", mentalrayrendersettings->b290_8, b290_8);
-    b290_8++;
-    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "b290_8", &b290_8, 0)
-        && b290_8 == mentalrayrendersettings->b290_8)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.b290_8 [B] set+1 " FORMAT_B " != " FORMAT_B "", mentalrayrendersettings->b290_8, b290_8);
-    mentalrayrendersettings->b290_8--;
-  }
-  {
-    BITCODE_B b290_9;
-    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "b290_9", &b290_9, NULL)
-        && b290_9 == mentalrayrendersettings->b290_9)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.b290_9 [B] " FORMAT_B " != " FORMAT_B "", mentalrayrendersettings->b290_9, b290_9);
-    b290_9++;
-    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "b290_9", &b290_9, 0)
-        && b290_9 == mentalrayrendersettings->b290_9)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.b290_9 [B] set+1 " FORMAT_B " != " FORMAT_B "", mentalrayrendersettings->b290_9, b290_9);
-    mentalrayrendersettings->b290_9--;
-  }
-  {
-    BITCODE_BD bd40_2;
-    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "bd40_2", &bd40_2, NULL)
-        && bd40_2 == mentalrayrendersettings->bd40_2)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.bd40_2 [BD] %g != %g", mentalrayrendersettings->bd40_2, bd40_2);
-    bd40_2++;
-    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "bd40_2", &bd40_2, 0)
-        && bd40_2 == mentalrayrendersettings->bd40_2)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.bd40_2 [BD] set+1 %g != %g", mentalrayrendersettings->bd40_2, bd40_2);
-    mentalrayrendersettings->bd40_2--;
-  }
-  {
-    BITCODE_BD bd40_3;
-    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "bd40_3", &bd40_3, NULL)
-        && bd40_3 == mentalrayrendersettings->bd40_3)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.bd40_3 [BD] %g != %g", mentalrayrendersettings->bd40_3, bd40_3);
-    bd40_3++;
-    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "bd40_3", &bd40_3, 0)
-        && bd40_3 == mentalrayrendersettings->bd40_3)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.bd40_3 [BD] set+1 %g != %g", mentalrayrendersettings->bd40_3, bd40_3);
-    mentalrayrendersettings->bd40_3--;
-  }
-  {
-    BITCODE_BD bd40_4;
-    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "bd40_4", &bd40_4, NULL)
-        && bd40_4 == mentalrayrendersettings->bd40_4)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.bd40_4 [BD] %g != %g", mentalrayrendersettings->bd40_4, bd40_4);
-    bd40_4++;
-    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "bd40_4", &bd40_4, 0)
-        && bd40_4 == mentalrayrendersettings->bd40_4)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.bd40_4 [BD] set+1 %g != %g", mentalrayrendersettings->bd40_4, bd40_4);
-    mentalrayrendersettings->bd40_4--;
-  }
-  {
-    BITCODE_BD bd40_5;
-    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "bd40_5", &bd40_5, NULL)
-        && bd40_5 == mentalrayrendersettings->bd40_5)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.bd40_5 [BD] %g != %g", mentalrayrendersettings->bd40_5, bd40_5);
-    bd40_5++;
-    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "bd40_5", &bd40_5, 0)
-        && bd40_5 == mentalrayrendersettings->bd40_5)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.bd40_5 [BD] set+1 %g != %g", mentalrayrendersettings->bd40_5, bd40_5);
-    mentalrayrendersettings->bd40_5--;
-  }
-  {
-    BITCODE_BD bd40_6;
-    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "bd40_6", &bd40_6, NULL)
-        && bd40_6 == mentalrayrendersettings->bd40_6)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.bd40_6 [BD] %g != %g", mentalrayrendersettings->bd40_6, bd40_6);
-    bd40_6++;
-    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "bd40_6", &bd40_6, 0)
-        && bd40_6 == mentalrayrendersettings->bd40_6)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.bd40_6 [BD] set+1 %g != %g", mentalrayrendersettings->bd40_6, bd40_6);
-    mentalrayrendersettings->bd40_6--;
-  }
-  {
-    BITCODE_BD bd40_7;
-    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "bd40_7", &bd40_7, NULL)
-        && bd40_7 == mentalrayrendersettings->bd40_7)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.bd40_7 [BD] %g != %g", mentalrayrendersettings->bd40_7, bd40_7);
-    bd40_7++;
-    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "bd40_7", &bd40_7, 0)
-        && bd40_7 == mentalrayrendersettings->bd40_7)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.bd40_7 [BD] set+1 %g != %g", mentalrayrendersettings->bd40_7, bd40_7);
-    mentalrayrendersettings->bd40_7--;
-  }
-  {
-    BITCODE_BS bs90;
-    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "bs90", &bs90, NULL)
-        && bs90 == mentalrayrendersettings->bs90)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.bs90 [BS] %hu != %hu", mentalrayrendersettings->bs90, bs90);
-    bs90++;
-    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "bs90", &bs90, 0)
-        && bs90 == mentalrayrendersettings->bs90)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.bs90 [BS] set+1 %hu != %hu", mentalrayrendersettings->bs90, bs90);
-    mentalrayrendersettings->bs90--;
-  }
-  {
-    BITCODE_BS bs90_0;
-    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "bs90_0", &bs90_0, NULL)
-        && bs90_0 == mentalrayrendersettings->bs90_0)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.bs90_0 [BS] %hu != %hu", mentalrayrendersettings->bs90_0, bs90_0);
-    bs90_0++;
-    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "bs90_0", &bs90_0, 0)
-        && bs90_0 == mentalrayrendersettings->bs90_0)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.bs90_0 [BS] set+1 %hu != %hu", mentalrayrendersettings->bs90_0, bs90_0);
-    mentalrayrendersettings->bs90_0--;
-  }
-  {
-    BITCODE_BS bs90_1;
-    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "bs90_1", &bs90_1, NULL)
-        && bs90_1 == mentalrayrendersettings->bs90_1)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.bs90_1 [BS] %hu != %hu", mentalrayrendersettings->bs90_1, bs90_1);
-    bs90_1++;
-    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "bs90_1", &bs90_1, 0)
-        && bs90_1 == mentalrayrendersettings->bs90_1)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.bs90_1 [BS] set+1 %hu != %hu", mentalrayrendersettings->bs90_1, bs90_1);
-    mentalrayrendersettings->bs90_1--;
-  }
-  {
-    BITCODE_BS bs90_10;
-    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "bs90_10", &bs90_10, NULL)
-        && bs90_10 == mentalrayrendersettings->bs90_10)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.bs90_10 [BS] %hu != %hu", mentalrayrendersettings->bs90_10, bs90_10);
-    bs90_10++;
-    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "bs90_10", &bs90_10, 0)
-        && bs90_10 == mentalrayrendersettings->bs90_10)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.bs90_10 [BS] set+1 %hu != %hu", mentalrayrendersettings->bs90_10, bs90_10);
-    mentalrayrendersettings->bs90_10--;
-  }
-  {
-    BITCODE_BS bs90_11;
-    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "bs90_11", &bs90_11, NULL)
-        && bs90_11 == mentalrayrendersettings->bs90_11)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.bs90_11 [BS] %hu != %hu", mentalrayrendersettings->bs90_11, bs90_11);
-    bs90_11++;
-    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "bs90_11", &bs90_11, 0)
-        && bs90_11 == mentalrayrendersettings->bs90_11)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.bs90_11 [BS] set+1 %hu != %hu", mentalrayrendersettings->bs90_11, bs90_11);
-    mentalrayrendersettings->bs90_11--;
-  }
-  {
-    BITCODE_BS bs90_12;
-    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "bs90_12", &bs90_12, NULL)
-        && bs90_12 == mentalrayrendersettings->bs90_12)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.bs90_12 [BS] %hu != %hu", mentalrayrendersettings->bs90_12, bs90_12);
-    bs90_12++;
-    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "bs90_12", &bs90_12, 0)
-        && bs90_12 == mentalrayrendersettings->bs90_12)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.bs90_12 [BS] set+1 %hu != %hu", mentalrayrendersettings->bs90_12, bs90_12);
-    mentalrayrendersettings->bs90_12--;
-  }
-  {
-    BITCODE_BS bs90_13;
-    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "bs90_13", &bs90_13, NULL)
-        && bs90_13 == mentalrayrendersettings->bs90_13)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.bs90_13 [BS] %hu != %hu", mentalrayrendersettings->bs90_13, bs90_13);
-    bs90_13++;
-    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "bs90_13", &bs90_13, 0)
-        && bs90_13 == mentalrayrendersettings->bs90_13)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.bs90_13 [BS] set+1 %hu != %hu", mentalrayrendersettings->bs90_13, bs90_13);
-    mentalrayrendersettings->bs90_13--;
-  }
-  {
-    BITCODE_BS bs90_2;
-    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "bs90_2", &bs90_2, NULL)
-        && bs90_2 == mentalrayrendersettings->bs90_2)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.bs90_2 [BS] %hu != %hu", mentalrayrendersettings->bs90_2, bs90_2);
-    bs90_2++;
-    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "bs90_2", &bs90_2, 0)
-        && bs90_2 == mentalrayrendersettings->bs90_2)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.bs90_2 [BS] set+1 %hu != %hu", mentalrayrendersettings->bs90_2, bs90_2);
-    mentalrayrendersettings->bs90_2--;
-  }
-  {
-    BITCODE_BS bs90_3;
-    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "bs90_3", &bs90_3, NULL)
-        && bs90_3 == mentalrayrendersettings->bs90_3)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.bs90_3 [BS] %hu != %hu", mentalrayrendersettings->bs90_3, bs90_3);
-    bs90_3++;
-    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "bs90_3", &bs90_3, 0)
-        && bs90_3 == mentalrayrendersettings->bs90_3)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.bs90_3 [BS] set+1 %hu != %hu", mentalrayrendersettings->bs90_3, bs90_3);
-    mentalrayrendersettings->bs90_3--;
-  }
-  {
-    BITCODE_BS bs90_4;
-    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "bs90_4", &bs90_4, NULL)
-        && bs90_4 == mentalrayrendersettings->bs90_4)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.bs90_4 [BS] %hu != %hu", mentalrayrendersettings->bs90_4, bs90_4);
-    bs90_4++;
-    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "bs90_4", &bs90_4, 0)
-        && bs90_4 == mentalrayrendersettings->bs90_4)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.bs90_4 [BS] set+1 %hu != %hu", mentalrayrendersettings->bs90_4, bs90_4);
-    mentalrayrendersettings->bs90_4--;
-  }
-  {
-    BITCODE_BS bs90_5;
-    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "bs90_5", &bs90_5, NULL)
-        && bs90_5 == mentalrayrendersettings->bs90_5)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.bs90_5 [BS] %hu != %hu", mentalrayrendersettings->bs90_5, bs90_5);
-    bs90_5++;
-    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "bs90_5", &bs90_5, 0)
-        && bs90_5 == mentalrayrendersettings->bs90_5)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.bs90_5 [BS] set+1 %hu != %hu", mentalrayrendersettings->bs90_5, bs90_5);
-    mentalrayrendersettings->bs90_5--;
-  }
-  {
-    BITCODE_BS bs90_6;
-    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "bs90_6", &bs90_6, NULL)
-        && bs90_6 == mentalrayrendersettings->bs90_6)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.bs90_6 [BS] %hu != %hu", mentalrayrendersettings->bs90_6, bs90_6);
-    bs90_6++;
-    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "bs90_6", &bs90_6, 0)
-        && bs90_6 == mentalrayrendersettings->bs90_6)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.bs90_6 [BS] set+1 %hu != %hu", mentalrayrendersettings->bs90_6, bs90_6);
-    mentalrayrendersettings->bs90_6--;
-  }
-  {
-    BITCODE_BS bs90_7;
-    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "bs90_7", &bs90_7, NULL)
-        && bs90_7 == mentalrayrendersettings->bs90_7)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.bs90_7 [BS] %hu != %hu", mentalrayrendersettings->bs90_7, bs90_7);
-    bs90_7++;
-    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "bs90_7", &bs90_7, 0)
-        && bs90_7 == mentalrayrendersettings->bs90_7)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.bs90_7 [BS] set+1 %hu != %hu", mentalrayrendersettings->bs90_7, bs90_7);
-    mentalrayrendersettings->bs90_7--;
-  }
-  {
-    BITCODE_BS bs90_8;
-    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "bs90_8", &bs90_8, NULL)
-        && bs90_8 == mentalrayrendersettings->bs90_8)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.bs90_8 [BS] %hu != %hu", mentalrayrendersettings->bs90_8, bs90_8);
-    bs90_8++;
-    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "bs90_8", &bs90_8, 0)
-        && bs90_8 == mentalrayrendersettings->bs90_8)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.bs90_8 [BS] set+1 %hu != %hu", mentalrayrendersettings->bs90_8, bs90_8);
-    mentalrayrendersettings->bs90_8--;
-  }
-  {
-    BITCODE_BS bs90_9;
-    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "bs90_9", &bs90_9, NULL)
-        && bs90_9 == mentalrayrendersettings->bs90_9)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.bs90_9 [BS] %hu != %hu", mentalrayrendersettings->bs90_9, bs90_9);
-    bs90_9++;
-    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "bs90_9", &bs90_9, 0)
-        && bs90_9 == mentalrayrendersettings->bs90_9)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.bs90_9 [BS] set+1 %hu != %hu", mentalrayrendersettings->bs90_9, bs90_9);
-    mentalrayrendersettings->bs90_9--;
+      fail ("MENTALRAYRENDERSETTINGS.backfaces_enabled [B] set+1 " FORMAT_B " != " FORMAT_B "", mentalrayrendersettings->backfaces_enabled, backfaces_enabled);
+    mentalrayrendersettings->backfaces_enabled--;
   }
   {
     BITCODE_BL class_version;
@@ -34779,14 +34905,134 @@ static int test_MENTALRAYRENDERSETTINGS (const Dwg_Object *obj)
     mentalrayrendersettings->class_version--;
   }
   {
-    BITCODE_T description;
+    BITCODE_TV description;
     if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "description", &description, NULL)
         && description
            ? strEQ ((char *)description, (char *)mentalrayrendersettings->description)
            : !mentalrayrendersettings->description)
       pass ();
     else
-      fail ("MENTALRAYRENDERSETTINGS.description [T] '%s' <> '%s'", description, mentalrayrendersettings->description);
+      fail ("MENTALRAYRENDERSETTINGS.description [TV] '%s' <> '%s'", description, mentalrayrendersettings->description);
+  }
+  {
+    BITCODE_BS diagnostics_bsp_mode;
+    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "diagnostics_bsp_mode", &diagnostics_bsp_mode, NULL)
+        && diagnostics_bsp_mode == mentalrayrendersettings->diagnostics_bsp_mode)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.diagnostics_bsp_mode [BS] %hu != %hu", mentalrayrendersettings->diagnostics_bsp_mode, diagnostics_bsp_mode);
+    diagnostics_bsp_mode++;
+    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "diagnostics_bsp_mode", &diagnostics_bsp_mode, 0)
+        && diagnostics_bsp_mode == mentalrayrendersettings->diagnostics_bsp_mode)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.diagnostics_bsp_mode [BS] set+1 %hu != %hu", mentalrayrendersettings->diagnostics_bsp_mode, diagnostics_bsp_mode);
+    mentalrayrendersettings->diagnostics_bsp_mode--;
+  }
+  {
+    BITCODE_BD diagnostics_grid_float;
+    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "diagnostics_grid_float", &diagnostics_grid_float, NULL)
+        && diagnostics_grid_float == mentalrayrendersettings->diagnostics_grid_float)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.diagnostics_grid_float [BD] %g != %g", mentalrayrendersettings->diagnostics_grid_float, diagnostics_grid_float);
+    diagnostics_grid_float++;
+    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "diagnostics_grid_float", &diagnostics_grid_float, 0)
+        && diagnostics_grid_float == mentalrayrendersettings->diagnostics_grid_float)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.diagnostics_grid_float [BD] set+1 %g != %g", mentalrayrendersettings->diagnostics_grid_float, diagnostics_grid_float);
+    mentalrayrendersettings->diagnostics_grid_float--;
+  }
+  {
+    BITCODE_BS diagnostics_grid_mode;
+    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "diagnostics_grid_mode", &diagnostics_grid_mode, NULL)
+        && diagnostics_grid_mode == mentalrayrendersettings->diagnostics_grid_mode)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.diagnostics_grid_mode [BS] %hu != %hu", mentalrayrendersettings->diagnostics_grid_mode, diagnostics_grid_mode);
+    diagnostics_grid_mode++;
+    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "diagnostics_grid_mode", &diagnostics_grid_mode, 0)
+        && diagnostics_grid_mode == mentalrayrendersettings->diagnostics_grid_mode)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.diagnostics_grid_mode [BS] set+1 %hu != %hu", mentalrayrendersettings->diagnostics_grid_mode, diagnostics_grid_mode);
+    mentalrayrendersettings->diagnostics_grid_mode--;
+  }
+  {
+    BITCODE_BS diagnostics_mode;
+    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "diagnostics_mode", &diagnostics_mode, NULL)
+        && diagnostics_mode == mentalrayrendersettings->diagnostics_mode)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.diagnostics_mode [BS] %hu != %hu", mentalrayrendersettings->diagnostics_mode, diagnostics_mode);
+    diagnostics_mode++;
+    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "diagnostics_mode", &diagnostics_mode, 0)
+        && diagnostics_mode == mentalrayrendersettings->diagnostics_mode)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.diagnostics_mode [BS] set+1 %hu != %hu", mentalrayrendersettings->diagnostics_mode, diagnostics_mode);
+    mentalrayrendersettings->diagnostics_mode--;
+  }
+  {
+    BITCODE_BS diagnostics_photon_mode;
+    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "diagnostics_photon_mode", &diagnostics_photon_mode, NULL)
+        && diagnostics_photon_mode == mentalrayrendersettings->diagnostics_photon_mode)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.diagnostics_photon_mode [BS] %hu != %hu", mentalrayrendersettings->diagnostics_photon_mode, diagnostics_photon_mode);
+    diagnostics_photon_mode++;
+    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "diagnostics_photon_mode", &diagnostics_photon_mode, 0)
+        && diagnostics_photon_mode == mentalrayrendersettings->diagnostics_photon_mode)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.diagnostics_photon_mode [BS] set+1 %hu != %hu", mentalrayrendersettings->diagnostics_photon_mode, diagnostics_photon_mode);
+    mentalrayrendersettings->diagnostics_photon_mode--;
+  }
+  {
+    BITCODE_B diagnostics_samples_mode;
+    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "diagnostics_samples_mode", &diagnostics_samples_mode, NULL)
+        && diagnostics_samples_mode == mentalrayrendersettings->diagnostics_samples_mode)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.diagnostics_samples_mode [B] " FORMAT_B " != " FORMAT_B "", mentalrayrendersettings->diagnostics_samples_mode, diagnostics_samples_mode);
+    diagnostics_samples_mode++;
+    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "diagnostics_samples_mode", &diagnostics_samples_mode, 0)
+        && diagnostics_samples_mode == mentalrayrendersettings->diagnostics_samples_mode)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.diagnostics_samples_mode [B] set+1 " FORMAT_B " != " FORMAT_B "", mentalrayrendersettings->diagnostics_samples_mode, diagnostics_samples_mode);
+    mentalrayrendersettings->diagnostics_samples_mode--;
+  }
+  {
+    BITCODE_BL display_index;
+    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "display_index", &display_index, NULL)
+        && display_index == mentalrayrendersettings->display_index)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.display_index [BL] %u != %u", mentalrayrendersettings->display_index, display_index);
+    display_index++;
+    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "display_index", &display_index, 0)
+        && display_index == mentalrayrendersettings->display_index)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.display_index [BL] set+1 %u != %u", mentalrayrendersettings->display_index, display_index);
+    mentalrayrendersettings->display_index--;
+  }
+  {
+    BITCODE_BD energy_multiplier;
+    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "energy_multiplier", &energy_multiplier, NULL)
+        && energy_multiplier == mentalrayrendersettings->energy_multiplier)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.energy_multiplier [BD] %g != %g", mentalrayrendersettings->energy_multiplier, energy_multiplier);
+    energy_multiplier++;
+    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "energy_multiplier", &energy_multiplier, 0)
+        && energy_multiplier == mentalrayrendersettings->energy_multiplier)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.energy_multiplier [BD] set+1 %g != %g", mentalrayrendersettings->energy_multiplier, energy_multiplier);
+    mentalrayrendersettings->energy_multiplier--;
   }
   {
     BITCODE_B environ_image_enabled;
@@ -34804,14 +35050,134 @@ static int test_MENTALRAYRENDERSETTINGS (const Dwg_Object *obj)
     mentalrayrendersettings->environ_image_enabled--;
   }
   {
-    BITCODE_T environ_image_filename;
+    BITCODE_TV environ_image_filename;
     if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "environ_image_filename", &environ_image_filename, NULL)
         && environ_image_filename
            ? strEQ ((char *)environ_image_filename, (char *)mentalrayrendersettings->environ_image_filename)
            : !mentalrayrendersettings->environ_image_filename)
       pass ();
     else
-      fail ("MENTALRAYRENDERSETTINGS.environ_image_filename [T] '%s' <> '%s'", environ_image_filename, mentalrayrendersettings->environ_image_filename);
+      fail ("MENTALRAYRENDERSETTINGS.environ_image_filename [TV] '%s' <> '%s'", environ_image_filename, mentalrayrendersettings->environ_image_filename);
+  }
+  {
+    BITCODE_B export_mi_enabled;
+    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "export_mi_enabled", &export_mi_enabled, NULL)
+        && export_mi_enabled == mentalrayrendersettings->export_mi_enabled)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.export_mi_enabled [B] " FORMAT_B " != " FORMAT_B "", mentalrayrendersettings->export_mi_enabled, export_mi_enabled);
+    export_mi_enabled++;
+    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "export_mi_enabled", &export_mi_enabled, 0)
+        && export_mi_enabled == mentalrayrendersettings->export_mi_enabled)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.export_mi_enabled [B] set+1 " FORMAT_B " != " FORMAT_B "", mentalrayrendersettings->export_mi_enabled, export_mi_enabled);
+    mentalrayrendersettings->export_mi_enabled--;
+  }
+  {
+    BITCODE_BL fg_ray_count;
+    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "fg_ray_count", &fg_ray_count, NULL)
+        && fg_ray_count == mentalrayrendersettings->fg_ray_count)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.fg_ray_count [BL] %u != %u", mentalrayrendersettings->fg_ray_count, fg_ray_count);
+    fg_ray_count++;
+    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "fg_ray_count", &fg_ray_count, 0)
+        && fg_ray_count == mentalrayrendersettings->fg_ray_count)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.fg_ray_count [BL] set+1 %u != %u", mentalrayrendersettings->fg_ray_count, fg_ray_count);
+    mentalrayrendersettings->fg_ray_count--;
+  }
+  {
+    BITCODE_BD fg_sample_radius1;
+    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "fg_sample_radius1", &fg_sample_radius1, NULL)
+        && fg_sample_radius1 == mentalrayrendersettings->fg_sample_radius1)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.fg_sample_radius1 [BD] %g != %g", mentalrayrendersettings->fg_sample_radius1, fg_sample_radius1);
+    fg_sample_radius1++;
+    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "fg_sample_radius1", &fg_sample_radius1, 0)
+        && fg_sample_radius1 == mentalrayrendersettings->fg_sample_radius1)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.fg_sample_radius1 [BD] set+1 %g != %g", mentalrayrendersettings->fg_sample_radius1, fg_sample_radius1);
+    mentalrayrendersettings->fg_sample_radius1--;
+  }
+  {
+    BITCODE_BD fg_sample_radius2;
+    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "fg_sample_radius2", &fg_sample_radius2, NULL)
+        && fg_sample_radius2 == mentalrayrendersettings->fg_sample_radius2)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.fg_sample_radius2 [BD] %g != %g", mentalrayrendersettings->fg_sample_radius2, fg_sample_radius2);
+    fg_sample_radius2++;
+    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "fg_sample_radius2", &fg_sample_radius2, 0)
+        && fg_sample_radius2 == mentalrayrendersettings->fg_sample_radius2)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.fg_sample_radius2 [BD] set+1 %g != %g", mentalrayrendersettings->fg_sample_radius2, fg_sample_radius2);
+    mentalrayrendersettings->fg_sample_radius2--;
+  }
+  {
+    BITCODE_B fg_sample_radius_state1;
+    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "fg_sample_radius_state1", &fg_sample_radius_state1, NULL)
+        && fg_sample_radius_state1 == mentalrayrendersettings->fg_sample_radius_state1)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.fg_sample_radius_state1 [B] " FORMAT_B " != " FORMAT_B "", mentalrayrendersettings->fg_sample_radius_state1, fg_sample_radius_state1);
+    fg_sample_radius_state1++;
+    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "fg_sample_radius_state1", &fg_sample_radius_state1, 0)
+        && fg_sample_radius_state1 == mentalrayrendersettings->fg_sample_radius_state1)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.fg_sample_radius_state1 [B] set+1 " FORMAT_B " != " FORMAT_B "", mentalrayrendersettings->fg_sample_radius_state1, fg_sample_radius_state1);
+    mentalrayrendersettings->fg_sample_radius_state1--;
+  }
+  {
+    BITCODE_B fg_sample_radius_state2;
+    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "fg_sample_radius_state2", &fg_sample_radius_state2, NULL)
+        && fg_sample_radius_state2 == mentalrayrendersettings->fg_sample_radius_state2)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.fg_sample_radius_state2 [B] " FORMAT_B " != " FORMAT_B "", mentalrayrendersettings->fg_sample_radius_state2, fg_sample_radius_state2);
+    fg_sample_radius_state2++;
+    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "fg_sample_radius_state2", &fg_sample_radius_state2, 0)
+        && fg_sample_radius_state2 == mentalrayrendersettings->fg_sample_radius_state2)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.fg_sample_radius_state2 [B] set+1 " FORMAT_B " != " FORMAT_B "", mentalrayrendersettings->fg_sample_radius_state2, fg_sample_radius_state2);
+    mentalrayrendersettings->fg_sample_radius_state2--;
+  }
+  {
+    BITCODE_B fg_sample_radius_state3;
+    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "fg_sample_radius_state3", &fg_sample_radius_state3, NULL)
+        && fg_sample_radius_state3 == mentalrayrendersettings->fg_sample_radius_state3)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.fg_sample_radius_state3 [B] " FORMAT_B " != " FORMAT_B "", mentalrayrendersettings->fg_sample_radius_state3, fg_sample_radius_state3);
+    fg_sample_radius_state3++;
+    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "fg_sample_radius_state3", &fg_sample_radius_state3, 0)
+        && fg_sample_radius_state3 == mentalrayrendersettings->fg_sample_radius_state3)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.fg_sample_radius_state3 [B] set+1 " FORMAT_B " != " FORMAT_B "", mentalrayrendersettings->fg_sample_radius_state3, fg_sample_radius_state3);
+    mentalrayrendersettings->fg_sample_radius_state3--;
+  }
+  {
+    BITCODE_B final_gathering_enabled;
+    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "final_gathering_enabled", &final_gathering_enabled, NULL)
+        && final_gathering_enabled == mentalrayrendersettings->final_gathering_enabled)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.final_gathering_enabled [B] " FORMAT_B " != " FORMAT_B "", mentalrayrendersettings->final_gathering_enabled, final_gathering_enabled);
+    final_gathering_enabled++;
+    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "final_gathering_enabled", &final_gathering_enabled, 0)
+        && final_gathering_enabled == mentalrayrendersettings->final_gathering_enabled)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.final_gathering_enabled [B] set+1 " FORMAT_B " != " FORMAT_B "", mentalrayrendersettings->final_gathering_enabled, final_gathering_enabled);
+    mentalrayrendersettings->final_gathering_enabled--;
   }
   {
     BITCODE_B fog_background_enabled;
@@ -34829,66 +35195,6 @@ static int test_MENTALRAYRENDERSETTINGS (const Dwg_Object *obj)
     mentalrayrendersettings->fog_background_enabled--;
   }
   {
-    BITCODE_BD fog_density_far;
-    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "fog_density_far", &fog_density_far, NULL)
-        && fog_density_far == mentalrayrendersettings->fog_density_far)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.fog_density_far [BD] %g != %g", mentalrayrendersettings->fog_density_far, fog_density_far);
-    fog_density_far++;
-    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "fog_density_far", &fog_density_far, 0)
-        && fog_density_far == mentalrayrendersettings->fog_density_far)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.fog_density_far [BD] set+1 %g != %g", mentalrayrendersettings->fog_density_far, fog_density_far);
-    mentalrayrendersettings->fog_density_far--;
-  }
-  {
-    BITCODE_BD fog_density_near;
-    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "fog_density_near", &fog_density_near, NULL)
-        && fog_density_near == mentalrayrendersettings->fog_density_near)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.fog_density_near [BD] %g != %g", mentalrayrendersettings->fog_density_near, fog_density_near);
-    fog_density_near++;
-    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "fog_density_near", &fog_density_near, 0)
-        && fog_density_near == mentalrayrendersettings->fog_density_near)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.fog_density_near [BD] set+1 %g != %g", mentalrayrendersettings->fog_density_near, fog_density_near);
-    mentalrayrendersettings->fog_density_near--;
-  }
-  {
-    BITCODE_BD fog_distance_far;
-    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "fog_distance_far", &fog_distance_far, NULL)
-        && fog_distance_far == mentalrayrendersettings->fog_distance_far)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.fog_distance_far [BD] %g != %g", mentalrayrendersettings->fog_distance_far, fog_distance_far);
-    fog_distance_far++;
-    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "fog_distance_far", &fog_distance_far, 0)
-        && fog_distance_far == mentalrayrendersettings->fog_distance_far)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.fog_distance_far [BD] set+1 %g != %g", mentalrayrendersettings->fog_distance_far, fog_distance_far);
-    mentalrayrendersettings->fog_distance_far--;
-  }
-  {
-    BITCODE_BD fog_distance_near;
-    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "fog_distance_near", &fog_distance_near, NULL)
-        && fog_distance_near == mentalrayrendersettings->fog_distance_near)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.fog_distance_near [BD] %g != %g", mentalrayrendersettings->fog_distance_near, fog_distance_near);
-    fog_distance_near++;
-    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "fog_distance_near", &fog_distance_near, 0)
-        && fog_distance_near == mentalrayrendersettings->fog_distance_near)
-      pass ();
-    else
-      fail ("MENTALRAYRENDERSETTINGS.fog_distance_near [BD] set+1 %g != %g", mentalrayrendersettings->fog_distance_near, fog_distance_near);
-    mentalrayrendersettings->fog_distance_near--;
-  }
-  {
     BITCODE_B fog_enabled;
     if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "fog_enabled", &fog_enabled, NULL)
         && fog_enabled == mentalrayrendersettings->fog_enabled)
@@ -34904,24 +35210,159 @@ static int test_MENTALRAYRENDERSETTINGS (const Dwg_Object *obj)
     mentalrayrendersettings->fog_enabled--;
   }
   {
-    BITCODE_T mrdescription;
-    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "mrdescription", &mrdescription, NULL)
-        && mrdescription
-           ? strEQ ((char *)mrdescription, (char *)mentalrayrendersettings->mrdescription)
-           : !mentalrayrendersettings->mrdescription)
+    BITCODE_BL gi_photons_per_light;
+    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "gi_photons_per_light", &gi_photons_per_light, NULL)
+        && gi_photons_per_light == mentalrayrendersettings->gi_photons_per_light)
       pass ();
     else
-      fail ("MENTALRAYRENDERSETTINGS.mrdescription [T] '%s' <> '%s'", mrdescription, mentalrayrendersettings->mrdescription);
+      fail ("MENTALRAYRENDERSETTINGS.gi_photons_per_light [BL] %u != %u", mentalrayrendersettings->gi_photons_per_light, gi_photons_per_light);
+    gi_photons_per_light++;
+    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "gi_photons_per_light", &gi_photons_per_light, 0)
+        && gi_photons_per_light == mentalrayrendersettings->gi_photons_per_light)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.gi_photons_per_light [BL] set+1 %u != %u", mentalrayrendersettings->gi_photons_per_light, gi_photons_per_light);
+    mentalrayrendersettings->gi_photons_per_light--;
   }
   {
-    BITCODE_T name;
+    BITCODE_BL gi_sample_count;
+    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "gi_sample_count", &gi_sample_count, NULL)
+        && gi_sample_count == mentalrayrendersettings->gi_sample_count)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.gi_sample_count [BL] %u != %u", mentalrayrendersettings->gi_sample_count, gi_sample_count);
+    gi_sample_count++;
+    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "gi_sample_count", &gi_sample_count, 0)
+        && gi_sample_count == mentalrayrendersettings->gi_sample_count)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.gi_sample_count [BL] set+1 %u != %u", mentalrayrendersettings->gi_sample_count, gi_sample_count);
+    mentalrayrendersettings->gi_sample_count--;
+  }
+  {
+    BITCODE_BD gi_sample_radius;
+    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "gi_sample_radius", &gi_sample_radius, NULL)
+        && gi_sample_radius == mentalrayrendersettings->gi_sample_radius)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.gi_sample_radius [BD] %g != %g", mentalrayrendersettings->gi_sample_radius, gi_sample_radius);
+    gi_sample_radius++;
+    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "gi_sample_radius", &gi_sample_radius, 0)
+        && gi_sample_radius == mentalrayrendersettings->gi_sample_radius)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.gi_sample_radius [BD] set+1 %g != %g", mentalrayrendersettings->gi_sample_radius, gi_sample_radius);
+    mentalrayrendersettings->gi_sample_radius--;
+  }
+  {
+    BITCODE_B gi_sample_radius_enabled;
+    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "gi_sample_radius_enabled", &gi_sample_radius_enabled, NULL)
+        && gi_sample_radius_enabled == mentalrayrendersettings->gi_sample_radius_enabled)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.gi_sample_radius_enabled [B] " FORMAT_B " != " FORMAT_B "", mentalrayrendersettings->gi_sample_radius_enabled, gi_sample_radius_enabled);
+    gi_sample_radius_enabled++;
+    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "gi_sample_radius_enabled", &gi_sample_radius_enabled, 0)
+        && gi_sample_radius_enabled == mentalrayrendersettings->gi_sample_radius_enabled)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.gi_sample_radius_enabled [B] set+1 " FORMAT_B " != " FORMAT_B "", mentalrayrendersettings->gi_sample_radius_enabled, gi_sample_radius_enabled);
+    mentalrayrendersettings->gi_sample_radius_enabled--;
+  }
+  {
+    BITCODE_B global_illumination_enabled;
+    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "global_illumination_enabled", &global_illumination_enabled, NULL)
+        && global_illumination_enabled == mentalrayrendersettings->global_illumination_enabled)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.global_illumination_enabled [B] " FORMAT_B " != " FORMAT_B "", mentalrayrendersettings->global_illumination_enabled, global_illumination_enabled);
+    global_illumination_enabled++;
+    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "global_illumination_enabled", &global_illumination_enabled, 0)
+        && global_illumination_enabled == mentalrayrendersettings->global_illumination_enabled)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.global_illumination_enabled [B] set+1 " FORMAT_B " != " FORMAT_B "", mentalrayrendersettings->global_illumination_enabled, global_illumination_enabled);
+    mentalrayrendersettings->global_illumination_enabled--;
+  }
+  {
+    BITCODE_B has_predefined;
+    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "has_predefined", &has_predefined, NULL)
+        && has_predefined == mentalrayrendersettings->has_predefined)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.has_predefined [B] " FORMAT_B " != " FORMAT_B "", mentalrayrendersettings->has_predefined, has_predefined);
+    has_predefined++;
+    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "has_predefined", &has_predefined, 0)
+        && has_predefined == mentalrayrendersettings->has_predefined)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.has_predefined [B] set+1 " FORMAT_B " != " FORMAT_B "", mentalrayrendersettings->has_predefined, has_predefined);
+    mentalrayrendersettings->has_predefined--;
+  }
+  {
+    BITCODE_BD light_luminance_scale;
+    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "light_luminance_scale", &light_luminance_scale, NULL)
+        && light_luminance_scale == mentalrayrendersettings->light_luminance_scale)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.light_luminance_scale [BD] %g != %g", mentalrayrendersettings->light_luminance_scale, light_luminance_scale);
+    light_luminance_scale++;
+    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "light_luminance_scale", &light_luminance_scale, 0)
+        && light_luminance_scale == mentalrayrendersettings->light_luminance_scale)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.light_luminance_scale [BD] set+1 %g != %g", mentalrayrendersettings->light_luminance_scale, light_luminance_scale);
+    mentalrayrendersettings->light_luminance_scale--;
+  }
+  {
+    BITCODE_BL memory_limit;
+    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "memory_limit", &memory_limit, NULL)
+        && memory_limit == mentalrayrendersettings->memory_limit)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.memory_limit [BL] %u != %u", mentalrayrendersettings->memory_limit, memory_limit);
+    memory_limit++;
+    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "memory_limit", &memory_limit, 0)
+        && memory_limit == mentalrayrendersettings->memory_limit)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.memory_limit [BL] set+1 %u != %u", mentalrayrendersettings->memory_limit, memory_limit);
+    mentalrayrendersettings->memory_limit--;
+  }
+  {
+    BITCODE_T mr_description;
+    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "mr_description", &mr_description, NULL)
+        && mr_description
+           ? strEQ ((char *)mr_description, (char *)mentalrayrendersettings->mr_description)
+           : !mentalrayrendersettings->mr_description)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.mr_description [T] '%s' <> '%s'", mr_description, mentalrayrendersettings->mr_description);
+  }
+  {
+    BITCODE_BL mr_version;
+    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "mr_version", &mr_version, NULL)
+        && mr_version == mentalrayrendersettings->mr_version)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.mr_version [BL] %u != %u", mentalrayrendersettings->mr_version, mr_version);
+    mr_version++;
+    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "mr_version", &mr_version, 0)
+        && mr_version == mentalrayrendersettings->mr_version)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.mr_version [BL] set+1 %u != %u", mentalrayrendersettings->mr_version, mr_version);
+    mentalrayrendersettings->mr_version--;
+  }
+  {
+    BITCODE_TV name;
     if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "name", &name, NULL)
         && name
            ? strEQ ((char *)name, (char *)mentalrayrendersettings->name)
            : !mentalrayrendersettings->name)
       pass ();
     else
-      fail ("MENTALRAYRENDERSETTINGS.name [T] '%s' <> '%s'", name, mentalrayrendersettings->name);
+      fail ("MENTALRAYRENDERSETTINGS.name [TV] '%s' <> '%s'", name, mentalrayrendersettings->name);
   }
   {
     struct _dwg_object_object* parent;
@@ -34932,139 +35373,304 @@ static int test_MENTALRAYRENDERSETTINGS (const Dwg_Object *obj)
         fail ("MENTALRAYRENDERSETTINGS.parent [struct _dwg_object_object*]");
   }
   {
-    BITCODE_RC rc70_1;
-    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "rc70_1", &rc70_1, NULL)
-        && rc70_1 == mentalrayrendersettings->rc70_1)
+    BITCODE_BL photon_trace_depth1;
+    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "photon_trace_depth1", &photon_trace_depth1, NULL)
+        && photon_trace_depth1 == mentalrayrendersettings->photon_trace_depth1)
       pass ();
     else
-      fail ("MENTALRAYRENDERSETTINGS.rc70_1 [RC] %u != %u", mentalrayrendersettings->rc70_1, rc70_1);
-    rc70_1++;
-    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "rc70_1", &rc70_1, 0)
-        && rc70_1 == mentalrayrendersettings->rc70_1)
+      fail ("MENTALRAYRENDERSETTINGS.photon_trace_depth1 [BL] %u != %u", mentalrayrendersettings->photon_trace_depth1, photon_trace_depth1);
+    photon_trace_depth1++;
+    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "photon_trace_depth1", &photon_trace_depth1, 0)
+        && photon_trace_depth1 == mentalrayrendersettings->photon_trace_depth1)
       pass ();
     else
-      fail ("MENTALRAYRENDERSETTINGS.rc70_1 [RC] set+1 %u != %u", mentalrayrendersettings->rc70_1, rc70_1);
-    mentalrayrendersettings->rc70_1--;
+      fail ("MENTALRAYRENDERSETTINGS.photon_trace_depth1 [BL] set+1 %u != %u", mentalrayrendersettings->photon_trace_depth1, photon_trace_depth1);
+    mentalrayrendersettings->photon_trace_depth1--;
   }
   {
-    BITCODE_RC rc70_2;
-    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "rc70_2", &rc70_2, NULL)
-        && rc70_2 == mentalrayrendersettings->rc70_2)
+    BITCODE_BL photon_trace_depth2;
+    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "photon_trace_depth2", &photon_trace_depth2, NULL)
+        && photon_trace_depth2 == mentalrayrendersettings->photon_trace_depth2)
       pass ();
     else
-      fail ("MENTALRAYRENDERSETTINGS.rc70_2 [RC] %u != %u", mentalrayrendersettings->rc70_2, rc70_2);
-    rc70_2++;
-    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "rc70_2", &rc70_2, 0)
-        && rc70_2 == mentalrayrendersettings->rc70_2)
+      fail ("MENTALRAYRENDERSETTINGS.photon_trace_depth2 [BL] %u != %u", mentalrayrendersettings->photon_trace_depth2, photon_trace_depth2);
+    photon_trace_depth2++;
+    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "photon_trace_depth2", &photon_trace_depth2, 0)
+        && photon_trace_depth2 == mentalrayrendersettings->photon_trace_depth2)
       pass ();
     else
-      fail ("MENTALRAYRENDERSETTINGS.rc70_2 [RC] set+1 %u != %u", mentalrayrendersettings->rc70_2, rc70_2);
-    mentalrayrendersettings->rc70_2--;
+      fail ("MENTALRAYRENDERSETTINGS.photon_trace_depth2 [BL] set+1 %u != %u", mentalrayrendersettings->photon_trace_depth2, photon_trace_depth2);
+    mentalrayrendersettings->photon_trace_depth2--;
   }
   {
-    BITCODE_RC rc70_3;
-    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "rc70_3", &rc70_3, NULL)
-        && rc70_3 == mentalrayrendersettings->rc70_3)
+    BITCODE_BL photon_trace_depth3;
+    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "photon_trace_depth3", &photon_trace_depth3, NULL)
+        && photon_trace_depth3 == mentalrayrendersettings->photon_trace_depth3)
       pass ();
     else
-      fail ("MENTALRAYRENDERSETTINGS.rc70_3 [RC] %u != %u", mentalrayrendersettings->rc70_3, rc70_3);
-    rc70_3++;
-    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "rc70_3", &rc70_3, 0)
-        && rc70_3 == mentalrayrendersettings->rc70_3)
+      fail ("MENTALRAYRENDERSETTINGS.photon_trace_depth3 [BL] %u != %u", mentalrayrendersettings->photon_trace_depth3, photon_trace_depth3);
+    photon_trace_depth3++;
+    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "photon_trace_depth3", &photon_trace_depth3, 0)
+        && photon_trace_depth3 == mentalrayrendersettings->photon_trace_depth3)
       pass ();
     else
-      fail ("MENTALRAYRENDERSETTINGS.rc70_3 [RC] set+1 %u != %u", mentalrayrendersettings->rc70_3, rc70_3);
-    mentalrayrendersettings->rc70_3--;
+      fail ("MENTALRAYRENDERSETTINGS.photon_trace_depth3 [BL] set+1 %u != %u", mentalrayrendersettings->photon_trace_depth3, photon_trace_depth3);
+    mentalrayrendersettings->photon_trace_depth3--;
   }
   {
-    BITCODE_RC rc70_4;
-    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "rc70_4", &rc70_4, NULL)
-        && rc70_4 == mentalrayrendersettings->rc70_4)
+    BITCODE_BL ray_trace_depth1;
+    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "ray_trace_depth1", &ray_trace_depth1, NULL)
+        && ray_trace_depth1 == mentalrayrendersettings->ray_trace_depth1)
       pass ();
     else
-      fail ("MENTALRAYRENDERSETTINGS.rc70_4 [RC] %u != %u", mentalrayrendersettings->rc70_4, rc70_4);
-    rc70_4++;
-    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "rc70_4", &rc70_4, 0)
-        && rc70_4 == mentalrayrendersettings->rc70_4)
+      fail ("MENTALRAYRENDERSETTINGS.ray_trace_depth1 [BL] %u != %u", mentalrayrendersettings->ray_trace_depth1, ray_trace_depth1);
+    ray_trace_depth1++;
+    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "ray_trace_depth1", &ray_trace_depth1, 0)
+        && ray_trace_depth1 == mentalrayrendersettings->ray_trace_depth1)
       pass ();
     else
-      fail ("MENTALRAYRENDERSETTINGS.rc70_4 [RC] set+1 %u != %u", mentalrayrendersettings->rc70_4, rc70_4);
-    mentalrayrendersettings->rc70_4--;
+      fail ("MENTALRAYRENDERSETTINGS.ray_trace_depth1 [BL] set+1 %u != %u", mentalrayrendersettings->ray_trace_depth1, ray_trace_depth1);
+    mentalrayrendersettings->ray_trace_depth1--;
   }
   {
-    BITCODE_RC rc70_5;
-    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "rc70_5", &rc70_5, NULL)
-        && rc70_5 == mentalrayrendersettings->rc70_5)
+    BITCODE_BL ray_trace_depth2;
+    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "ray_trace_depth2", &ray_trace_depth2, NULL)
+        && ray_trace_depth2 == mentalrayrendersettings->ray_trace_depth2)
       pass ();
     else
-      fail ("MENTALRAYRENDERSETTINGS.rc70_5 [RC] %u != %u", mentalrayrendersettings->rc70_5, rc70_5);
-    rc70_5++;
-    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "rc70_5", &rc70_5, 0)
-        && rc70_5 == mentalrayrendersettings->rc70_5)
+      fail ("MENTALRAYRENDERSETTINGS.ray_trace_depth2 [BL] %u != %u", mentalrayrendersettings->ray_trace_depth2, ray_trace_depth2);
+    ray_trace_depth2++;
+    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "ray_trace_depth2", &ray_trace_depth2, 0)
+        && ray_trace_depth2 == mentalrayrendersettings->ray_trace_depth2)
       pass ();
     else
-      fail ("MENTALRAYRENDERSETTINGS.rc70_5 [RC] set+1 %u != %u", mentalrayrendersettings->rc70_5, rc70_5);
-    mentalrayrendersettings->rc70_5--;
+      fail ("MENTALRAYRENDERSETTINGS.ray_trace_depth2 [BL] set+1 %u != %u", mentalrayrendersettings->ray_trace_depth2, ray_trace_depth2);
+    mentalrayrendersettings->ray_trace_depth2--;
   }
   {
-    BITCODE_RC rc70_6;
-    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "rc70_6", &rc70_6, NULL)
-        && rc70_6 == mentalrayrendersettings->rc70_6)
+    BITCODE_BL ray_trace_depth3;
+    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "ray_trace_depth3", &ray_trace_depth3, NULL)
+        && ray_trace_depth3 == mentalrayrendersettings->ray_trace_depth3)
       pass ();
     else
-      fail ("MENTALRAYRENDERSETTINGS.rc70_6 [RC] %u != %u", mentalrayrendersettings->rc70_6, rc70_6);
-    rc70_6++;
-    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "rc70_6", &rc70_6, 0)
-        && rc70_6 == mentalrayrendersettings->rc70_6)
+      fail ("MENTALRAYRENDERSETTINGS.ray_trace_depth3 [BL] %u != %u", mentalrayrendersettings->ray_trace_depth3, ray_trace_depth3);
+    ray_trace_depth3++;
+    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "ray_trace_depth3", &ray_trace_depth3, 0)
+        && ray_trace_depth3 == mentalrayrendersettings->ray_trace_depth3)
       pass ();
     else
-      fail ("MENTALRAYRENDERSETTINGS.rc70_6 [RC] set+1 %u != %u", mentalrayrendersettings->rc70_6, rc70_6);
-    mentalrayrendersettings->rc70_6--;
+      fail ("MENTALRAYRENDERSETTINGS.ray_trace_depth3 [BL] set+1 %u != %u", mentalrayrendersettings->ray_trace_depth3, ray_trace_depth3);
+    mentalrayrendersettings->ray_trace_depth3--;
   }
   {
-    BITCODE_RC rc70_7;
-    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "rc70_7", &rc70_7, NULL)
-        && rc70_7 == mentalrayrendersettings->rc70_7)
+    BITCODE_B ray_tracing_enabled;
+    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "ray_tracing_enabled", &ray_tracing_enabled, NULL)
+        && ray_tracing_enabled == mentalrayrendersettings->ray_tracing_enabled)
       pass ();
     else
-      fail ("MENTALRAYRENDERSETTINGS.rc70_7 [RC] %u != %u", mentalrayrendersettings->rc70_7, rc70_7);
-    rc70_7++;
-    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "rc70_7", &rc70_7, 0)
-        && rc70_7 == mentalrayrendersettings->rc70_7)
+      fail ("MENTALRAYRENDERSETTINGS.ray_tracing_enabled [B] " FORMAT_B " != " FORMAT_B "", mentalrayrendersettings->ray_tracing_enabled, ray_tracing_enabled);
+    ray_tracing_enabled++;
+    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "ray_tracing_enabled", &ray_tracing_enabled, 0)
+        && ray_tracing_enabled == mentalrayrendersettings->ray_tracing_enabled)
       pass ();
     else
-      fail ("MENTALRAYRENDERSETTINGS.rc70_7 [RC] set+1 %u != %u", mentalrayrendersettings->rc70_7, rc70_7);
-    mentalrayrendersettings->rc70_7--;
+      fail ("MENTALRAYRENDERSETTINGS.ray_tracing_enabled [B] set+1 " FORMAT_B " != " FORMAT_B "", mentalrayrendersettings->ray_tracing_enabled, ray_tracing_enabled);
+    mentalrayrendersettings->ray_tracing_enabled--;
   }
   {
-    BITCODE_BD samples_distance_far;
-    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "samples_distance_far", &samples_distance_far, NULL)
-        && samples_distance_far == mentalrayrendersettings->samples_distance_far)
+    BITCODE_BL sampling1;
+    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "sampling1", &sampling1, NULL)
+        && sampling1 == mentalrayrendersettings->sampling1)
       pass ();
     else
-      fail ("MENTALRAYRENDERSETTINGS.samples_distance_far [BD] %g != %g", mentalrayrendersettings->samples_distance_far, samples_distance_far);
-    samples_distance_far++;
-    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "samples_distance_far", &samples_distance_far, 0)
-        && samples_distance_far == mentalrayrendersettings->samples_distance_far)
+      fail ("MENTALRAYRENDERSETTINGS.sampling1 [BL] %u != %u", mentalrayrendersettings->sampling1, sampling1);
+    sampling1++;
+    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "sampling1", &sampling1, 0)
+        && sampling1 == mentalrayrendersettings->sampling1)
       pass ();
     else
-      fail ("MENTALRAYRENDERSETTINGS.samples_distance_far [BD] set+1 %g != %g", mentalrayrendersettings->samples_distance_far, samples_distance_far);
-    mentalrayrendersettings->samples_distance_far--;
+      fail ("MENTALRAYRENDERSETTINGS.sampling1 [BL] set+1 %u != %u", mentalrayrendersettings->sampling1, sampling1);
+    mentalrayrendersettings->sampling1--;
   }
   {
-    BITCODE_BD samples_distance_near;
-    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "samples_distance_near", &samples_distance_near, NULL)
-        && samples_distance_near == mentalrayrendersettings->samples_distance_near)
+    BITCODE_BL sampling2;
+    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "sampling2", &sampling2, NULL)
+        && sampling2 == mentalrayrendersettings->sampling2)
       pass ();
     else
-      fail ("MENTALRAYRENDERSETTINGS.samples_distance_near [BD] %g != %g", mentalrayrendersettings->samples_distance_near, samples_distance_near);
-    samples_distance_near++;
-    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "samples_distance_near", &samples_distance_near, 0)
-        && samples_distance_near == mentalrayrendersettings->samples_distance_near)
+      fail ("MENTALRAYRENDERSETTINGS.sampling2 [BL] %u != %u", mentalrayrendersettings->sampling2, sampling2);
+    sampling2++;
+    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "sampling2", &sampling2, 0)
+        && sampling2 == mentalrayrendersettings->sampling2)
       pass ();
     else
-      fail ("MENTALRAYRENDERSETTINGS.samples_distance_near [BD] set+1 %g != %g", mentalrayrendersettings->samples_distance_near, samples_distance_near);
-    mentalrayrendersettings->samples_distance_near--;
+      fail ("MENTALRAYRENDERSETTINGS.sampling2 [BL] set+1 %u != %u", mentalrayrendersettings->sampling2, sampling2);
+    mentalrayrendersettings->sampling2--;
+  }
+  {
+    BITCODE_BD sampling_contrast_color1;
+    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "sampling_contrast_color1", &sampling_contrast_color1, NULL)
+        && sampling_contrast_color1 == mentalrayrendersettings->sampling_contrast_color1)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.sampling_contrast_color1 [BD] %g != %g", mentalrayrendersettings->sampling_contrast_color1, sampling_contrast_color1);
+    sampling_contrast_color1++;
+    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "sampling_contrast_color1", &sampling_contrast_color1, 0)
+        && sampling_contrast_color1 == mentalrayrendersettings->sampling_contrast_color1)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.sampling_contrast_color1 [BD] set+1 %g != %g", mentalrayrendersettings->sampling_contrast_color1, sampling_contrast_color1);
+    mentalrayrendersettings->sampling_contrast_color1--;
+  }
+  {
+    BITCODE_BD sampling_contrast_color2;
+    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "sampling_contrast_color2", &sampling_contrast_color2, NULL)
+        && sampling_contrast_color2 == mentalrayrendersettings->sampling_contrast_color2)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.sampling_contrast_color2 [BD] %g != %g", mentalrayrendersettings->sampling_contrast_color2, sampling_contrast_color2);
+    sampling_contrast_color2++;
+    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "sampling_contrast_color2", &sampling_contrast_color2, 0)
+        && sampling_contrast_color2 == mentalrayrendersettings->sampling_contrast_color2)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.sampling_contrast_color2 [BD] set+1 %g != %g", mentalrayrendersettings->sampling_contrast_color2, sampling_contrast_color2);
+    mentalrayrendersettings->sampling_contrast_color2--;
+  }
+  {
+    BITCODE_BD sampling_contrast_color3;
+    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "sampling_contrast_color3", &sampling_contrast_color3, NULL)
+        && sampling_contrast_color3 == mentalrayrendersettings->sampling_contrast_color3)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.sampling_contrast_color3 [BD] %g != %g", mentalrayrendersettings->sampling_contrast_color3, sampling_contrast_color3);
+    sampling_contrast_color3++;
+    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "sampling_contrast_color3", &sampling_contrast_color3, 0)
+        && sampling_contrast_color3 == mentalrayrendersettings->sampling_contrast_color3)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.sampling_contrast_color3 [BD] set+1 %g != %g", mentalrayrendersettings->sampling_contrast_color3, sampling_contrast_color3);
+    mentalrayrendersettings->sampling_contrast_color3--;
+  }
+  {
+    BITCODE_BD sampling_contrast_color4;
+    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "sampling_contrast_color4", &sampling_contrast_color4, NULL)
+        && sampling_contrast_color4 == mentalrayrendersettings->sampling_contrast_color4)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.sampling_contrast_color4 [BD] %g != %g", mentalrayrendersettings->sampling_contrast_color4, sampling_contrast_color4);
+    sampling_contrast_color4++;
+    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "sampling_contrast_color4", &sampling_contrast_color4, 0)
+        && sampling_contrast_color4 == mentalrayrendersettings->sampling_contrast_color4)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.sampling_contrast_color4 [BD] set+1 %g != %g", mentalrayrendersettings->sampling_contrast_color4, sampling_contrast_color4);
+    mentalrayrendersettings->sampling_contrast_color4--;
+  }
+  {
+    BITCODE_BD sampling_filter1;
+    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "sampling_filter1", &sampling_filter1, NULL)
+        && sampling_filter1 == mentalrayrendersettings->sampling_filter1)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.sampling_filter1 [BD] %g != %g", mentalrayrendersettings->sampling_filter1, sampling_filter1);
+    sampling_filter1++;
+    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "sampling_filter1", &sampling_filter1, 0)
+        && sampling_filter1 == mentalrayrendersettings->sampling_filter1)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.sampling_filter1 [BD] set+1 %g != %g", mentalrayrendersettings->sampling_filter1, sampling_filter1);
+    mentalrayrendersettings->sampling_filter1--;
+  }
+  {
+    BITCODE_BD sampling_filter2;
+    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "sampling_filter2", &sampling_filter2, NULL)
+        && sampling_filter2 == mentalrayrendersettings->sampling_filter2)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.sampling_filter2 [BD] %g != %g", mentalrayrendersettings->sampling_filter2, sampling_filter2);
+    sampling_filter2++;
+    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "sampling_filter2", &sampling_filter2, 0)
+        && sampling_filter2 == mentalrayrendersettings->sampling_filter2)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.sampling_filter2 [BD] set+1 %g != %g", mentalrayrendersettings->sampling_filter2, sampling_filter2);
+    mentalrayrendersettings->sampling_filter2--;
+  }
+  {
+    BITCODE_BS sampling_mr_filter;
+    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "sampling_mr_filter", &sampling_mr_filter, NULL)
+        && sampling_mr_filter == mentalrayrendersettings->sampling_mr_filter)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.sampling_mr_filter [BS] %hu != %hu", mentalrayrendersettings->sampling_mr_filter, sampling_mr_filter);
+    sampling_mr_filter++;
+    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "sampling_mr_filter", &sampling_mr_filter, 0)
+        && sampling_mr_filter == mentalrayrendersettings->sampling_mr_filter)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.sampling_mr_filter [BS] set+1 %hu != %hu", mentalrayrendersettings->sampling_mr_filter, sampling_mr_filter);
+    mentalrayrendersettings->sampling_mr_filter--;
+  }
+  {
+    BITCODE_B shadow_maps_enabled;
+    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "shadow_maps_enabled", &shadow_maps_enabled, NULL)
+        && shadow_maps_enabled == mentalrayrendersettings->shadow_maps_enabled)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.shadow_maps_enabled [B] " FORMAT_B " != " FORMAT_B "", mentalrayrendersettings->shadow_maps_enabled, shadow_maps_enabled);
+    shadow_maps_enabled++;
+    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "shadow_maps_enabled", &shadow_maps_enabled, 0)
+        && shadow_maps_enabled == mentalrayrendersettings->shadow_maps_enabled)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.shadow_maps_enabled [B] set+1 " FORMAT_B " != " FORMAT_B "", mentalrayrendersettings->shadow_maps_enabled, shadow_maps_enabled);
+    mentalrayrendersettings->shadow_maps_enabled--;
+  }
+  {
+    BITCODE_BS shadow_mode;
+    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "shadow_mode", &shadow_mode, NULL)
+        && shadow_mode == mentalrayrendersettings->shadow_mode)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.shadow_mode [BS] %hu != %hu", mentalrayrendersettings->shadow_mode, shadow_mode);
+    shadow_mode++;
+    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "shadow_mode", &shadow_mode, 0)
+        && shadow_mode == mentalrayrendersettings->shadow_mode)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.shadow_mode [BS] set+1 %hu != %hu", mentalrayrendersettings->shadow_mode, shadow_mode);
+    mentalrayrendersettings->shadow_mode--;
+  }
+  {
+    BITCODE_BS tile_order;
+    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "tile_order", &tile_order, NULL)
+        && tile_order == mentalrayrendersettings->tile_order)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.tile_order [BS] %hu != %hu", mentalrayrendersettings->tile_order, tile_order);
+    tile_order++;
+    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "tile_order", &tile_order, 0)
+        && tile_order == mentalrayrendersettings->tile_order)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.tile_order [BS] set+1 %hu != %hu", mentalrayrendersettings->tile_order, tile_order);
+    mentalrayrendersettings->tile_order--;
+  }
+  {
+    BITCODE_BL tile_size;
+    if (dwg_dynapi_entity_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "tile_size", &tile_size, NULL)
+        && tile_size == mentalrayrendersettings->tile_size)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.tile_size [BL] %u != %u", mentalrayrendersettings->tile_size, tile_size);
+    tile_size++;
+    if (dwg_dynapi_entity_set_value (mentalrayrendersettings, "MENTALRAYRENDERSETTINGS", "tile_size", &tile_size, 0)
+        && tile_size == mentalrayrendersettings->tile_size)
+      pass ();
+    else
+      fail ("MENTALRAYRENDERSETTINGS.tile_size [BL] set+1 %u != %u", mentalrayrendersettings->tile_size, tile_size);
+    mentalrayrendersettings->tile_size--;
   }
   if (failed && (is_class_unstable ("MENTALRAYRENDERSETTINGS") || is_class_debugging ("MENTALRAYRENDERSETTINGS")))
     {
@@ -35095,34 +35701,34 @@ static int test_MLEADEROBJECTCONTEXTDATA (const Dwg_Object *obj)
     mleaderobjectcontextdata->class_version--;
   }
   {
-    BITCODE_B defaultflag;
-    if (dwg_dynapi_entity_value (mleaderobjectcontextdata, "MLEADEROBJECTCONTEXTDATA", "defaultflag", &defaultflag, NULL)
-        && defaultflag == mleaderobjectcontextdata->defaultflag)
+    BITCODE_B in_dwg;
+    if (dwg_dynapi_entity_value (mleaderobjectcontextdata, "MLEADEROBJECTCONTEXTDATA", "in_dwg", &in_dwg, NULL)
+        && in_dwg == mleaderobjectcontextdata->in_dwg)
       pass ();
     else
-      fail ("MLEADEROBJECTCONTEXTDATA.defaultflag [B] " FORMAT_B " != " FORMAT_B "", mleaderobjectcontextdata->defaultflag, defaultflag);
-    defaultflag++;
-    if (dwg_dynapi_entity_set_value (mleaderobjectcontextdata, "MLEADEROBJECTCONTEXTDATA", "defaultflag", &defaultflag, 0)
-        && defaultflag == mleaderobjectcontextdata->defaultflag)
+      fail ("MLEADEROBJECTCONTEXTDATA.in_dwg [B] " FORMAT_B " != " FORMAT_B "", mleaderobjectcontextdata->in_dwg, in_dwg);
+    in_dwg++;
+    if (dwg_dynapi_entity_set_value (mleaderobjectcontextdata, "MLEADEROBJECTCONTEXTDATA", "in_dwg", &in_dwg, 0)
+        && in_dwg == mleaderobjectcontextdata->in_dwg)
       pass ();
     else
-      fail ("MLEADEROBJECTCONTEXTDATA.defaultflag [B] set+1 " FORMAT_B " != " FORMAT_B "", mleaderobjectcontextdata->defaultflag, defaultflag);
-    mleaderobjectcontextdata->defaultflag--;
+      fail ("MLEADEROBJECTCONTEXTDATA.in_dwg [B] set+1 " FORMAT_B " != " FORMAT_B "", mleaderobjectcontextdata->in_dwg, in_dwg);
+    mleaderobjectcontextdata->in_dwg--;
   }
   {
-    BITCODE_B has_file;
-    if (dwg_dynapi_entity_value (mleaderobjectcontextdata, "MLEADEROBJECTCONTEXTDATA", "has_file", &has_file, NULL)
-        && has_file == mleaderobjectcontextdata->has_file)
+    BITCODE_B is_default;
+    if (dwg_dynapi_entity_value (mleaderobjectcontextdata, "MLEADEROBJECTCONTEXTDATA", "is_default", &is_default, NULL)
+        && is_default == mleaderobjectcontextdata->is_default)
       pass ();
     else
-      fail ("MLEADEROBJECTCONTEXTDATA.has_file [B] " FORMAT_B " != " FORMAT_B "", mleaderobjectcontextdata->has_file, has_file);
-    has_file++;
-    if (dwg_dynapi_entity_set_value (mleaderobjectcontextdata, "MLEADEROBJECTCONTEXTDATA", "has_file", &has_file, 0)
-        && has_file == mleaderobjectcontextdata->has_file)
+      fail ("MLEADEROBJECTCONTEXTDATA.is_default [B] " FORMAT_B " != " FORMAT_B "", mleaderobjectcontextdata->is_default, is_default);
+    is_default++;
+    if (dwg_dynapi_entity_set_value (mleaderobjectcontextdata, "MLEADEROBJECTCONTEXTDATA", "is_default", &is_default, 0)
+        && is_default == mleaderobjectcontextdata->is_default)
       pass ();
     else
-      fail ("MLEADEROBJECTCONTEXTDATA.has_file [B] set+1 " FORMAT_B " != " FORMAT_B "", mleaderobjectcontextdata->has_file, has_file);
-    mleaderobjectcontextdata->has_file--;
+      fail ("MLEADEROBJECTCONTEXTDATA.is_default [B] set+1 " FORMAT_B " != " FORMAT_B "", mleaderobjectcontextdata->is_default, is_default);
+    mleaderobjectcontextdata->is_default--;
   }
   {
     struct _dwg_object_object* parent;
@@ -35895,6 +36501,111 @@ static int test_MLINESTYLE (const Dwg_Object *obj)
     }
   return failed;
 }
+static int test_MOTIONPATH (const Dwg_Object *obj)
+{
+  int error = 0;
+  const Dwg_Object_Object *restrict obj_obj = obj->tio.object;
+  Dwg_Object_MOTIONPATH *restrict motionpath = obj->tio.object->tio.MOTIONPATH;
+  failed = 0;
+  {
+    BITCODE_H camera_path;
+    if (dwg_dynapi_entity_value (motionpath, "MOTIONPATH", "camera_path", &camera_path, NULL)
+        && !memcmp (&camera_path, &motionpath->camera_path, sizeof (motionpath->camera_path)))
+        pass ();
+    else
+        fail ("MOTIONPATH.camera_path [H]");
+  }
+  {
+    BITCODE_BS class_version;
+    if (dwg_dynapi_entity_value (motionpath, "MOTIONPATH", "class_version", &class_version, NULL)
+        && class_version == motionpath->class_version)
+      pass ();
+    else
+      fail ("MOTIONPATH.class_version [BS] %hu != %hu", motionpath->class_version, class_version);
+    class_version++;
+    if (dwg_dynapi_entity_set_value (motionpath, "MOTIONPATH", "class_version", &class_version, 0)
+        && class_version == motionpath->class_version)
+      pass ();
+    else
+      fail ("MOTIONPATH.class_version [BS] set+1 %hu != %hu", motionpath->class_version, class_version);
+    motionpath->class_version--;
+  }
+  {
+    BITCODE_B corner_decel;
+    if (dwg_dynapi_entity_value (motionpath, "MOTIONPATH", "corner_decel", &corner_decel, NULL)
+        && corner_decel == motionpath->corner_decel)
+      pass ();
+    else
+      fail ("MOTIONPATH.corner_decel [B] " FORMAT_B " != " FORMAT_B "", motionpath->corner_decel, corner_decel);
+    corner_decel++;
+    if (dwg_dynapi_entity_set_value (motionpath, "MOTIONPATH", "corner_decel", &corner_decel, 0)
+        && corner_decel == motionpath->corner_decel)
+      pass ();
+    else
+      fail ("MOTIONPATH.corner_decel [B] set+1 " FORMAT_B " != " FORMAT_B "", motionpath->corner_decel, corner_decel);
+    motionpath->corner_decel--;
+  }
+  {
+    BITCODE_BS frame_rate;
+    if (dwg_dynapi_entity_value (motionpath, "MOTIONPATH", "frame_rate", &frame_rate, NULL)
+        && frame_rate == motionpath->frame_rate)
+      pass ();
+    else
+      fail ("MOTIONPATH.frame_rate [BS] %hu != %hu", motionpath->frame_rate, frame_rate);
+    frame_rate++;
+    if (dwg_dynapi_entity_set_value (motionpath, "MOTIONPATH", "frame_rate", &frame_rate, 0)
+        && frame_rate == motionpath->frame_rate)
+      pass ();
+    else
+      fail ("MOTIONPATH.frame_rate [BS] set+1 %hu != %hu", motionpath->frame_rate, frame_rate);
+    motionpath->frame_rate--;
+  }
+  {
+    BITCODE_BS frames;
+    if (dwg_dynapi_entity_value (motionpath, "MOTIONPATH", "frames", &frames, NULL)
+        && frames == motionpath->frames)
+      pass ();
+    else
+      fail ("MOTIONPATH.frames [BS] %hu != %hu", motionpath->frames, frames);
+    frames++;
+    if (dwg_dynapi_entity_set_value (motionpath, "MOTIONPATH", "frames", &frames, 0)
+        && frames == motionpath->frames)
+      pass ();
+    else
+      fail ("MOTIONPATH.frames [BS] set+1 %hu != %hu", motionpath->frames, frames);
+    motionpath->frames--;
+  }
+  {
+    struct _dwg_object_object* parent;
+    if (dwg_dynapi_entity_value (motionpath, "MOTIONPATH", "parent", &parent, NULL)
+        && !memcmp (&parent, &motionpath->parent, sizeof (motionpath->parent)))
+        pass ();
+    else
+        fail ("MOTIONPATH.parent [struct _dwg_object_object*]");
+  }
+  {
+    BITCODE_H target_path;
+    if (dwg_dynapi_entity_value (motionpath, "MOTIONPATH", "target_path", &target_path, NULL)
+        && !memcmp (&target_path, &motionpath->target_path, sizeof (motionpath->target_path)))
+        pass ();
+    else
+        fail ("MOTIONPATH.target_path [H]");
+  }
+  {
+    BITCODE_H viewtable;
+    if (dwg_dynapi_entity_value (motionpath, "MOTIONPATH", "viewtable", &viewtable, NULL)
+        && !memcmp (&viewtable, &motionpath->viewtable, sizeof (motionpath->viewtable)))
+        pass ();
+    else
+        fail ("MOTIONPATH.viewtable [H]");
+  }
+  if (failed && (is_class_unstable ("MOTIONPATH") || is_class_debugging ("MOTIONPATH")))
+    {
+      ok ("%s failed %d tests (TODO unstable)", "MOTIONPATH", failed);
+      failed = 0;
+    }
+  return failed;
+}
 static int test_MTEXTATTRIBUTEOBJECTCONTEXTDATA (const Dwg_Object *obj)
 {
   int error = 0;
@@ -35917,34 +36628,34 @@ static int test_MTEXTATTRIBUTEOBJECTCONTEXTDATA (const Dwg_Object *obj)
     mtextattributeobjectcontextdata->class_version--;
   }
   {
-    BITCODE_B defaultflag;
-    if (dwg_dynapi_entity_value (mtextattributeobjectcontextdata, "MTEXTATTRIBUTEOBJECTCONTEXTDATA", "defaultflag", &defaultflag, NULL)
-        && defaultflag == mtextattributeobjectcontextdata->defaultflag)
+    BITCODE_B in_dwg;
+    if (dwg_dynapi_entity_value (mtextattributeobjectcontextdata, "MTEXTATTRIBUTEOBJECTCONTEXTDATA", "in_dwg", &in_dwg, NULL)
+        && in_dwg == mtextattributeobjectcontextdata->in_dwg)
       pass ();
     else
-      fail ("MTEXTATTRIBUTEOBJECTCONTEXTDATA.defaultflag [B] " FORMAT_B " != " FORMAT_B "", mtextattributeobjectcontextdata->defaultflag, defaultflag);
-    defaultflag++;
-    if (dwg_dynapi_entity_set_value (mtextattributeobjectcontextdata, "MTEXTATTRIBUTEOBJECTCONTEXTDATA", "defaultflag", &defaultflag, 0)
-        && defaultflag == mtextattributeobjectcontextdata->defaultflag)
+      fail ("MTEXTATTRIBUTEOBJECTCONTEXTDATA.in_dwg [B] " FORMAT_B " != " FORMAT_B "", mtextattributeobjectcontextdata->in_dwg, in_dwg);
+    in_dwg++;
+    if (dwg_dynapi_entity_set_value (mtextattributeobjectcontextdata, "MTEXTATTRIBUTEOBJECTCONTEXTDATA", "in_dwg", &in_dwg, 0)
+        && in_dwg == mtextattributeobjectcontextdata->in_dwg)
       pass ();
     else
-      fail ("MTEXTATTRIBUTEOBJECTCONTEXTDATA.defaultflag [B] set+1 " FORMAT_B " != " FORMAT_B "", mtextattributeobjectcontextdata->defaultflag, defaultflag);
-    mtextattributeobjectcontextdata->defaultflag--;
+      fail ("MTEXTATTRIBUTEOBJECTCONTEXTDATA.in_dwg [B] set+1 " FORMAT_B " != " FORMAT_B "", mtextattributeobjectcontextdata->in_dwg, in_dwg);
+    mtextattributeobjectcontextdata->in_dwg--;
   }
   {
-    BITCODE_B has_file;
-    if (dwg_dynapi_entity_value (mtextattributeobjectcontextdata, "MTEXTATTRIBUTEOBJECTCONTEXTDATA", "has_file", &has_file, NULL)
-        && has_file == mtextattributeobjectcontextdata->has_file)
+    BITCODE_B is_default;
+    if (dwg_dynapi_entity_value (mtextattributeobjectcontextdata, "MTEXTATTRIBUTEOBJECTCONTEXTDATA", "is_default", &is_default, NULL)
+        && is_default == mtextattributeobjectcontextdata->is_default)
       pass ();
     else
-      fail ("MTEXTATTRIBUTEOBJECTCONTEXTDATA.has_file [B] " FORMAT_B " != " FORMAT_B "", mtextattributeobjectcontextdata->has_file, has_file);
-    has_file++;
-    if (dwg_dynapi_entity_set_value (mtextattributeobjectcontextdata, "MTEXTATTRIBUTEOBJECTCONTEXTDATA", "has_file", &has_file, 0)
-        && has_file == mtextattributeobjectcontextdata->has_file)
+      fail ("MTEXTATTRIBUTEOBJECTCONTEXTDATA.is_default [B] " FORMAT_B " != " FORMAT_B "", mtextattributeobjectcontextdata->is_default, is_default);
+    is_default++;
+    if (dwg_dynapi_entity_set_value (mtextattributeobjectcontextdata, "MTEXTATTRIBUTEOBJECTCONTEXTDATA", "is_default", &is_default, 0)
+        && is_default == mtextattributeobjectcontextdata->is_default)
       pass ();
     else
-      fail ("MTEXTATTRIBUTEOBJECTCONTEXTDATA.has_file [B] set+1 " FORMAT_B " != " FORMAT_B "", mtextattributeobjectcontextdata->has_file, has_file);
-    mtextattributeobjectcontextdata->has_file--;
+      fail ("MTEXTATTRIBUTEOBJECTCONTEXTDATA.is_default [B] set+1 " FORMAT_B " != " FORMAT_B "", mtextattributeobjectcontextdata->is_default, is_default);
+    mtextattributeobjectcontextdata->is_default--;
   }
   {
     struct _dwg_object_object* parent;
@@ -36051,21 +36762,6 @@ static int test_MTEXTOBJECTCONTEXTDATA (const Dwg_Object *obj)
     mtextobjectcontextdata->class_version--;
   }
   {
-    BITCODE_B defaultflag;
-    if (dwg_dynapi_entity_value (mtextobjectcontextdata, "MTEXTOBJECTCONTEXTDATA", "defaultflag", &defaultflag, NULL)
-        && defaultflag == mtextobjectcontextdata->defaultflag)
-      pass ();
-    else
-      fail ("MTEXTOBJECTCONTEXTDATA.defaultflag [B] " FORMAT_B " != " FORMAT_B "", mtextobjectcontextdata->defaultflag, defaultflag);
-    defaultflag++;
-    if (dwg_dynapi_entity_set_value (mtextobjectcontextdata, "MTEXTOBJECTCONTEXTDATA", "defaultflag", &defaultflag, 0)
-        && defaultflag == mtextobjectcontextdata->defaultflag)
-      pass ();
-    else
-      fail ("MTEXTOBJECTCONTEXTDATA.defaultflag [B] set+1 " FORMAT_B " != " FORMAT_B "", mtextobjectcontextdata->defaultflag, defaultflag);
-    mtextobjectcontextdata->defaultflag--;
-  }
-  {
     BITCODE_BS drawing_dir;
     if (dwg_dynapi_entity_value (mtextobjectcontextdata, "MTEXTOBJECTCONTEXTDATA", "drawing_dir", &drawing_dir, NULL)
         && drawing_dir == mtextobjectcontextdata->drawing_dir)
@@ -36126,19 +36822,19 @@ static int test_MTEXTOBJECTCONTEXTDATA (const Dwg_Object *obj)
     mtextobjectcontextdata->flag--;
   }
   {
-    BITCODE_B has_file;
-    if (dwg_dynapi_entity_value (mtextobjectcontextdata, "MTEXTOBJECTCONTEXTDATA", "has_file", &has_file, NULL)
-        && has_file == mtextobjectcontextdata->has_file)
+    BITCODE_B in_dwg;
+    if (dwg_dynapi_entity_value (mtextobjectcontextdata, "MTEXTOBJECTCONTEXTDATA", "in_dwg", &in_dwg, NULL)
+        && in_dwg == mtextobjectcontextdata->in_dwg)
       pass ();
     else
-      fail ("MTEXTOBJECTCONTEXTDATA.has_file [B] " FORMAT_B " != " FORMAT_B "", mtextobjectcontextdata->has_file, has_file);
-    has_file++;
-    if (dwg_dynapi_entity_set_value (mtextobjectcontextdata, "MTEXTOBJECTCONTEXTDATA", "has_file", &has_file, 0)
-        && has_file == mtextobjectcontextdata->has_file)
+      fail ("MTEXTOBJECTCONTEXTDATA.in_dwg [B] " FORMAT_B " != " FORMAT_B "", mtextobjectcontextdata->in_dwg, in_dwg);
+    in_dwg++;
+    if (dwg_dynapi_entity_set_value (mtextobjectcontextdata, "MTEXTOBJECTCONTEXTDATA", "in_dwg", &in_dwg, 0)
+        && in_dwg == mtextobjectcontextdata->in_dwg)
       pass ();
     else
-      fail ("MTEXTOBJECTCONTEXTDATA.has_file [B] set+1 " FORMAT_B " != " FORMAT_B "", mtextobjectcontextdata->has_file, has_file);
-    mtextobjectcontextdata->has_file--;
+      fail ("MTEXTOBJECTCONTEXTDATA.in_dwg [B] set+1 " FORMAT_B " != " FORMAT_B "", mtextobjectcontextdata->in_dwg, in_dwg);
+    mtextobjectcontextdata->in_dwg--;
   }
   {
     BITCODE_3BD insertion_pt;
@@ -36147,6 +36843,21 @@ static int test_MTEXTOBJECTCONTEXTDATA (const Dwg_Object *obj)
         pass ();
     else
         fail ("MTEXTOBJECTCONTEXTDATA.insertion_pt [3BD]");
+  }
+  {
+    BITCODE_B is_default;
+    if (dwg_dynapi_entity_value (mtextobjectcontextdata, "MTEXTOBJECTCONTEXTDATA", "is_default", &is_default, NULL)
+        && is_default == mtextobjectcontextdata->is_default)
+      pass ();
+    else
+      fail ("MTEXTOBJECTCONTEXTDATA.is_default [B] " FORMAT_B " != " FORMAT_B "", mtextobjectcontextdata->is_default, is_default);
+    is_default++;
+    if (dwg_dynapi_entity_set_value (mtextobjectcontextdata, "MTEXTOBJECTCONTEXTDATA", "is_default", &is_default, 0)
+        && is_default == mtextobjectcontextdata->is_default)
+      pass ();
+    else
+      fail ("MTEXTOBJECTCONTEXTDATA.is_default [B] set+1 " FORMAT_B " != " FORMAT_B "", mtextobjectcontextdata->is_default, is_default);
+    mtextobjectcontextdata->is_default--;
   }
   {
     BITCODE_BD linespace_factor;
@@ -36352,128 +37063,128 @@ static int test_OBJECT_PTR (const Dwg_Object *obj)
     }
   return failed;
 }
-static int test_PERSSUBENTMANAGER (const Dwg_Object *obj)
+static int test_PERSUBENTMGR (const Dwg_Object *obj)
 {
   int error = 0;
   const Dwg_Object_Object *restrict obj_obj = obj->tio.object;
-  Dwg_Object_PERSSUBENTMANAGER *restrict perssubentmanager = obj->tio.object->tio.PERSSUBENTMANAGER;
+  Dwg_Object_PERSUBENTMGR *restrict persubentmgr = obj->tio.object->tio.PERSUBENTMGR;
   failed = 0;
   {
     BITCODE_BL class_version;
-    if (dwg_dynapi_entity_value (perssubentmanager, "PERSSUBENTMANAGER", "class_version", &class_version, NULL)
-        && class_version == perssubentmanager->class_version)
+    if (dwg_dynapi_entity_value (persubentmgr, "PERSUBENTMGR", "class_version", &class_version, NULL)
+        && class_version == persubentmgr->class_version)
       pass ();
     else
-      fail ("PERSSUBENTMANAGER.class_version [BL] %u != %u", perssubentmanager->class_version, class_version);
+      fail ("PERSUBENTMGR.class_version [BL] %u != %u", persubentmgr->class_version, class_version);
     class_version++;
-    if (dwg_dynapi_entity_set_value (perssubentmanager, "PERSSUBENTMANAGER", "class_version", &class_version, 0)
-        && class_version == perssubentmanager->class_version)
+    if (dwg_dynapi_entity_set_value (persubentmgr, "PERSUBENTMGR", "class_version", &class_version, 0)
+        && class_version == persubentmgr->class_version)
       pass ();
     else
-      fail ("PERSSUBENTMANAGER.class_version [BL] set+1 %u != %u", perssubentmanager->class_version, class_version);
-    perssubentmanager->class_version--;
+      fail ("PERSUBENTMGR.class_version [BL] set+1 %u != %u", persubentmgr->class_version, class_version);
+    persubentmgr->class_version--;
   }
   {
     struct _dwg_object_object* parent;
-    if (dwg_dynapi_entity_value (perssubentmanager, "PERSSUBENTMANAGER", "parent", &parent, NULL)
-        && !memcmp (&parent, &perssubentmanager->parent, sizeof (perssubentmanager->parent)))
+    if (dwg_dynapi_entity_value (persubentmgr, "PERSUBENTMGR", "parent", &parent, NULL)
+        && !memcmp (&parent, &persubentmgr->parent, sizeof (persubentmgr->parent)))
         pass ();
     else
-        fail ("PERSSUBENTMANAGER.parent [struct _dwg_object_object*]");
+        fail ("PERSUBENTMGR.parent [struct _dwg_object_object*]");
   }
   {
     BITCODE_BL unknown_bl1;
-    if (dwg_dynapi_entity_value (perssubentmanager, "PERSSUBENTMANAGER", "unknown_bl1", &unknown_bl1, NULL)
-        && unknown_bl1 == perssubentmanager->unknown_bl1)
+    if (dwg_dynapi_entity_value (persubentmgr, "PERSUBENTMGR", "unknown_bl1", &unknown_bl1, NULL)
+        && unknown_bl1 == persubentmgr->unknown_bl1)
       pass ();
     else
-      fail ("PERSSUBENTMANAGER.unknown_bl1 [BL] %u != %u", perssubentmanager->unknown_bl1, unknown_bl1);
+      fail ("PERSUBENTMGR.unknown_bl1 [BL] %u != %u", persubentmgr->unknown_bl1, unknown_bl1);
     unknown_bl1++;
-    if (dwg_dynapi_entity_set_value (perssubentmanager, "PERSSUBENTMANAGER", "unknown_bl1", &unknown_bl1, 0)
-        && unknown_bl1 == perssubentmanager->unknown_bl1)
+    if (dwg_dynapi_entity_set_value (persubentmgr, "PERSUBENTMGR", "unknown_bl1", &unknown_bl1, 0)
+        && unknown_bl1 == persubentmgr->unknown_bl1)
       pass ();
     else
-      fail ("PERSSUBENTMANAGER.unknown_bl1 [BL] set+1 %u != %u", perssubentmanager->unknown_bl1, unknown_bl1);
-    perssubentmanager->unknown_bl1--;
+      fail ("PERSUBENTMGR.unknown_bl1 [BL] set+1 %u != %u", persubentmgr->unknown_bl1, unknown_bl1);
+    persubentmgr->unknown_bl1--;
   }
   {
     BITCODE_BL unknown_bl2;
-    if (dwg_dynapi_entity_value (perssubentmanager, "PERSSUBENTMANAGER", "unknown_bl2", &unknown_bl2, NULL)
-        && unknown_bl2 == perssubentmanager->unknown_bl2)
+    if (dwg_dynapi_entity_value (persubentmgr, "PERSUBENTMGR", "unknown_bl2", &unknown_bl2, NULL)
+        && unknown_bl2 == persubentmgr->unknown_bl2)
       pass ();
     else
-      fail ("PERSSUBENTMANAGER.unknown_bl2 [BL] %u != %u", perssubentmanager->unknown_bl2, unknown_bl2);
+      fail ("PERSUBENTMGR.unknown_bl2 [BL] %u != %u", persubentmgr->unknown_bl2, unknown_bl2);
     unknown_bl2++;
-    if (dwg_dynapi_entity_set_value (perssubentmanager, "PERSSUBENTMANAGER", "unknown_bl2", &unknown_bl2, 0)
-        && unknown_bl2 == perssubentmanager->unknown_bl2)
+    if (dwg_dynapi_entity_set_value (persubentmgr, "PERSUBENTMGR", "unknown_bl2", &unknown_bl2, 0)
+        && unknown_bl2 == persubentmgr->unknown_bl2)
       pass ();
     else
-      fail ("PERSSUBENTMANAGER.unknown_bl2 [BL] set+1 %u != %u", perssubentmanager->unknown_bl2, unknown_bl2);
-    perssubentmanager->unknown_bl2--;
+      fail ("PERSUBENTMGR.unknown_bl2 [BL] set+1 %u != %u", persubentmgr->unknown_bl2, unknown_bl2);
+    persubentmgr->unknown_bl2--;
   }
   {
     BITCODE_BL unknown_bl3;
-    if (dwg_dynapi_entity_value (perssubentmanager, "PERSSUBENTMANAGER", "unknown_bl3", &unknown_bl3, NULL)
-        && unknown_bl3 == perssubentmanager->unknown_bl3)
+    if (dwg_dynapi_entity_value (persubentmgr, "PERSUBENTMGR", "unknown_bl3", &unknown_bl3, NULL)
+        && unknown_bl3 == persubentmgr->unknown_bl3)
       pass ();
     else
-      fail ("PERSSUBENTMANAGER.unknown_bl3 [BL] %u != %u", perssubentmanager->unknown_bl3, unknown_bl3);
+      fail ("PERSUBENTMGR.unknown_bl3 [BL] %u != %u", persubentmgr->unknown_bl3, unknown_bl3);
     unknown_bl3++;
-    if (dwg_dynapi_entity_set_value (perssubentmanager, "PERSSUBENTMANAGER", "unknown_bl3", &unknown_bl3, 0)
-        && unknown_bl3 == perssubentmanager->unknown_bl3)
+    if (dwg_dynapi_entity_set_value (persubentmgr, "PERSUBENTMGR", "unknown_bl3", &unknown_bl3, 0)
+        && unknown_bl3 == persubentmgr->unknown_bl3)
       pass ();
     else
-      fail ("PERSSUBENTMANAGER.unknown_bl3 [BL] set+1 %u != %u", perssubentmanager->unknown_bl3, unknown_bl3);
-    perssubentmanager->unknown_bl3--;
+      fail ("PERSUBENTMGR.unknown_bl3 [BL] set+1 %u != %u", persubentmgr->unknown_bl3, unknown_bl3);
+    persubentmgr->unknown_bl3--;
   }
   {
     BITCODE_BL unknown_bl4;
-    if (dwg_dynapi_entity_value (perssubentmanager, "PERSSUBENTMANAGER", "unknown_bl4", &unknown_bl4, NULL)
-        && unknown_bl4 == perssubentmanager->unknown_bl4)
+    if (dwg_dynapi_entity_value (persubentmgr, "PERSUBENTMGR", "unknown_bl4", &unknown_bl4, NULL)
+        && unknown_bl4 == persubentmgr->unknown_bl4)
       pass ();
     else
-      fail ("PERSSUBENTMANAGER.unknown_bl4 [BL] %u != %u", perssubentmanager->unknown_bl4, unknown_bl4);
+      fail ("PERSUBENTMGR.unknown_bl4 [BL] %u != %u", persubentmgr->unknown_bl4, unknown_bl4);
     unknown_bl4++;
-    if (dwg_dynapi_entity_set_value (perssubentmanager, "PERSSUBENTMANAGER", "unknown_bl4", &unknown_bl4, 0)
-        && unknown_bl4 == perssubentmanager->unknown_bl4)
+    if (dwg_dynapi_entity_set_value (persubentmgr, "PERSUBENTMGR", "unknown_bl4", &unknown_bl4, 0)
+        && unknown_bl4 == persubentmgr->unknown_bl4)
       pass ();
     else
-      fail ("PERSSUBENTMANAGER.unknown_bl4 [BL] set+1 %u != %u", perssubentmanager->unknown_bl4, unknown_bl4);
-    perssubentmanager->unknown_bl4--;
+      fail ("PERSUBENTMGR.unknown_bl4 [BL] set+1 %u != %u", persubentmgr->unknown_bl4, unknown_bl4);
+    persubentmgr->unknown_bl4--;
   }
   {
     BITCODE_BL unknown_bl5;
-    if (dwg_dynapi_entity_value (perssubentmanager, "PERSSUBENTMANAGER", "unknown_bl5", &unknown_bl5, NULL)
-        && unknown_bl5 == perssubentmanager->unknown_bl5)
+    if (dwg_dynapi_entity_value (persubentmgr, "PERSUBENTMGR", "unknown_bl5", &unknown_bl5, NULL)
+        && unknown_bl5 == persubentmgr->unknown_bl5)
       pass ();
     else
-      fail ("PERSSUBENTMANAGER.unknown_bl5 [BL] %u != %u", perssubentmanager->unknown_bl5, unknown_bl5);
+      fail ("PERSUBENTMGR.unknown_bl5 [BL] %u != %u", persubentmgr->unknown_bl5, unknown_bl5);
     unknown_bl5++;
-    if (dwg_dynapi_entity_set_value (perssubentmanager, "PERSSUBENTMANAGER", "unknown_bl5", &unknown_bl5, 0)
-        && unknown_bl5 == perssubentmanager->unknown_bl5)
+    if (dwg_dynapi_entity_set_value (persubentmgr, "PERSUBENTMGR", "unknown_bl5", &unknown_bl5, 0)
+        && unknown_bl5 == persubentmgr->unknown_bl5)
       pass ();
     else
-      fail ("PERSSUBENTMANAGER.unknown_bl5 [BL] set+1 %u != %u", perssubentmanager->unknown_bl5, unknown_bl5);
-    perssubentmanager->unknown_bl5--;
+      fail ("PERSUBENTMGR.unknown_bl5 [BL] set+1 %u != %u", persubentmgr->unknown_bl5, unknown_bl5);
+    persubentmgr->unknown_bl5--;
   }
   {
     BITCODE_BL unknown_bl6;
-    if (dwg_dynapi_entity_value (perssubentmanager, "PERSSUBENTMANAGER", "unknown_bl6", &unknown_bl6, NULL)
-        && unknown_bl6 == perssubentmanager->unknown_bl6)
+    if (dwg_dynapi_entity_value (persubentmgr, "PERSUBENTMGR", "unknown_bl6", &unknown_bl6, NULL)
+        && unknown_bl6 == persubentmgr->unknown_bl6)
       pass ();
     else
-      fail ("PERSSUBENTMANAGER.unknown_bl6 [BL] %u != %u", perssubentmanager->unknown_bl6, unknown_bl6);
+      fail ("PERSUBENTMGR.unknown_bl6 [BL] %u != %u", persubentmgr->unknown_bl6, unknown_bl6);
     unknown_bl6++;
-    if (dwg_dynapi_entity_set_value (perssubentmanager, "PERSSUBENTMANAGER", "unknown_bl6", &unknown_bl6, 0)
-        && unknown_bl6 == perssubentmanager->unknown_bl6)
+    if (dwg_dynapi_entity_set_value (persubentmgr, "PERSUBENTMGR", "unknown_bl6", &unknown_bl6, 0)
+        && unknown_bl6 == persubentmgr->unknown_bl6)
       pass ();
     else
-      fail ("PERSSUBENTMANAGER.unknown_bl6 [BL] set+1 %u != %u", perssubentmanager->unknown_bl6, unknown_bl6);
-    perssubentmanager->unknown_bl6--;
+      fail ("PERSUBENTMGR.unknown_bl6 [BL] set+1 %u != %u", persubentmgr->unknown_bl6, unknown_bl6);
+    persubentmgr->unknown_bl6--;
   }
-  if (failed && (is_class_unstable ("PERSSUBENTMANAGER") || is_class_debugging ("PERSSUBENTMANAGER")))
+  if (failed && (is_class_unstable ("PERSUBENTMGR") || is_class_debugging ("PERSUBENTMGR")))
     {
-      ok ("%s failed %d tests (TODO unstable)", "PERSSUBENTMANAGER", failed);
+      ok ("%s failed %d tests (TODO unstable)", "PERSUBENTMGR", failed);
       failed = 0;
     }
   return failed;
@@ -36521,6 +37232,16 @@ static int test_PLOTSETTINGS (const Dwg_Object *obj)
     plotsettings->bottom_margin--;
   }
   {
+    BITCODE_T canonical_media_name;
+    if (dwg_dynapi_entity_value (plotsettings, "PLOTSETTINGS", "canonical_media_name", &canonical_media_name, NULL)
+        && canonical_media_name
+           ? strEQ ((char *)canonical_media_name, (char *)plotsettings->canonical_media_name)
+           : !plotsettings->canonical_media_name)
+      pass ();
+    else
+      fail ("PLOTSETTINGS.canonical_media_name [T] '%s' <> '%s'", canonical_media_name, plotsettings->canonical_media_name);
+  }
+  {
     BITCODE_BD drawing_units;
     if (dwg_dynapi_entity_value (plotsettings, "PLOTSETTINGS", "drawing_units", &drawing_units, NULL)
         && drawing_units == plotsettings->drawing_units)
@@ -36534,6 +37255,21 @@ static int test_PLOTSETTINGS (const Dwg_Object *obj)
     else
       fail ("PLOTSETTINGS.drawing_units [BD] set+1 %g != %g", plotsettings->drawing_units, drawing_units);
     plotsettings->drawing_units--;
+  }
+  {
+    BITCODE_BS flags;
+    if (dwg_dynapi_entity_value (plotsettings, "PLOTSETTINGS", "flags", &flags, NULL)
+        && flags == plotsettings->flags)
+      pass ();
+    else
+      fail ("PLOTSETTINGS.flags [BS] %hu != %hu", plotsettings->flags, flags);
+    flags++;
+    if (dwg_dynapi_entity_set_value (plotsettings, "PLOTSETTINGS", "flags", &flags, 0)
+        && flags == plotsettings->flags)
+      pass ();
+    else
+      fail ("PLOTSETTINGS.flags [BS] set+1 %hu != %hu", plotsettings->flags, flags);
+    plotsettings->flags--;
   }
   {
     BITCODE_BD left_margin;
@@ -36630,21 +37366,6 @@ static int test_PLOTSETTINGS (const Dwg_Object *obj)
         pass ();
     else
         fail ("PLOTSETTINGS.parent [struct _dwg_object_object*]");
-  }
-  {
-    BITCODE_BS plot_layout;
-    if (dwg_dynapi_entity_value (plotsettings, "PLOTSETTINGS", "plot_layout", &plot_layout, NULL)
-        && plot_layout == plotsettings->plot_layout)
-      pass ();
-    else
-      fail ("PLOTSETTINGS.plot_layout [BS] %hu != %hu", plotsettings->plot_layout, plot_layout);
-    plot_layout++;
-    if (dwg_dynapi_entity_set_value (plotsettings, "PLOTSETTINGS", "plot_layout", &plot_layout, 0)
-        && plot_layout == plotsettings->plot_layout)
-      pass ();
-    else
-      fail ("PLOTSETTINGS.plot_layout [BS] set+1 %hu != %hu", plotsettings->plot_layout, plot_layout);
-    plotsettings->plot_layout--;
   }
   {
     BITCODE_2BD plot_origin;
@@ -36764,14 +37485,6 @@ static int test_PLOTSETTINGS (const Dwg_Object *obj)
     plotsettings->shade_plot_customdpi--;
   }
   {
-    BITCODE_H shade_plot_id;
-    if (dwg_dynapi_entity_value (plotsettings, "PLOTSETTINGS", "shade_plot_id", &shade_plot_id, NULL)
-        && !memcmp (&shade_plot_id, &plotsettings->shade_plot_id, sizeof (plotsettings->shade_plot_id)))
-        pass ();
-    else
-        fail ("PLOTSETTINGS.shade_plot_id [H]");
-  }
-  {
     BITCODE_BS shade_plot_mode;
     if (dwg_dynapi_entity_value (plotsettings, "PLOTSETTINGS", "shade_plot_mode", &shade_plot_mode, NULL)
         && shade_plot_mode == plotsettings->shade_plot_mode)
@@ -36800,6 +37513,14 @@ static int test_PLOTSETTINGS (const Dwg_Object *obj)
     else
       fail ("PLOTSETTINGS.shade_plot_reslevel [BS] set+1 %hu != %hu", plotsettings->shade_plot_reslevel, shade_plot_reslevel);
     plotsettings->shade_plot_reslevel--;
+  }
+  {
+    BITCODE_H shadeplot;
+    if (dwg_dynapi_entity_value (plotsettings, "PLOTSETTINGS", "shadeplot", &shadeplot, NULL)
+        && !memcmp (&shadeplot, &plotsettings->shadeplot, sizeof (plotsettings->shadeplot)))
+        pass ();
+    else
+        fail ("PLOTSETTINGS.shadeplot [H]");
   }
   {
     BITCODE_BD std_scale_factor;
@@ -36832,12 +37553,14 @@ static int test_PLOTSETTINGS (const Dwg_Object *obj)
     plotsettings->std_scale_type--;
   }
   {
-    BITCODE_H stylesheet;
+    BITCODE_T stylesheet;
     if (dwg_dynapi_entity_value (plotsettings, "PLOTSETTINGS", "stylesheet", &stylesheet, NULL)
-        && !memcmp (&stylesheet, &plotsettings->stylesheet, sizeof (plotsettings->stylesheet)))
-        pass ();
+        && stylesheet
+           ? strEQ ((char *)stylesheet, (char *)plotsettings->stylesheet)
+           : !plotsettings->stylesheet)
+      pass ();
     else
-        fail ("PLOTSETTINGS.stylesheet [H]");
+      fail ("PLOTSETTINGS.stylesheet [T] '%s' <> '%s'", stylesheet, plotsettings->stylesheet);
   }
   {
     BITCODE_BD top_margin;
@@ -36854,24 +37577,53 @@ static int test_PLOTSETTINGS (const Dwg_Object *obj)
       fail ("PLOTSETTINGS.top_margin [BD] set+1 %g != %g", plotsettings->top_margin, top_margin);
     plotsettings->top_margin--;
   }
-  {
-    BITCODE_B use_std_scale;
-    if (dwg_dynapi_entity_value (plotsettings, "PLOTSETTINGS", "use_std_scale", &use_std_scale, NULL)
-        && use_std_scale == plotsettings->use_std_scale)
-      pass ();
-    else
-      fail ("PLOTSETTINGS.use_std_scale [B] " FORMAT_B " != " FORMAT_B "", plotsettings->use_std_scale, use_std_scale);
-    use_std_scale++;
-    if (dwg_dynapi_entity_set_value (plotsettings, "PLOTSETTINGS", "use_std_scale", &use_std_scale, 0)
-        && use_std_scale == plotsettings->use_std_scale)
-      pass ();
-    else
-      fail ("PLOTSETTINGS.use_std_scale [B] set+1 " FORMAT_B " != " FORMAT_B "", plotsettings->use_std_scale, use_std_scale);
-    plotsettings->use_std_scale--;
-  }
   if (failed && (is_class_unstable ("PLOTSETTINGS") || is_class_debugging ("PLOTSETTINGS")))
     {
       ok ("%s failed %d tests (TODO unstable)", "PLOTSETTINGS", failed);
+      failed = 0;
+    }
+  return failed;
+}
+static int test_POINTPATH (const Dwg_Object *obj)
+{
+  int error = 0;
+  const Dwg_Object_Object *restrict obj_obj = obj->tio.object;
+  Dwg_Object_POINTPATH *restrict pointpath = obj->tio.object->tio.POINTPATH;
+  failed = 0;
+  {
+    BITCODE_BS class_version;
+    if (dwg_dynapi_entity_value (pointpath, "POINTPATH", "class_version", &class_version, NULL)
+        && class_version == pointpath->class_version)
+      pass ();
+    else
+      fail ("POINTPATH.class_version [BS] %hu != %hu", pointpath->class_version, class_version);
+    class_version++;
+    if (dwg_dynapi_entity_set_value (pointpath, "POINTPATH", "class_version", &class_version, 0)
+        && class_version == pointpath->class_version)
+      pass ();
+    else
+      fail ("POINTPATH.class_version [BS] set+1 %hu != %hu", pointpath->class_version, class_version);
+    pointpath->class_version--;
+  }
+  {
+    struct _dwg_object_object* parent;
+    if (dwg_dynapi_entity_value (pointpath, "POINTPATH", "parent", &parent, NULL)
+        && !memcmp (&parent, &pointpath->parent, sizeof (pointpath->parent)))
+        pass ();
+    else
+        fail ("POINTPATH.parent [struct _dwg_object_object*]");
+  }
+  {
+    BITCODE_3BD point;
+    if (dwg_dynapi_entity_value (pointpath, "POINTPATH", "point", &point, NULL)
+        && !memcmp (&point, &pointpath->point, sizeof (pointpath->point)))
+        pass ();
+    else
+        fail ("POINTPATH.point [3BD]");
+  }
+  if (failed && (is_class_unstable ("POINTPATH") || is_class_debugging ("POINTPATH")))
+    {
+      ok ("%s failed %d tests (TODO unstable)", "POINTPATH", failed);
       failed = 0;
     }
   return failed;
@@ -37027,94 +37779,19 @@ static int test_RAPIDRTRENDERSETTINGS (const Dwg_Object *obj)
   Dwg_Object_RAPIDRTRENDERSETTINGS *restrict rapidrtrendersettings = obj->tio.object->tio.RAPIDRTRENDERSETTINGS;
   failed = 0;
   {
-    BITCODE_B b290_1;
-    if (dwg_dynapi_entity_value (rapidrtrendersettings, "RAPIDRTRENDERSETTINGS", "b290_1", &b290_1, NULL)
-        && b290_1 == rapidrtrendersettings->b290_1)
+    BITCODE_B backfaces_enabled;
+    if (dwg_dynapi_entity_value (rapidrtrendersettings, "RAPIDRTRENDERSETTINGS", "backfaces_enabled", &backfaces_enabled, NULL)
+        && backfaces_enabled == rapidrtrendersettings->backfaces_enabled)
       pass ();
     else
-      fail ("RAPIDRTRENDERSETTINGS.b290_1 [B] " FORMAT_B " != " FORMAT_B "", rapidrtrendersettings->b290_1, b290_1);
-    b290_1++;
-    if (dwg_dynapi_entity_set_value (rapidrtrendersettings, "RAPIDRTRENDERSETTINGS", "b290_1", &b290_1, 0)
-        && b290_1 == rapidrtrendersettings->b290_1)
+      fail ("RAPIDRTRENDERSETTINGS.backfaces_enabled [B] " FORMAT_B " != " FORMAT_B "", rapidrtrendersettings->backfaces_enabled, backfaces_enabled);
+    backfaces_enabled++;
+    if (dwg_dynapi_entity_set_value (rapidrtrendersettings, "RAPIDRTRENDERSETTINGS", "backfaces_enabled", &backfaces_enabled, 0)
+        && backfaces_enabled == rapidrtrendersettings->backfaces_enabled)
       pass ();
     else
-      fail ("RAPIDRTRENDERSETTINGS.b290_1 [B] set+1 " FORMAT_B " != " FORMAT_B "", rapidrtrendersettings->b290_1, b290_1);
-    rapidrtrendersettings->b290_1--;
-  }
-  {
-    BITCODE_B b290_2;
-    if (dwg_dynapi_entity_value (rapidrtrendersettings, "RAPIDRTRENDERSETTINGS", "b290_2", &b290_2, NULL)
-        && b290_2 == rapidrtrendersettings->b290_2)
-      pass ();
-    else
-      fail ("RAPIDRTRENDERSETTINGS.b290_2 [B] " FORMAT_B " != " FORMAT_B "", rapidrtrendersettings->b290_2, b290_2);
-    b290_2++;
-    if (dwg_dynapi_entity_set_value (rapidrtrendersettings, "RAPIDRTRENDERSETTINGS", "b290_2", &b290_2, 0)
-        && b290_2 == rapidrtrendersettings->b290_2)
-      pass ();
-    else
-      fail ("RAPIDRTRENDERSETTINGS.b290_2 [B] set+1 " FORMAT_B " != " FORMAT_B "", rapidrtrendersettings->b290_2, b290_2);
-    rapidrtrendersettings->b290_2--;
-  }
-  {
-    BITCODE_BS bs90;
-    if (dwg_dynapi_entity_value (rapidrtrendersettings, "RAPIDRTRENDERSETTINGS", "bs90", &bs90, NULL)
-        && bs90 == rapidrtrendersettings->bs90)
-      pass ();
-    else
-      fail ("RAPIDRTRENDERSETTINGS.bs90 [BS] %hu != %hu", rapidrtrendersettings->bs90, bs90);
-    bs90++;
-    if (dwg_dynapi_entity_set_value (rapidrtrendersettings, "RAPIDRTRENDERSETTINGS", "bs90", &bs90, 0)
-        && bs90 == rapidrtrendersettings->bs90)
-      pass ();
-    else
-      fail ("RAPIDRTRENDERSETTINGS.bs90 [BS] set+1 %hu != %hu", rapidrtrendersettings->bs90, bs90);
-    rapidrtrendersettings->bs90--;
-  }
-  {
-    BITCODE_BS bs90_0;
-    if (dwg_dynapi_entity_value (rapidrtrendersettings, "RAPIDRTRENDERSETTINGS", "bs90_0", &bs90_0, NULL)
-        && bs90_0 == rapidrtrendersettings->bs90_0)
-      pass ();
-    else
-      fail ("RAPIDRTRENDERSETTINGS.bs90_0 [BS] %hu != %hu", rapidrtrendersettings->bs90_0, bs90_0);
-    bs90_0++;
-    if (dwg_dynapi_entity_set_value (rapidrtrendersettings, "RAPIDRTRENDERSETTINGS", "bs90_0", &bs90_0, 0)
-        && bs90_0 == rapidrtrendersettings->bs90_0)
-      pass ();
-    else
-      fail ("RAPIDRTRENDERSETTINGS.bs90_0 [BS] set+1 %hu != %hu", rapidrtrendersettings->bs90_0, bs90_0);
-    rapidrtrendersettings->bs90_0--;
-  }
-  {
-    BITCODE_BS bs90_1;
-    if (dwg_dynapi_entity_value (rapidrtrendersettings, "RAPIDRTRENDERSETTINGS", "bs90_1", &bs90_1, NULL)
-        && bs90_1 == rapidrtrendersettings->bs90_1)
-      pass ();
-    else
-      fail ("RAPIDRTRENDERSETTINGS.bs90_1 [BS] %hu != %hu", rapidrtrendersettings->bs90_1, bs90_1);
-    bs90_1++;
-    if (dwg_dynapi_entity_set_value (rapidrtrendersettings, "RAPIDRTRENDERSETTINGS", "bs90_1", &bs90_1, 0)
-        && bs90_1 == rapidrtrendersettings->bs90_1)
-      pass ();
-    else
-      fail ("RAPIDRTRENDERSETTINGS.bs90_1 [BS] set+1 %hu != %hu", rapidrtrendersettings->bs90_1, bs90_1);
-    rapidrtrendersettings->bs90_1--;
-  }
-  {
-    BITCODE_BS bs90_2;
-    if (dwg_dynapi_entity_value (rapidrtrendersettings, "RAPIDRTRENDERSETTINGS", "bs90_2", &bs90_2, NULL)
-        && bs90_2 == rapidrtrendersettings->bs90_2)
-      pass ();
-    else
-      fail ("RAPIDRTRENDERSETTINGS.bs90_2 [BS] %hu != %hu", rapidrtrendersettings->bs90_2, bs90_2);
-    bs90_2++;
-    if (dwg_dynapi_entity_set_value (rapidrtrendersettings, "RAPIDRTRENDERSETTINGS", "bs90_2", &bs90_2, 0)
-        && bs90_2 == rapidrtrendersettings->bs90_2)
-      pass ();
-    else
-      fail ("RAPIDRTRENDERSETTINGS.bs90_2 [BS] set+1 %hu != %hu", rapidrtrendersettings->bs90_2, bs90_2);
-    rapidrtrendersettings->bs90_2--;
+      fail ("RAPIDRTRENDERSETTINGS.backfaces_enabled [B] set+1 " FORMAT_B " != " FORMAT_B "", rapidrtrendersettings->backfaces_enabled, backfaces_enabled);
+    rapidrtrendersettings->backfaces_enabled--;
   }
   {
     BITCODE_BL class_version;
@@ -37132,14 +37809,29 @@ static int test_RAPIDRTRENDERSETTINGS (const Dwg_Object *obj)
     rapidrtrendersettings->class_version--;
   }
   {
-    BITCODE_T description;
+    BITCODE_TV description;
     if (dwg_dynapi_entity_value (rapidrtrendersettings, "RAPIDRTRENDERSETTINGS", "description", &description, NULL)
         && description
            ? strEQ ((char *)description, (char *)rapidrtrendersettings->description)
            : !rapidrtrendersettings->description)
       pass ();
     else
-      fail ("RAPIDRTRENDERSETTINGS.description [T] '%s' <> '%s'", description, rapidrtrendersettings->description);
+      fail ("RAPIDRTRENDERSETTINGS.description [TV] '%s' <> '%s'", description, rapidrtrendersettings->description);
+  }
+  {
+    BITCODE_BL display_index;
+    if (dwg_dynapi_entity_value (rapidrtrendersettings, "RAPIDRTRENDERSETTINGS", "display_index", &display_index, NULL)
+        && display_index == rapidrtrendersettings->display_index)
+      pass ();
+    else
+      fail ("RAPIDRTRENDERSETTINGS.display_index [BL] %u != %u", rapidrtrendersettings->display_index, display_index);
+    display_index++;
+    if (dwg_dynapi_entity_set_value (rapidrtrendersettings, "RAPIDRTRENDERSETTINGS", "display_index", &display_index, 0)
+        && display_index == rapidrtrendersettings->display_index)
+      pass ();
+    else
+      fail ("RAPIDRTRENDERSETTINGS.display_index [BL] set+1 %u != %u", rapidrtrendersettings->display_index, display_index);
+    rapidrtrendersettings->display_index--;
   }
   {
     BITCODE_B environ_image_enabled;
@@ -37157,14 +37849,59 @@ static int test_RAPIDRTRENDERSETTINGS (const Dwg_Object *obj)
     rapidrtrendersettings->environ_image_enabled--;
   }
   {
-    BITCODE_T environ_image_filename;
+    BITCODE_TV environ_image_filename;
     if (dwg_dynapi_entity_value (rapidrtrendersettings, "RAPIDRTRENDERSETTINGS", "environ_image_filename", &environ_image_filename, NULL)
         && environ_image_filename
            ? strEQ ((char *)environ_image_filename, (char *)rapidrtrendersettings->environ_image_filename)
            : !rapidrtrendersettings->environ_image_filename)
       pass ();
     else
-      fail ("RAPIDRTRENDERSETTINGS.environ_image_filename [T] '%s' <> '%s'", environ_image_filename, rapidrtrendersettings->environ_image_filename);
+      fail ("RAPIDRTRENDERSETTINGS.environ_image_filename [TV] '%s' <> '%s'", environ_image_filename, rapidrtrendersettings->environ_image_filename);
+  }
+  {
+    BITCODE_BD filter_height;
+    if (dwg_dynapi_entity_value (rapidrtrendersettings, "RAPIDRTRENDERSETTINGS", "filter_height", &filter_height, NULL)
+        && filter_height == rapidrtrendersettings->filter_height)
+      pass ();
+    else
+      fail ("RAPIDRTRENDERSETTINGS.filter_height [BD] %g != %g", rapidrtrendersettings->filter_height, filter_height);
+    filter_height++;
+    if (dwg_dynapi_entity_set_value (rapidrtrendersettings, "RAPIDRTRENDERSETTINGS", "filter_height", &filter_height, 0)
+        && filter_height == rapidrtrendersettings->filter_height)
+      pass ();
+    else
+      fail ("RAPIDRTRENDERSETTINGS.filter_height [BD] set+1 %g != %g", rapidrtrendersettings->filter_height, filter_height);
+    rapidrtrendersettings->filter_height--;
+  }
+  {
+    BITCODE_BL filter_type;
+    if (dwg_dynapi_entity_value (rapidrtrendersettings, "RAPIDRTRENDERSETTINGS", "filter_type", &filter_type, NULL)
+        && filter_type == rapidrtrendersettings->filter_type)
+      pass ();
+    else
+      fail ("RAPIDRTRENDERSETTINGS.filter_type [BL] %u != %u", rapidrtrendersettings->filter_type, filter_type);
+    filter_type++;
+    if (dwg_dynapi_entity_set_value (rapidrtrendersettings, "RAPIDRTRENDERSETTINGS", "filter_type", &filter_type, 0)
+        && filter_type == rapidrtrendersettings->filter_type)
+      pass ();
+    else
+      fail ("RAPIDRTRENDERSETTINGS.filter_type [BL] set+1 %u != %u", rapidrtrendersettings->filter_type, filter_type);
+    rapidrtrendersettings->filter_type--;
+  }
+  {
+    BITCODE_BD filter_width;
+    if (dwg_dynapi_entity_value (rapidrtrendersettings, "RAPIDRTRENDERSETTINGS", "filter_width", &filter_width, NULL)
+        && filter_width == rapidrtrendersettings->filter_width)
+      pass ();
+    else
+      fail ("RAPIDRTRENDERSETTINGS.filter_width [BD] %g != %g", rapidrtrendersettings->filter_width, filter_width);
+    filter_width++;
+    if (dwg_dynapi_entity_set_value (rapidrtrendersettings, "RAPIDRTRENDERSETTINGS", "filter_width", &filter_width, 0)
+        && filter_width == rapidrtrendersettings->filter_width)
+      pass ();
+    else
+      fail ("RAPIDRTRENDERSETTINGS.filter_width [BD] set+1 %g != %g", rapidrtrendersettings->filter_width, filter_width);
+    rapidrtrendersettings->filter_width--;
   }
   {
     BITCODE_B fog_background_enabled;
@@ -37182,36 +37919,6 @@ static int test_RAPIDRTRENDERSETTINGS (const Dwg_Object *obj)
     rapidrtrendersettings->fog_background_enabled--;
   }
   {
-    BITCODE_BD fog_density_far;
-    if (dwg_dynapi_entity_value (rapidrtrendersettings, "RAPIDRTRENDERSETTINGS", "fog_density_far", &fog_density_far, NULL)
-        && fog_density_far == rapidrtrendersettings->fog_density_far)
-      pass ();
-    else
-      fail ("RAPIDRTRENDERSETTINGS.fog_density_far [BD] %g != %g", rapidrtrendersettings->fog_density_far, fog_density_far);
-    fog_density_far++;
-    if (dwg_dynapi_entity_set_value (rapidrtrendersettings, "RAPIDRTRENDERSETTINGS", "fog_density_far", &fog_density_far, 0)
-        && fog_density_far == rapidrtrendersettings->fog_density_far)
-      pass ();
-    else
-      fail ("RAPIDRTRENDERSETTINGS.fog_density_far [BD] set+1 %g != %g", rapidrtrendersettings->fog_density_far, fog_density_far);
-    rapidrtrendersettings->fog_density_far--;
-  }
-  {
-    BITCODE_BD fog_density_near;
-    if (dwg_dynapi_entity_value (rapidrtrendersettings, "RAPIDRTRENDERSETTINGS", "fog_density_near", &fog_density_near, NULL)
-        && fog_density_near == rapidrtrendersettings->fog_density_near)
-      pass ();
-    else
-      fail ("RAPIDRTRENDERSETTINGS.fog_density_near [BD] %g != %g", rapidrtrendersettings->fog_density_near, fog_density_near);
-    fog_density_near++;
-    if (dwg_dynapi_entity_set_value (rapidrtrendersettings, "RAPIDRTRENDERSETTINGS", "fog_density_near", &fog_density_near, 0)
-        && fog_density_near == rapidrtrendersettings->fog_density_near)
-      pass ();
-    else
-      fail ("RAPIDRTRENDERSETTINGS.fog_density_near [BD] set+1 %g != %g", rapidrtrendersettings->fog_density_near, fog_density_near);
-    rapidrtrendersettings->fog_density_near--;
-  }
-  {
     BITCODE_B fog_enabled;
     if (dwg_dynapi_entity_value (rapidrtrendersettings, "RAPIDRTRENDERSETTINGS", "fog_enabled", &fog_enabled, NULL)
         && fog_enabled == rapidrtrendersettings->fog_enabled)
@@ -37227,14 +37934,44 @@ static int test_RAPIDRTRENDERSETTINGS (const Dwg_Object *obj)
     rapidrtrendersettings->fog_enabled--;
   }
   {
-    BITCODE_T name;
+    BITCODE_B has_predefined;
+    if (dwg_dynapi_entity_value (rapidrtrendersettings, "RAPIDRTRENDERSETTINGS", "has_predefined", &has_predefined, NULL)
+        && has_predefined == rapidrtrendersettings->has_predefined)
+      pass ();
+    else
+      fail ("RAPIDRTRENDERSETTINGS.has_predefined [B] " FORMAT_B " != " FORMAT_B "", rapidrtrendersettings->has_predefined, has_predefined);
+    has_predefined++;
+    if (dwg_dynapi_entity_set_value (rapidrtrendersettings, "RAPIDRTRENDERSETTINGS", "has_predefined", &has_predefined, 0)
+        && has_predefined == rapidrtrendersettings->has_predefined)
+      pass ();
+    else
+      fail ("RAPIDRTRENDERSETTINGS.has_predefined [B] set+1 " FORMAT_B " != " FORMAT_B "", rapidrtrendersettings->has_predefined, has_predefined);
+    rapidrtrendersettings->has_predefined--;
+  }
+  {
+    BITCODE_BL lighting_model;
+    if (dwg_dynapi_entity_value (rapidrtrendersettings, "RAPIDRTRENDERSETTINGS", "lighting_model", &lighting_model, NULL)
+        && lighting_model == rapidrtrendersettings->lighting_model)
+      pass ();
+    else
+      fail ("RAPIDRTRENDERSETTINGS.lighting_model [BL] %u != %u", rapidrtrendersettings->lighting_model, lighting_model);
+    lighting_model++;
+    if (dwg_dynapi_entity_set_value (rapidrtrendersettings, "RAPIDRTRENDERSETTINGS", "lighting_model", &lighting_model, 0)
+        && lighting_model == rapidrtrendersettings->lighting_model)
+      pass ();
+    else
+      fail ("RAPIDRTRENDERSETTINGS.lighting_model [BL] set+1 %u != %u", rapidrtrendersettings->lighting_model, lighting_model);
+    rapidrtrendersettings->lighting_model--;
+  }
+  {
+    BITCODE_TV name;
     if (dwg_dynapi_entity_value (rapidrtrendersettings, "RAPIDRTRENDERSETTINGS", "name", &name, NULL)
         && name
            ? strEQ ((char *)name, (char *)rapidrtrendersettings->name)
            : !rapidrtrendersettings->name)
       pass ();
     else
-      fail ("RAPIDRTRENDERSETTINGS.name [T] '%s' <> '%s'", name, rapidrtrendersettings->name);
+      fail ("RAPIDRTRENDERSETTINGS.name [TV] '%s' <> '%s'", name, rapidrtrendersettings->name);
   }
   {
     struct _dwg_object_object* parent;
@@ -37245,49 +37982,64 @@ static int test_RAPIDRTRENDERSETTINGS (const Dwg_Object *obj)
         fail ("RAPIDRTRENDERSETTINGS.parent [struct _dwg_object_object*]");
   }
   {
-    BITCODE_RC rc70_1;
-    if (dwg_dynapi_entity_value (rapidrtrendersettings, "RAPIDRTRENDERSETTINGS", "rc70_1", &rc70_1, NULL)
-        && rc70_1 == rapidrtrendersettings->rc70_1)
+    BITCODE_BL rapidrt_version;
+    if (dwg_dynapi_entity_value (rapidrtrendersettings, "RAPIDRTRENDERSETTINGS", "rapidrt_version", &rapidrt_version, NULL)
+        && rapidrt_version == rapidrtrendersettings->rapidrt_version)
       pass ();
     else
-      fail ("RAPIDRTRENDERSETTINGS.rc70_1 [RC] %u != %u", rapidrtrendersettings->rc70_1, rc70_1);
-    rc70_1++;
-    if (dwg_dynapi_entity_set_value (rapidrtrendersettings, "RAPIDRTRENDERSETTINGS", "rc70_1", &rc70_1, 0)
-        && rc70_1 == rapidrtrendersettings->rc70_1)
+      fail ("RAPIDRTRENDERSETTINGS.rapidrt_version [BL] %u != %u", rapidrtrendersettings->rapidrt_version, rapidrt_version);
+    rapidrt_version++;
+    if (dwg_dynapi_entity_set_value (rapidrtrendersettings, "RAPIDRTRENDERSETTINGS", "rapidrt_version", &rapidrt_version, 0)
+        && rapidrt_version == rapidrtrendersettings->rapidrt_version)
       pass ();
     else
-      fail ("RAPIDRTRENDERSETTINGS.rc70_1 [RC] set+1 %u != %u", rapidrtrendersettings->rc70_1, rc70_1);
-    rapidrtrendersettings->rc70_1--;
+      fail ("RAPIDRTRENDERSETTINGS.rapidrt_version [BL] set+1 %u != %u", rapidrtrendersettings->rapidrt_version, rapidrt_version);
+    rapidrtrendersettings->rapidrt_version--;
   }
   {
-    BITCODE_RC rc70_2;
-    if (dwg_dynapi_entity_value (rapidrtrendersettings, "RAPIDRTRENDERSETTINGS", "rc70_2", &rc70_2, NULL)
-        && rc70_2 == rapidrtrendersettings->rc70_2)
+    BITCODE_BL render_level;
+    if (dwg_dynapi_entity_value (rapidrtrendersettings, "RAPIDRTRENDERSETTINGS", "render_level", &render_level, NULL)
+        && render_level == rapidrtrendersettings->render_level)
       pass ();
     else
-      fail ("RAPIDRTRENDERSETTINGS.rc70_2 [RC] %u != %u", rapidrtrendersettings->rc70_2, rc70_2);
-    rc70_2++;
-    if (dwg_dynapi_entity_set_value (rapidrtrendersettings, "RAPIDRTRENDERSETTINGS", "rc70_2", &rc70_2, 0)
-        && rc70_2 == rapidrtrendersettings->rc70_2)
+      fail ("RAPIDRTRENDERSETTINGS.render_level [BL] %u != %u", rapidrtrendersettings->render_level, render_level);
+    render_level++;
+    if (dwg_dynapi_entity_set_value (rapidrtrendersettings, "RAPIDRTRENDERSETTINGS", "render_level", &render_level, 0)
+        && render_level == rapidrtrendersettings->render_level)
       pass ();
     else
-      fail ("RAPIDRTRENDERSETTINGS.rc70_2 [RC] set+1 %u != %u", rapidrtrendersettings->rc70_2, rc70_2);
-    rapidrtrendersettings->rc70_2--;
+      fail ("RAPIDRTRENDERSETTINGS.render_level [BL] set+1 %u != %u", rapidrtrendersettings->render_level, render_level);
+    rapidrtrendersettings->render_level--;
   }
   {
-    BITCODE_RC rc70_3;
-    if (dwg_dynapi_entity_value (rapidrtrendersettings, "RAPIDRTRENDERSETTINGS", "rc70_3", &rc70_3, NULL)
-        && rc70_3 == rapidrtrendersettings->rc70_3)
+    BITCODE_BL render_target;
+    if (dwg_dynapi_entity_value (rapidrtrendersettings, "RAPIDRTRENDERSETTINGS", "render_target", &render_target, NULL)
+        && render_target == rapidrtrendersettings->render_target)
       pass ();
     else
-      fail ("RAPIDRTRENDERSETTINGS.rc70_3 [RC] %u != %u", rapidrtrendersettings->rc70_3, rc70_3);
-    rc70_3++;
-    if (dwg_dynapi_entity_set_value (rapidrtrendersettings, "RAPIDRTRENDERSETTINGS", "rc70_3", &rc70_3, 0)
-        && rc70_3 == rapidrtrendersettings->rc70_3)
+      fail ("RAPIDRTRENDERSETTINGS.render_target [BL] %u != %u", rapidrtrendersettings->render_target, render_target);
+    render_target++;
+    if (dwg_dynapi_entity_set_value (rapidrtrendersettings, "RAPIDRTRENDERSETTINGS", "render_target", &render_target, 0)
+        && render_target == rapidrtrendersettings->render_target)
       pass ();
     else
-      fail ("RAPIDRTRENDERSETTINGS.rc70_3 [RC] set+1 %u != %u", rapidrtrendersettings->rc70_3, rc70_3);
-    rapidrtrendersettings->rc70_3--;
+      fail ("RAPIDRTRENDERSETTINGS.render_target [BL] set+1 %u != %u", rapidrtrendersettings->render_target, render_target);
+    rapidrtrendersettings->render_target--;
+  }
+  {
+    BITCODE_BL render_time;
+    if (dwg_dynapi_entity_value (rapidrtrendersettings, "RAPIDRTRENDERSETTINGS", "render_time", &render_time, NULL)
+        && render_time == rapidrtrendersettings->render_time)
+      pass ();
+    else
+      fail ("RAPIDRTRENDERSETTINGS.render_time [BL] %u != %u", rapidrtrendersettings->render_time, render_time);
+    render_time++;
+    if (dwg_dynapi_entity_set_value (rapidrtrendersettings, "RAPIDRTRENDERSETTINGS", "render_time", &render_time, 0)
+        && render_time == rapidrtrendersettings->render_time)
+      pass ();
+    else
+      fail ("RAPIDRTRENDERSETTINGS.render_time [BL] set+1 %u != %u", rapidrtrendersettings->render_time, render_time);
+    rapidrtrendersettings->render_time--;
   }
   if (failed && (is_class_unstable ("RAPIDRTRENDERSETTINGS") || is_class_debugging ("RAPIDRTRENDERSETTINGS")))
     {
@@ -37373,6 +38125,282 @@ static int test_RASTERVARIABLES (const Dwg_Object *obj)
   if (failed && (is_class_unstable ("RASTERVARIABLES") || is_class_debugging ("RASTERVARIABLES")))
     {
       ok ("%s failed %d tests (TODO unstable)", "RASTERVARIABLES", failed);
+      failed = 0;
+    }
+  return failed;
+}
+static int test_RENDERENTRY (const Dwg_Object *obj)
+{
+  int error = 0;
+  const Dwg_Object_Object *restrict obj_obj = obj->tio.object;
+  Dwg_Object_RENDERENTRY *restrict renderentry = obj->tio.object->tio.RENDERENTRY;
+  failed = 0;
+  {
+    BITCODE_BL class_version;
+    if (dwg_dynapi_entity_value (renderentry, "RENDERENTRY", "class_version", &class_version, NULL)
+        && class_version == renderentry->class_version)
+      pass ();
+    else
+      fail ("RENDERENTRY.class_version [BL] %u != %u", renderentry->class_version, class_version);
+    class_version++;
+    if (dwg_dynapi_entity_set_value (renderentry, "RENDERENTRY", "class_version", &class_version, 0)
+        && class_version == renderentry->class_version)
+      pass ();
+    else
+      fail ("RENDERENTRY.class_version [BL] set+1 %u != %u", renderentry->class_version, class_version);
+    renderentry->class_version--;
+  }
+  {
+    BITCODE_BL dimension_x;
+    if (dwg_dynapi_entity_value (renderentry, "RENDERENTRY", "dimension_x", &dimension_x, NULL)
+        && dimension_x == renderentry->dimension_x)
+      pass ();
+    else
+      fail ("RENDERENTRY.dimension_x [BL] %u != %u", renderentry->dimension_x, dimension_x);
+    dimension_x++;
+    if (dwg_dynapi_entity_set_value (renderentry, "RENDERENTRY", "dimension_x", &dimension_x, 0)
+        && dimension_x == renderentry->dimension_x)
+      pass ();
+    else
+      fail ("RENDERENTRY.dimension_x [BL] set+1 %u != %u", renderentry->dimension_x, dimension_x);
+    renderentry->dimension_x--;
+  }
+  {
+    BITCODE_BL dimension_y;
+    if (dwg_dynapi_entity_value (renderentry, "RENDERENTRY", "dimension_y", &dimension_y, NULL)
+        && dimension_y == renderentry->dimension_y)
+      pass ();
+    else
+      fail ("RENDERENTRY.dimension_y [BL] %u != %u", renderentry->dimension_y, dimension_y);
+    dimension_y++;
+    if (dwg_dynapi_entity_set_value (renderentry, "RENDERENTRY", "dimension_y", &dimension_y, 0)
+        && dimension_y == renderentry->dimension_y)
+      pass ();
+    else
+      fail ("RENDERENTRY.dimension_y [BL] set+1 %u != %u", renderentry->dimension_y, dimension_y);
+    renderentry->dimension_y--;
+  }
+  {
+    BITCODE_BL display_index;
+    if (dwg_dynapi_entity_value (renderentry, "RENDERENTRY", "display_index", &display_index, NULL)
+        && display_index == renderentry->display_index)
+      pass ();
+    else
+      fail ("RENDERENTRY.display_index [BL] %u != %u", renderentry->display_index, display_index);
+    display_index++;
+    if (dwg_dynapi_entity_set_value (renderentry, "RENDERENTRY", "display_index", &display_index, 0)
+        && display_index == renderentry->display_index)
+      pass ();
+    else
+      fail ("RENDERENTRY.display_index [BL] set+1 %u != %u", renderentry->display_index, display_index);
+    renderentry->display_index--;
+  }
+  {
+    BITCODE_T image_file_name;
+    if (dwg_dynapi_entity_value (renderentry, "RENDERENTRY", "image_file_name", &image_file_name, NULL)
+        && image_file_name
+           ? strEQ ((char *)image_file_name, (char *)renderentry->image_file_name)
+           : !renderentry->image_file_name)
+      pass ();
+    else
+      fail ("RENDERENTRY.image_file_name [T] '%s' <> '%s'", image_file_name, renderentry->image_file_name);
+  }
+  {
+    BITCODE_BL light_count;
+    if (dwg_dynapi_entity_value (renderentry, "RENDERENTRY", "light_count", &light_count, NULL)
+        && light_count == renderentry->light_count)
+      pass ();
+    else
+      fail ("RENDERENTRY.light_count [BL] %u != %u", renderentry->light_count, light_count);
+    light_count++;
+    if (dwg_dynapi_entity_set_value (renderentry, "RENDERENTRY", "light_count", &light_count, 0)
+        && light_count == renderentry->light_count)
+      pass ();
+    else
+      fail ("RENDERENTRY.light_count [BL] set+1 %u != %u", renderentry->light_count, light_count);
+    renderentry->light_count--;
+  }
+  {
+    BITCODE_BL material_count;
+    if (dwg_dynapi_entity_value (renderentry, "RENDERENTRY", "material_count", &material_count, NULL)
+        && material_count == renderentry->material_count)
+      pass ();
+    else
+      fail ("RENDERENTRY.material_count [BL] %u != %u", renderentry->material_count, material_count);
+    material_count++;
+    if (dwg_dynapi_entity_set_value (renderentry, "RENDERENTRY", "material_count", &material_count, 0)
+        && material_count == renderentry->material_count)
+      pass ();
+    else
+      fail ("RENDERENTRY.material_count [BL] set+1 %u != %u", renderentry->material_count, material_count);
+    renderentry->material_count--;
+  }
+  {
+    BITCODE_BL memory_amount;
+    if (dwg_dynapi_entity_value (renderentry, "RENDERENTRY", "memory_amount", &memory_amount, NULL)
+        && memory_amount == renderentry->memory_amount)
+      pass ();
+    else
+      fail ("RENDERENTRY.memory_amount [BL] %u != %u", renderentry->memory_amount, memory_amount);
+    memory_amount++;
+    if (dwg_dynapi_entity_set_value (renderentry, "RENDERENTRY", "memory_amount", &memory_amount, 0)
+        && memory_amount == renderentry->memory_amount)
+      pass ();
+    else
+      fail ("RENDERENTRY.memory_amount [BL] set+1 %u != %u", renderentry->memory_amount, memory_amount);
+    renderentry->memory_amount--;
+  }
+  {
+    struct _dwg_object_object* parent;
+    if (dwg_dynapi_entity_value (renderentry, "RENDERENTRY", "parent", &parent, NULL)
+        && !memcmp (&parent, &renderentry->parent, sizeof (renderentry->parent)))
+        pass ();
+    else
+        fail ("RENDERENTRY.parent [struct _dwg_object_object*]");
+  }
+  {
+    BITCODE_T preset_name;
+    if (dwg_dynapi_entity_value (renderentry, "RENDERENTRY", "preset_name", &preset_name, NULL)
+        && preset_name
+           ? strEQ ((char *)preset_name, (char *)renderentry->preset_name)
+           : !renderentry->preset_name)
+      pass ();
+    else
+      fail ("RENDERENTRY.preset_name [T] '%s' <> '%s'", preset_name, renderentry->preset_name);
+  }
+  {
+    BITCODE_BD render_time;
+    if (dwg_dynapi_entity_value (renderentry, "RENDERENTRY", "render_time", &render_time, NULL)
+        && render_time == renderentry->render_time)
+      pass ();
+    else
+      fail ("RENDERENTRY.render_time [BD] %g != %g", renderentry->render_time, render_time);
+    render_time++;
+    if (dwg_dynapi_entity_set_value (renderentry, "RENDERENTRY", "render_time", &render_time, 0)
+        && render_time == renderentry->render_time)
+      pass ();
+    else
+      fail ("RENDERENTRY.render_time [BD] set+1 %g != %g", renderentry->render_time, render_time);
+    renderentry->render_time--;
+  }
+  {
+    BITCODE_BS start_day;
+    if (dwg_dynapi_entity_value (renderentry, "RENDERENTRY", "start_day", &start_day, NULL)
+        && start_day == renderentry->start_day)
+      pass ();
+    else
+      fail ("RENDERENTRY.start_day [BS] %hu != %hu", renderentry->start_day, start_day);
+    start_day++;
+    if (dwg_dynapi_entity_set_value (renderentry, "RENDERENTRY", "start_day", &start_day, 0)
+        && start_day == renderentry->start_day)
+      pass ();
+    else
+      fail ("RENDERENTRY.start_day [BS] set+1 %hu != %hu", renderentry->start_day, start_day);
+    renderentry->start_day--;
+  }
+  {
+    BITCODE_BS start_minute;
+    if (dwg_dynapi_entity_value (renderentry, "RENDERENTRY", "start_minute", &start_minute, NULL)
+        && start_minute == renderentry->start_minute)
+      pass ();
+    else
+      fail ("RENDERENTRY.start_minute [BS] %hu != %hu", renderentry->start_minute, start_minute);
+    start_minute++;
+    if (dwg_dynapi_entity_set_value (renderentry, "RENDERENTRY", "start_minute", &start_minute, 0)
+        && start_minute == renderentry->start_minute)
+      pass ();
+    else
+      fail ("RENDERENTRY.start_minute [BS] set+1 %hu != %hu", renderentry->start_minute, start_minute);
+    renderentry->start_minute--;
+  }
+  {
+    BITCODE_BS start_month;
+    if (dwg_dynapi_entity_value (renderentry, "RENDERENTRY", "start_month", &start_month, NULL)
+        && start_month == renderentry->start_month)
+      pass ();
+    else
+      fail ("RENDERENTRY.start_month [BS] %hu != %hu", renderentry->start_month, start_month);
+    start_month++;
+    if (dwg_dynapi_entity_set_value (renderentry, "RENDERENTRY", "start_month", &start_month, 0)
+        && start_month == renderentry->start_month)
+      pass ();
+    else
+      fail ("RENDERENTRY.start_month [BS] set+1 %hu != %hu", renderentry->start_month, start_month);
+    renderentry->start_month--;
+  }
+  {
+    BITCODE_BS start_msec;
+    if (dwg_dynapi_entity_value (renderentry, "RENDERENTRY", "start_msec", &start_msec, NULL)
+        && start_msec == renderentry->start_msec)
+      pass ();
+    else
+      fail ("RENDERENTRY.start_msec [BS] %hu != %hu", renderentry->start_msec, start_msec);
+    start_msec++;
+    if (dwg_dynapi_entity_set_value (renderentry, "RENDERENTRY", "start_msec", &start_msec, 0)
+        && start_msec == renderentry->start_msec)
+      pass ();
+    else
+      fail ("RENDERENTRY.start_msec [BS] set+1 %hu != %hu", renderentry->start_msec, start_msec);
+    renderentry->start_msec--;
+  }
+  {
+    BITCODE_BS start_second;
+    if (dwg_dynapi_entity_value (renderentry, "RENDERENTRY", "start_second", &start_second, NULL)
+        && start_second == renderentry->start_second)
+      pass ();
+    else
+      fail ("RENDERENTRY.start_second [BS] %hu != %hu", renderentry->start_second, start_second);
+    start_second++;
+    if (dwg_dynapi_entity_set_value (renderentry, "RENDERENTRY", "start_second", &start_second, 0)
+        && start_second == renderentry->start_second)
+      pass ();
+    else
+      fail ("RENDERENTRY.start_second [BS] set+1 %hu != %hu", renderentry->start_second, start_second);
+    renderentry->start_second--;
+  }
+  {
+    BITCODE_BS start_year;
+    if (dwg_dynapi_entity_value (renderentry, "RENDERENTRY", "start_year", &start_year, NULL)
+        && start_year == renderentry->start_year)
+      pass ();
+    else
+      fail ("RENDERENTRY.start_year [BS] %hu != %hu", renderentry->start_year, start_year);
+    start_year++;
+    if (dwg_dynapi_entity_set_value (renderentry, "RENDERENTRY", "start_year", &start_year, 0)
+        && start_year == renderentry->start_year)
+      pass ();
+    else
+      fail ("RENDERENTRY.start_year [BS] set+1 %hu != %hu", renderentry->start_year, start_year);
+    renderentry->start_year--;
+  }
+  {
+    BITCODE_BL triangle_count;
+    if (dwg_dynapi_entity_value (renderentry, "RENDERENTRY", "triangle_count", &triangle_count, NULL)
+        && triangle_count == renderentry->triangle_count)
+      pass ();
+    else
+      fail ("RENDERENTRY.triangle_count [BL] %u != %u", renderentry->triangle_count, triangle_count);
+    triangle_count++;
+    if (dwg_dynapi_entity_set_value (renderentry, "RENDERENTRY", "triangle_count", &triangle_count, 0)
+        && triangle_count == renderentry->triangle_count)
+      pass ();
+    else
+      fail ("RENDERENTRY.triangle_count [BL] set+1 %u != %u", renderentry->triangle_count, triangle_count);
+    renderentry->triangle_count--;
+  }
+  {
+    BITCODE_T view_name;
+    if (dwg_dynapi_entity_value (renderentry, "RENDERENTRY", "view_name", &view_name, NULL)
+        && view_name
+           ? strEQ ((char *)view_name, (char *)renderentry->view_name)
+           : !renderentry->view_name)
+      pass ();
+    else
+      fail ("RENDERENTRY.view_name [T] '%s' <> '%s'", view_name, renderentry->view_name);
+  }
+  if (failed && (is_class_unstable ("RENDERENTRY") || is_class_debugging ("RENDERENTRY")))
+    {
+      ok ("%s failed %d tests (TODO unstable)", "RENDERENTRY", failed);
       failed = 0;
     }
   return failed;
@@ -37683,6 +38711,162 @@ static int test_RENDERGLOBAL (const Dwg_Object *obj)
   if (failed && (is_class_unstable ("RENDERGLOBAL") || is_class_debugging ("RENDERGLOBAL")))
     {
       ok ("%s failed %d tests (TODO unstable)", "RENDERGLOBAL", failed);
+      failed = 0;
+    }
+  return failed;
+}
+static int test_RENDERSETTINGS (const Dwg_Object *obj)
+{
+  int error = 0;
+  const Dwg_Object_Object *restrict obj_obj = obj->tio.object;
+  Dwg_Object_RENDERSETTINGS *restrict rendersettings = obj->tio.object->tio.RENDERSETTINGS;
+  failed = 0;
+  {
+    BITCODE_B backfaces_enabled;
+    if (dwg_dynapi_entity_value (rendersettings, "RENDERSETTINGS", "backfaces_enabled", &backfaces_enabled, NULL)
+        && backfaces_enabled == rendersettings->backfaces_enabled)
+      pass ();
+    else
+      fail ("RENDERSETTINGS.backfaces_enabled [B] " FORMAT_B " != " FORMAT_B "", rendersettings->backfaces_enabled, backfaces_enabled);
+    backfaces_enabled++;
+    if (dwg_dynapi_entity_set_value (rendersettings, "RENDERSETTINGS", "backfaces_enabled", &backfaces_enabled, 0)
+        && backfaces_enabled == rendersettings->backfaces_enabled)
+      pass ();
+    else
+      fail ("RENDERSETTINGS.backfaces_enabled [B] set+1 " FORMAT_B " != " FORMAT_B "", rendersettings->backfaces_enabled, backfaces_enabled);
+    rendersettings->backfaces_enabled--;
+  }
+  {
+    BITCODE_BL class_version;
+    if (dwg_dynapi_entity_value (rendersettings, "RENDERSETTINGS", "class_version", &class_version, NULL)
+        && class_version == rendersettings->class_version)
+      pass ();
+    else
+      fail ("RENDERSETTINGS.class_version [BL] %u != %u", rendersettings->class_version, class_version);
+    class_version++;
+    if (dwg_dynapi_entity_set_value (rendersettings, "RENDERSETTINGS", "class_version", &class_version, 0)
+        && class_version == rendersettings->class_version)
+      pass ();
+    else
+      fail ("RENDERSETTINGS.class_version [BL] set+1 %u != %u", rendersettings->class_version, class_version);
+    rendersettings->class_version--;
+  }
+  {
+    BITCODE_TV description;
+    if (dwg_dynapi_entity_value (rendersettings, "RENDERSETTINGS", "description", &description, NULL)
+        && description
+           ? strEQ ((char *)description, (char *)rendersettings->description)
+           : !rendersettings->description)
+      pass ();
+    else
+      fail ("RENDERSETTINGS.description [TV] '%s' <> '%s'", description, rendersettings->description);
+  }
+  {
+    BITCODE_BL display_index;
+    if (dwg_dynapi_entity_value (rendersettings, "RENDERSETTINGS", "display_index", &display_index, NULL)
+        && display_index == rendersettings->display_index)
+      pass ();
+    else
+      fail ("RENDERSETTINGS.display_index [BL] %u != %u", rendersettings->display_index, display_index);
+    display_index++;
+    if (dwg_dynapi_entity_set_value (rendersettings, "RENDERSETTINGS", "display_index", &display_index, 0)
+        && display_index == rendersettings->display_index)
+      pass ();
+    else
+      fail ("RENDERSETTINGS.display_index [BL] set+1 %u != %u", rendersettings->display_index, display_index);
+    rendersettings->display_index--;
+  }
+  {
+    BITCODE_B environ_image_enabled;
+    if (dwg_dynapi_entity_value (rendersettings, "RENDERSETTINGS", "environ_image_enabled", &environ_image_enabled, NULL)
+        && environ_image_enabled == rendersettings->environ_image_enabled)
+      pass ();
+    else
+      fail ("RENDERSETTINGS.environ_image_enabled [B] " FORMAT_B " != " FORMAT_B "", rendersettings->environ_image_enabled, environ_image_enabled);
+    environ_image_enabled++;
+    if (dwg_dynapi_entity_set_value (rendersettings, "RENDERSETTINGS", "environ_image_enabled", &environ_image_enabled, 0)
+        && environ_image_enabled == rendersettings->environ_image_enabled)
+      pass ();
+    else
+      fail ("RENDERSETTINGS.environ_image_enabled [B] set+1 " FORMAT_B " != " FORMAT_B "", rendersettings->environ_image_enabled, environ_image_enabled);
+    rendersettings->environ_image_enabled--;
+  }
+  {
+    BITCODE_TV environ_image_filename;
+    if (dwg_dynapi_entity_value (rendersettings, "RENDERSETTINGS", "environ_image_filename", &environ_image_filename, NULL)
+        && environ_image_filename
+           ? strEQ ((char *)environ_image_filename, (char *)rendersettings->environ_image_filename)
+           : !rendersettings->environ_image_filename)
+      pass ();
+    else
+      fail ("RENDERSETTINGS.environ_image_filename [TV] '%s' <> '%s'", environ_image_filename, rendersettings->environ_image_filename);
+  }
+  {
+    BITCODE_B fog_background_enabled;
+    if (dwg_dynapi_entity_value (rendersettings, "RENDERSETTINGS", "fog_background_enabled", &fog_background_enabled, NULL)
+        && fog_background_enabled == rendersettings->fog_background_enabled)
+      pass ();
+    else
+      fail ("RENDERSETTINGS.fog_background_enabled [B] " FORMAT_B " != " FORMAT_B "", rendersettings->fog_background_enabled, fog_background_enabled);
+    fog_background_enabled++;
+    if (dwg_dynapi_entity_set_value (rendersettings, "RENDERSETTINGS", "fog_background_enabled", &fog_background_enabled, 0)
+        && fog_background_enabled == rendersettings->fog_background_enabled)
+      pass ();
+    else
+      fail ("RENDERSETTINGS.fog_background_enabled [B] set+1 " FORMAT_B " != " FORMAT_B "", rendersettings->fog_background_enabled, fog_background_enabled);
+    rendersettings->fog_background_enabled--;
+  }
+  {
+    BITCODE_B fog_enabled;
+    if (dwg_dynapi_entity_value (rendersettings, "RENDERSETTINGS", "fog_enabled", &fog_enabled, NULL)
+        && fog_enabled == rendersettings->fog_enabled)
+      pass ();
+    else
+      fail ("RENDERSETTINGS.fog_enabled [B] " FORMAT_B " != " FORMAT_B "", rendersettings->fog_enabled, fog_enabled);
+    fog_enabled++;
+    if (dwg_dynapi_entity_set_value (rendersettings, "RENDERSETTINGS", "fog_enabled", &fog_enabled, 0)
+        && fog_enabled == rendersettings->fog_enabled)
+      pass ();
+    else
+      fail ("RENDERSETTINGS.fog_enabled [B] set+1 " FORMAT_B " != " FORMAT_B "", rendersettings->fog_enabled, fog_enabled);
+    rendersettings->fog_enabled--;
+  }
+  {
+    BITCODE_B has_predefined;
+    if (dwg_dynapi_entity_value (rendersettings, "RENDERSETTINGS", "has_predefined", &has_predefined, NULL)
+        && has_predefined == rendersettings->has_predefined)
+      pass ();
+    else
+      fail ("RENDERSETTINGS.has_predefined [B] " FORMAT_B " != " FORMAT_B "", rendersettings->has_predefined, has_predefined);
+    has_predefined++;
+    if (dwg_dynapi_entity_set_value (rendersettings, "RENDERSETTINGS", "has_predefined", &has_predefined, 0)
+        && has_predefined == rendersettings->has_predefined)
+      pass ();
+    else
+      fail ("RENDERSETTINGS.has_predefined [B] set+1 " FORMAT_B " != " FORMAT_B "", rendersettings->has_predefined, has_predefined);
+    rendersettings->has_predefined--;
+  }
+  {
+    BITCODE_TV name;
+    if (dwg_dynapi_entity_value (rendersettings, "RENDERSETTINGS", "name", &name, NULL)
+        && name
+           ? strEQ ((char *)name, (char *)rendersettings->name)
+           : !rendersettings->name)
+      pass ();
+    else
+      fail ("RENDERSETTINGS.name [TV] '%s' <> '%s'", name, rendersettings->name);
+  }
+  {
+    struct _dwg_object_object* parent;
+    if (dwg_dynapi_entity_value (rendersettings, "RENDERSETTINGS", "parent", &parent, NULL)
+        && !memcmp (&parent, &rendersettings->parent, sizeof (rendersettings->parent)))
+        pass ();
+    else
+        fail ("RENDERSETTINGS.parent [struct _dwg_object_object*]");
+  }
+  if (failed && (is_class_unstable ("RENDERSETTINGS") || is_class_debugging ("RENDERSETTINGS")))
+    {
+      ok ("%s failed %d tests (TODO unstable)", "RENDERSETTINGS", failed);
       failed = 0;
     }
   return failed;
@@ -39068,62 +40252,39 @@ static int test_STYLE (const Dwg_Object *obj)
   Dwg_Object_STYLE *restrict style = obj->tio.object->tio.STYLE;
   failed = 0;
   {
-    BITCODE_T bigfont_name;
-    if (dwg_dynapi_entity_value (style, "STYLE", "bigfont_name", &bigfont_name, NULL)
-        && bigfont_name
-           ? strEQ ((char *)bigfont_name, (char *)style->bigfont_name)
-           : !style->bigfont_name)
+    BITCODE_T bigfont_file;
+    if (dwg_dynapi_entity_value (style, "STYLE", "bigfont_file", &bigfont_file, NULL)
+        && bigfont_file
+           ? strEQ ((char *)bigfont_file, (char *)style->bigfont_file)
+           : !style->bigfont_file)
       pass ();
     else
-      fail ("STYLE.bigfont_name [T] '%s' <> '%s'", bigfont_name, style->bigfont_name);
+      fail ("STYLE.bigfont_file [T] '%s' <> '%s'", bigfont_file, style->bigfont_file);
   }
   {
-    BITCODE_H extref;
-    if (dwg_dynapi_entity_value (style, "STYLE", "extref", &extref, NULL)
-        && !memcmp (&extref, &style->extref, sizeof (style->extref)))
-        pass ();
-    else
-        fail ("STYLE.extref [H]");
-  }
-  {
-    BITCODE_BD fixed_height;
-    if (dwg_dynapi_entity_value (style, "STYLE", "fixed_height", &fixed_height, NULL)
-        && fixed_height == style->fixed_height)
-      pass ();
-    else
-      fail ("STYLE.fixed_height [BD] %g != %g", style->fixed_height, fixed_height);
-    fixed_height++;
-    if (dwg_dynapi_entity_set_value (style, "STYLE", "fixed_height", &fixed_height, 0)
-        && fixed_height == style->fixed_height)
-      pass ();
-    else
-      fail ("STYLE.fixed_height [BD] set+1 %g != %g", style->fixed_height, fixed_height);
-    style->fixed_height--;
-  }
-  {
-    BITCODE_RC flag;
+    BITCODE_RS flag;
     if (dwg_dynapi_entity_value (style, "STYLE", "flag", &flag, NULL)
         && flag == style->flag)
       pass ();
     else
-      fail ("STYLE.flag [RC] %u != %u", style->flag, flag);
+      fail ("STYLE.flag [RS] %hu != %hu", style->flag, flag);
     flag++;
     if (dwg_dynapi_entity_set_value (style, "STYLE", "flag", &flag, 0)
         && flag == style->flag)
       pass ();
     else
-      fail ("STYLE.flag [RC] set+1 %u != %u", style->flag, flag);
+      fail ("STYLE.flag [RS] set+1 %hu != %hu", style->flag, flag);
     style->flag--;
   }
   {
-    BITCODE_T font_name;
-    if (dwg_dynapi_entity_value (style, "STYLE", "font_name", &font_name, NULL)
-        && font_name
-           ? strEQ ((char *)font_name, (char *)style->font_name)
-           : !style->font_name)
+    BITCODE_T font_file;
+    if (dwg_dynapi_entity_value (style, "STYLE", "font_file", &font_file, NULL)
+        && font_file
+           ? strEQ ((char *)font_file, (char *)style->font_file)
+           : !style->font_file)
       pass ();
     else
-      fail ("STYLE.font_name [T] '%s' <> '%s'", font_name, style->font_name);
+      fail ("STYLE.font_file [T] '%s' <> '%s'", font_file, style->font_file);
   }
   {
     BITCODE_RC generation;
@@ -39139,6 +40300,81 @@ static int test_STYLE (const Dwg_Object *obj)
     else
       fail ("STYLE.generation [RC] set+1 %u != %u", style->generation, generation);
     style->generation--;
+  }
+  {
+    BITCODE_B is_shape;
+    if (dwg_dynapi_entity_value (style, "STYLE", "is_shape", &is_shape, NULL)
+        && is_shape == style->is_shape)
+      pass ();
+    else
+      fail ("STYLE.is_shape [B] " FORMAT_B " != " FORMAT_B "", style->is_shape, is_shape);
+    is_shape++;
+    if (dwg_dynapi_entity_set_value (style, "STYLE", "is_shape", &is_shape, 0)
+        && is_shape == style->is_shape)
+      pass ();
+    else
+      fail ("STYLE.is_shape [B] set+1 " FORMAT_B " != " FORMAT_B "", style->is_shape, is_shape);
+    style->is_shape--;
+  }
+  {
+    BITCODE_B is_vertical;
+    if (dwg_dynapi_entity_value (style, "STYLE", "is_vertical", &is_vertical, NULL)
+        && is_vertical == style->is_vertical)
+      pass ();
+    else
+      fail ("STYLE.is_vertical [B] " FORMAT_B " != " FORMAT_B "", style->is_vertical, is_vertical);
+    is_vertical++;
+    if (dwg_dynapi_entity_set_value (style, "STYLE", "is_vertical", &is_vertical, 0)
+        && is_vertical == style->is_vertical)
+      pass ();
+    else
+      fail ("STYLE.is_vertical [B] set+1 " FORMAT_B " != " FORMAT_B "", style->is_vertical, is_vertical);
+    style->is_vertical--;
+  }
+  {
+    BITCODE_B is_xref_dep;
+    if (dwg_dynapi_entity_value (style, "STYLE", "is_xref_dep", &is_xref_dep, NULL)
+        && is_xref_dep == style->is_xref_dep)
+      pass ();
+    else
+      fail ("STYLE.is_xref_dep [B] " FORMAT_B " != " FORMAT_B "", style->is_xref_dep, is_xref_dep);
+    is_xref_dep++;
+    if (dwg_dynapi_entity_set_value (style, "STYLE", "is_xref_dep", &is_xref_dep, 0)
+        && is_xref_dep == style->is_xref_dep)
+      pass ();
+    else
+      fail ("STYLE.is_xref_dep [B] set+1 " FORMAT_B " != " FORMAT_B "", style->is_xref_dep, is_xref_dep);
+    style->is_xref_dep--;
+  }
+  {
+    BITCODE_B is_xref_ref;
+    if (dwg_dynapi_entity_value (style, "STYLE", "is_xref_ref", &is_xref_ref, NULL)
+        && is_xref_ref == style->is_xref_ref)
+      pass ();
+    else
+      fail ("STYLE.is_xref_ref [B] " FORMAT_B " != " FORMAT_B "", style->is_xref_ref, is_xref_ref);
+    is_xref_ref++;
+    if (dwg_dynapi_entity_set_value (style, "STYLE", "is_xref_ref", &is_xref_ref, 0)
+        && is_xref_ref == style->is_xref_ref)
+      pass ();
+    else
+      fail ("STYLE.is_xref_ref [B] set+1 " FORMAT_B " != " FORMAT_B "", style->is_xref_ref, is_xref_ref);
+    style->is_xref_ref--;
+  }
+  {
+    BITCODE_BS is_xref_resolved;
+    if (dwg_dynapi_entity_value (style, "STYLE", "is_xref_resolved", &is_xref_resolved, NULL)
+        && is_xref_resolved == style->is_xref_resolved)
+      pass ();
+    else
+      fail ("STYLE.is_xref_resolved [BS] %hu != %hu", style->is_xref_resolved, is_xref_resolved);
+    is_xref_resolved++;
+    if (dwg_dynapi_entity_set_value (style, "STYLE", "is_xref_resolved", &is_xref_resolved, 0)
+        && is_xref_resolved == style->is_xref_resolved)
+      pass ();
+    else
+      fail ("STYLE.is_xref_resolved [BS] set+1 %hu != %hu", style->is_xref_resolved, is_xref_resolved);
+    style->is_xref_resolved--;
   }
   {
     BITCODE_BD last_height;
@@ -39189,19 +40425,44 @@ static int test_STYLE (const Dwg_Object *obj)
         fail ("STYLE.parent [struct _dwg_object_object*]");
   }
   {
-    BITCODE_B shape_file;
-    if (dwg_dynapi_entity_value (style, "STYLE", "shape_file", &shape_file, NULL)
-        && shape_file == style->shape_file)
+    BITCODE_BD text_size;
+    if (dwg_dynapi_entity_value (style, "STYLE", "text_size", &text_size, NULL)
+        && text_size == style->text_size)
       pass ();
     else
-      fail ("STYLE.shape_file [B] " FORMAT_B " != " FORMAT_B "", style->shape_file, shape_file);
-    shape_file++;
-    if (dwg_dynapi_entity_set_value (style, "STYLE", "shape_file", &shape_file, 0)
-        && shape_file == style->shape_file)
+      fail ("STYLE.text_size [BD] %g != %g", style->text_size, text_size);
+    text_size++;
+    if (dwg_dynapi_entity_set_value (style, "STYLE", "text_size", &text_size, 0)
+        && text_size == style->text_size)
       pass ();
     else
-      fail ("STYLE.shape_file [B] set+1 " FORMAT_B " != " FORMAT_B "", style->shape_file, shape_file);
-    style->shape_file--;
+      fail ("STYLE.text_size [BD] set+1 %g != %g", style->text_size, text_size);
+    style->text_size--;
+  }
+  {
+    BITCODE_BL ttf_flags;
+    if (dwg_dynapi_entity_value (style, "STYLE", "ttf_flags", &ttf_flags, NULL)
+        && ttf_flags == style->ttf_flags)
+      pass ();
+    else
+      fail ("STYLE.ttf_flags [BL] %u != %u", style->ttf_flags, ttf_flags);
+    ttf_flags++;
+    if (dwg_dynapi_entity_set_value (style, "STYLE", "ttf_flags", &ttf_flags, 0)
+        && ttf_flags == style->ttf_flags)
+      pass ();
+    else
+      fail ("STYLE.ttf_flags [BL] set+1 %u != %u", style->ttf_flags, ttf_flags);
+    style->ttf_flags--;
+  }
+  {
+    BITCODE_T ttf_typeface;
+    if (dwg_dynapi_entity_value (style, "STYLE", "ttf_typeface", &ttf_typeface, NULL)
+        && ttf_typeface
+           ? strEQ ((char *)ttf_typeface, (char *)style->ttf_typeface)
+           : !style->ttf_typeface)
+      pass ();
+    else
+      fail ("STYLE.ttf_typeface [T] '%s' <> '%s'", ttf_typeface, style->ttf_typeface);
   }
   {
     BITCODE_RS used;
@@ -39219,21 +40480,6 @@ static int test_STYLE (const Dwg_Object *obj)
     style->used--;
   }
   {
-    BITCODE_B vertical;
-    if (dwg_dynapi_entity_value (style, "STYLE", "vertical", &vertical, NULL)
-        && vertical == style->vertical)
-      pass ();
-    else
-      fail ("STYLE.vertical [B] " FORMAT_B " != " FORMAT_B "", style->vertical, vertical);
-    vertical++;
-    if (dwg_dynapi_entity_set_value (style, "STYLE", "vertical", &vertical, 0)
-        && vertical == style->vertical)
-      pass ();
-    else
-      fail ("STYLE.vertical [B] set+1 " FORMAT_B " != " FORMAT_B "", style->vertical, vertical);
-    style->vertical--;
-  }
-  {
     BITCODE_BD width_factor;
     if (dwg_dynapi_entity_value (style, "STYLE", "width_factor", &width_factor, NULL)
         && width_factor == style->width_factor)
@@ -39249,49 +40495,12 @@ static int test_STYLE (const Dwg_Object *obj)
     style->width_factor--;
   }
   {
-    BITCODE_B xrefdep;
-    if (dwg_dynapi_entity_value (style, "STYLE", "xrefdep", &xrefdep, NULL)
-        && xrefdep == style->xrefdep)
-      pass ();
+    BITCODE_H xref;
+    if (dwg_dynapi_entity_value (style, "STYLE", "xref", &xref, NULL)
+        && !memcmp (&xref, &style->xref, sizeof (style->xref)))
+        pass ();
     else
-      fail ("STYLE.xrefdep [B] " FORMAT_B " != " FORMAT_B "", style->xrefdep, xrefdep);
-    xrefdep++;
-    if (dwg_dynapi_entity_set_value (style, "STYLE", "xrefdep", &xrefdep, 0)
-        && xrefdep == style->xrefdep)
-      pass ();
-    else
-      fail ("STYLE.xrefdep [B] set+1 " FORMAT_B " != " FORMAT_B "", style->xrefdep, xrefdep);
-    style->xrefdep--;
-  }
-  {
-    BITCODE_BS xrefindex_plus1;
-    if (dwg_dynapi_entity_value (style, "STYLE", "xrefindex_plus1", &xrefindex_plus1, NULL)
-        && xrefindex_plus1 == style->xrefindex_plus1)
-      pass ();
-    else
-      fail ("STYLE.xrefindex_plus1 [BS] %hu != %hu", style->xrefindex_plus1, xrefindex_plus1);
-    xrefindex_plus1++;
-    if (dwg_dynapi_entity_set_value (style, "STYLE", "xrefindex_plus1", &xrefindex_plus1, 0)
-        && xrefindex_plus1 == style->xrefindex_plus1)
-      pass ();
-    else
-      fail ("STYLE.xrefindex_plus1 [BS] set+1 %hu != %hu", style->xrefindex_plus1, xrefindex_plus1);
-    style->xrefindex_plus1--;
-  }
-  {
-    BITCODE_B xrefref;
-    if (dwg_dynapi_entity_value (style, "STYLE", "xrefref", &xrefref, NULL)
-        && xrefref == style->xrefref)
-      pass ();
-    else
-      fail ("STYLE.xrefref [B] " FORMAT_B " != " FORMAT_B "", style->xrefref, xrefref);
-    xrefref++;
-    if (dwg_dynapi_entity_set_value (style, "STYLE", "xrefref", &xrefref, 0)
-        && xrefref == style->xrefref)
-      pass ();
-    else
-      fail ("STYLE.xrefref [B] set+1 " FORMAT_B " != " FORMAT_B "", style->xrefref, xrefref);
-    style->xrefref--;
+        fail ("STYLE.xref [H]");
   }
   if (failed && (is_class_unstable ("STYLE") || is_class_debugging ("STYLE")))
     {
@@ -39466,6 +40675,21 @@ static int test_SUN (const Dwg_Object *obj)
     sun->julian_day--;
   }
   {
+    BITCODE_BL msecs;
+    if (dwg_dynapi_entity_value (sun, "SUN", "msecs", &msecs, NULL)
+        && msecs == sun->msecs)
+      pass ();
+    else
+      fail ("SUN.msecs [BL] %u != %u", sun->msecs, msecs);
+    msecs++;
+    if (dwg_dynapi_entity_set_value (sun, "SUN", "msecs", &msecs, 0)
+        && msecs == sun->msecs)
+      pass ();
+    else
+      fail ("SUN.msecs [BL] set+1 %u != %u", sun->msecs, msecs);
+    sun->msecs--;
+  }
+  {
     struct _dwg_object_object* parent;
     if (dwg_dynapi_entity_value (sun, "SUN", "parent", &parent, NULL)
         && !memcmp (&parent, &sun->parent, sizeof (sun->parent)))
@@ -39489,72 +40713,34 @@ static int test_SUN (const Dwg_Object *obj)
     sun->shadow_mapsize--;
   }
   {
-    BITCODE_BS shadow_softness;
+    BITCODE_RC shadow_softness;
     if (dwg_dynapi_entity_value (sun, "SUN", "shadow_softness", &shadow_softness, NULL)
         && shadow_softness == sun->shadow_softness)
       pass ();
     else
-      fail ("SUN.shadow_softness [BS] %hu != %hu", sun->shadow_softness, shadow_softness);
+      fail ("SUN.shadow_softness [RC] %u != %u", sun->shadow_softness, shadow_softness);
     shadow_softness++;
     if (dwg_dynapi_entity_set_value (sun, "SUN", "shadow_softness", &shadow_softness, 0)
         && shadow_softness == sun->shadow_softness)
       pass ();
     else
-      fail ("SUN.shadow_softness [BS] set+1 %hu != %hu", sun->shadow_softness, shadow_softness);
+      fail ("SUN.shadow_softness [RC] set+1 %u != %u", sun->shadow_softness, shadow_softness);
     sun->shadow_softness--;
   }
   {
-    BITCODE_BS shadow_type;
+    BITCODE_BL shadow_type;
     if (dwg_dynapi_entity_value (sun, "SUN", "shadow_type", &shadow_type, NULL)
         && shadow_type == sun->shadow_type)
       pass ();
     else
-      fail ("SUN.shadow_type [BS] %hu != %hu", sun->shadow_type, shadow_type);
+      fail ("SUN.shadow_type [BL] %u != %u", sun->shadow_type, shadow_type);
     shadow_type++;
     if (dwg_dynapi_entity_set_value (sun, "SUN", "shadow_type", &shadow_type, 0)
         && shadow_type == sun->shadow_type)
       pass ();
     else
-      fail ("SUN.shadow_type [BS] set+1 %hu != %hu", sun->shadow_type, shadow_type);
+      fail ("SUN.shadow_type [BL] set+1 %u != %u", sun->shadow_type, shadow_type);
     sun->shadow_type--;
-  }
-  {
-    BITCODE_H skyparams;
-    if (dwg_dynapi_entity_value (sun, "SUN", "skyparams", &skyparams, NULL)
-        && !memcmp (&skyparams, &sun->skyparams, sizeof (sun->skyparams)))
-        pass ();
-    else
-        fail ("SUN.skyparams [H]");
-  }
-  {
-    BITCODE_BL time;
-    if (dwg_dynapi_entity_value (sun, "SUN", "time", &time, NULL)
-        && time == sun->time)
-      pass ();
-    else
-      fail ("SUN.time [BL] %u != %u", sun->time, time);
-    time++;
-    if (dwg_dynapi_entity_set_value (sun, "SUN", "time", &time, 0)
-        && time == sun->time)
-      pass ();
-    else
-      fail ("SUN.time [BL] set+1 %u != %u", sun->time, time);
-    sun->time--;
-  }
-  {
-    BITCODE_BS unknown;
-    if (dwg_dynapi_entity_value (sun, "SUN", "unknown", &unknown, NULL)
-        && unknown == sun->unknown)
-      pass ();
-    else
-      fail ("SUN.unknown [BS] %hu != %hu", sun->unknown, unknown);
-    unknown++;
-    if (dwg_dynapi_entity_set_value (sun, "SUN", "unknown", &unknown, 0)
-        && unknown == sun->unknown)
-      pass ();
-    else
-      fail ("SUN.unknown [BS] set+1 %hu != %hu", sun->unknown, unknown);
-    sun->unknown--;
   }
   if (failed && (is_class_unstable ("SUN") || is_class_debugging ("SUN")))
     {
@@ -40276,21 +41462,6 @@ static int test_TEXTOBJECTCONTEXTDATA (const Dwg_Object *obj)
     textobjectcontextdata->class_version--;
   }
   {
-    BITCODE_B defaultflag;
-    if (dwg_dynapi_entity_value (textobjectcontextdata, "TEXTOBJECTCONTEXTDATA", "defaultflag", &defaultflag, NULL)
-        && defaultflag == textobjectcontextdata->defaultflag)
-      pass ();
-    else
-      fail ("TEXTOBJECTCONTEXTDATA.defaultflag [B] " FORMAT_B " != " FORMAT_B "", textobjectcontextdata->defaultflag, defaultflag);
-    defaultflag++;
-    if (dwg_dynapi_entity_set_value (textobjectcontextdata, "TEXTOBJECTCONTEXTDATA", "defaultflag", &defaultflag, 0)
-        && defaultflag == textobjectcontextdata->defaultflag)
-      pass ();
-    else
-      fail ("TEXTOBJECTCONTEXTDATA.defaultflag [B] set+1 " FORMAT_B " != " FORMAT_B "", textobjectcontextdata->defaultflag, defaultflag);
-    textobjectcontextdata->defaultflag--;
-  }
-  {
     BITCODE_BS flag;
     if (dwg_dynapi_entity_value (textobjectcontextdata, "TEXTOBJECTCONTEXTDATA", "flag", &flag, NULL)
         && flag == textobjectcontextdata->flag)
@@ -40306,19 +41477,19 @@ static int test_TEXTOBJECTCONTEXTDATA (const Dwg_Object *obj)
     textobjectcontextdata->flag--;
   }
   {
-    BITCODE_B has_file;
-    if (dwg_dynapi_entity_value (textobjectcontextdata, "TEXTOBJECTCONTEXTDATA", "has_file", &has_file, NULL)
-        && has_file == textobjectcontextdata->has_file)
+    BITCODE_B in_dwg;
+    if (dwg_dynapi_entity_value (textobjectcontextdata, "TEXTOBJECTCONTEXTDATA", "in_dwg", &in_dwg, NULL)
+        && in_dwg == textobjectcontextdata->in_dwg)
       pass ();
     else
-      fail ("TEXTOBJECTCONTEXTDATA.has_file [B] " FORMAT_B " != " FORMAT_B "", textobjectcontextdata->has_file, has_file);
-    has_file++;
-    if (dwg_dynapi_entity_set_value (textobjectcontextdata, "TEXTOBJECTCONTEXTDATA", "has_file", &has_file, 0)
-        && has_file == textobjectcontextdata->has_file)
+      fail ("TEXTOBJECTCONTEXTDATA.in_dwg [B] " FORMAT_B " != " FORMAT_B "", textobjectcontextdata->in_dwg, in_dwg);
+    in_dwg++;
+    if (dwg_dynapi_entity_set_value (textobjectcontextdata, "TEXTOBJECTCONTEXTDATA", "in_dwg", &in_dwg, 0)
+        && in_dwg == textobjectcontextdata->in_dwg)
       pass ();
     else
-      fail ("TEXTOBJECTCONTEXTDATA.has_file [B] set+1 " FORMAT_B " != " FORMAT_B "", textobjectcontextdata->has_file, has_file);
-    textobjectcontextdata->has_file--;
+      fail ("TEXTOBJECTCONTEXTDATA.in_dwg [B] set+1 " FORMAT_B " != " FORMAT_B "", textobjectcontextdata->in_dwg, in_dwg);
+    textobjectcontextdata->in_dwg--;
   }
   {
     BITCODE_2RD insertion_pt;
@@ -40327,6 +41498,21 @@ static int test_TEXTOBJECTCONTEXTDATA (const Dwg_Object *obj)
         pass ();
     else
         fail ("TEXTOBJECTCONTEXTDATA.insertion_pt [2RD]");
+  }
+  {
+    BITCODE_B is_default;
+    if (dwg_dynapi_entity_value (textobjectcontextdata, "TEXTOBJECTCONTEXTDATA", "is_default", &is_default, NULL)
+        && is_default == textobjectcontextdata->is_default)
+      pass ();
+    else
+      fail ("TEXTOBJECTCONTEXTDATA.is_default [B] " FORMAT_B " != " FORMAT_B "", textobjectcontextdata->is_default, is_default);
+    is_default++;
+    if (dwg_dynapi_entity_set_value (textobjectcontextdata, "TEXTOBJECTCONTEXTDATA", "is_default", &is_default, 0)
+        && is_default == textobjectcontextdata->is_default)
+      pass ();
+    else
+      fail ("TEXTOBJECTCONTEXTDATA.is_default [B] set+1 " FORMAT_B " != " FORMAT_B "", textobjectcontextdata->is_default, is_default);
+    textobjectcontextdata->is_default--;
   }
   {
     struct _dwg_object_object* parent;
@@ -40366,6 +41552,141 @@ static int test_TEXTOBJECTCONTEXTDATA (const Dwg_Object *obj)
     }
   return failed;
 }
+static int test_TVDEVICEPROPERTIES (const Dwg_Object *obj)
+{
+  int error = 0;
+  const Dwg_Object_Object *restrict obj_obj = obj->tio.object;
+  Dwg_Object_TVDEVICEPROPERTIES *restrict tvdeviceproperties = obj->tio.object->tio.TVDEVICEPROPERTIES;
+  failed = 0;
+  {
+    BITCODE_BLL alt_hlt;
+    if (dwg_dynapi_entity_value (tvdeviceproperties, "TVDEVICEPROPERTIES", "alt_hlt", &alt_hlt, NULL)
+        && !memcmp (&alt_hlt, &tvdeviceproperties->alt_hlt, sizeof (tvdeviceproperties->alt_hlt)))
+        pass ();
+    else
+        fail ("TVDEVICEPROPERTIES.alt_hlt [BLL]");
+  }
+  {
+    BITCODE_BLL alt_hltcolor;
+    if (dwg_dynapi_entity_value (tvdeviceproperties, "TVDEVICEPROPERTIES", "alt_hltcolor", &alt_hltcolor, NULL)
+        && !memcmp (&alt_hltcolor, &tvdeviceproperties->alt_hltcolor, sizeof (tvdeviceproperties->alt_hltcolor)))
+        pass ();
+    else
+        fail ("TVDEVICEPROPERTIES.alt_hltcolor [BLL]");
+  }
+  {
+    BITCODE_BD antialiasing_level;
+    if (dwg_dynapi_entity_value (tvdeviceproperties, "TVDEVICEPROPERTIES", "antialiasing_level", &antialiasing_level, NULL)
+        && antialiasing_level == tvdeviceproperties->antialiasing_level)
+      pass ();
+    else
+      fail ("TVDEVICEPROPERTIES.antialiasing_level [BD] %g != %g", tvdeviceproperties->antialiasing_level, antialiasing_level);
+    antialiasing_level++;
+    if (dwg_dynapi_entity_set_value (tvdeviceproperties, "TVDEVICEPROPERTIES", "antialiasing_level", &antialiasing_level, 0)
+        && antialiasing_level == tvdeviceproperties->antialiasing_level)
+      pass ();
+    else
+      fail ("TVDEVICEPROPERTIES.antialiasing_level [BD] set+1 %g != %g", tvdeviceproperties->antialiasing_level, antialiasing_level);
+    tvdeviceproperties->antialiasing_level--;
+  }
+  {
+    BITCODE_BD bd2;
+    if (dwg_dynapi_entity_value (tvdeviceproperties, "TVDEVICEPROPERTIES", "bd2", &bd2, NULL)
+        && bd2 == tvdeviceproperties->bd2)
+      pass ();
+    else
+      fail ("TVDEVICEPROPERTIES.bd2 [BD] %g != %g", tvdeviceproperties->bd2, bd2);
+    bd2++;
+    if (dwg_dynapi_entity_set_value (tvdeviceproperties, "TVDEVICEPROPERTIES", "bd2", &bd2, 0)
+        && bd2 == tvdeviceproperties->bd2)
+      pass ();
+    else
+      fail ("TVDEVICEPROPERTIES.bd2 [BD] set+1 %g != %g", tvdeviceproperties->bd2, bd2);
+    tvdeviceproperties->bd2--;
+  }
+  {
+    BITCODE_BL blending_mode;
+    if (dwg_dynapi_entity_value (tvdeviceproperties, "TVDEVICEPROPERTIES", "blending_mode", &blending_mode, NULL)
+        && blending_mode == tvdeviceproperties->blending_mode)
+      pass ();
+    else
+      fail ("TVDEVICEPROPERTIES.blending_mode [BL] %u != %u", tvdeviceproperties->blending_mode, blending_mode);
+    blending_mode++;
+    if (dwg_dynapi_entity_set_value (tvdeviceproperties, "TVDEVICEPROPERTIES", "blending_mode", &blending_mode, 0)
+        && blending_mode == tvdeviceproperties->blending_mode)
+      pass ();
+    else
+      fail ("TVDEVICEPROPERTIES.blending_mode [BL] set+1 %u != %u", tvdeviceproperties->blending_mode, blending_mode);
+    tvdeviceproperties->blending_mode--;
+  }
+  {
+    BITCODE_BL flags;
+    if (dwg_dynapi_entity_value (tvdeviceproperties, "TVDEVICEPROPERTIES", "flags", &flags, NULL)
+        && flags == tvdeviceproperties->flags)
+      pass ();
+    else
+      fail ("TVDEVICEPROPERTIES.flags [BL] %u != %u", tvdeviceproperties->flags, flags);
+    flags++;
+    if (dwg_dynapi_entity_set_value (tvdeviceproperties, "TVDEVICEPROPERTIES", "flags", &flags, 0)
+        && flags == tvdeviceproperties->flags)
+      pass ();
+    else
+      fail ("TVDEVICEPROPERTIES.flags [BL] set+1 %u != %u", tvdeviceproperties->flags, flags);
+    tvdeviceproperties->flags--;
+  }
+  {
+    BITCODE_BLL geom_shader_usage;
+    if (dwg_dynapi_entity_value (tvdeviceproperties, "TVDEVICEPROPERTIES", "geom_shader_usage", &geom_shader_usage, NULL)
+        && !memcmp (&geom_shader_usage, &tvdeviceproperties->geom_shader_usage, sizeof (tvdeviceproperties->geom_shader_usage)))
+        pass ();
+    else
+        fail ("TVDEVICEPROPERTIES.geom_shader_usage [BLL]");
+  }
+  {
+    BITCODE_BS max_regen_threads;
+    if (dwg_dynapi_entity_value (tvdeviceproperties, "TVDEVICEPROPERTIES", "max_regen_threads", &max_regen_threads, NULL)
+        && max_regen_threads == tvdeviceproperties->max_regen_threads)
+      pass ();
+    else
+      fail ("TVDEVICEPROPERTIES.max_regen_threads [BS] %hu != %hu", tvdeviceproperties->max_regen_threads, max_regen_threads);
+    max_regen_threads++;
+    if (dwg_dynapi_entity_set_value (tvdeviceproperties, "TVDEVICEPROPERTIES", "max_regen_threads", &max_regen_threads, 0)
+        && max_regen_threads == tvdeviceproperties->max_regen_threads)
+      pass ();
+    else
+      fail ("TVDEVICEPROPERTIES.max_regen_threads [BS] set+1 %hu != %hu", tvdeviceproperties->max_regen_threads, max_regen_threads);
+    tvdeviceproperties->max_regen_threads--;
+  }
+  {
+    struct _dwg_object_object* parent;
+    if (dwg_dynapi_entity_value (tvdeviceproperties, "TVDEVICEPROPERTIES", "parent", &parent, NULL)
+        && !memcmp (&parent, &tvdeviceproperties->parent, sizeof (tvdeviceproperties->parent)))
+        pass ();
+    else
+        fail ("TVDEVICEPROPERTIES.parent [struct _dwg_object_object*]");
+  }
+  {
+    BITCODE_BL use_lut_palette;
+    if (dwg_dynapi_entity_value (tvdeviceproperties, "TVDEVICEPROPERTIES", "use_lut_palette", &use_lut_palette, NULL)
+        && use_lut_palette == tvdeviceproperties->use_lut_palette)
+      pass ();
+    else
+      fail ("TVDEVICEPROPERTIES.use_lut_palette [BL] %u != %u", tvdeviceproperties->use_lut_palette, use_lut_palette);
+    use_lut_palette++;
+    if (dwg_dynapi_entity_set_value (tvdeviceproperties, "TVDEVICEPROPERTIES", "use_lut_palette", &use_lut_palette, 0)
+        && use_lut_palette == tvdeviceproperties->use_lut_palette)
+      pass ();
+    else
+      fail ("TVDEVICEPROPERTIES.use_lut_palette [BL] set+1 %u != %u", tvdeviceproperties->use_lut_palette, use_lut_palette);
+    tvdeviceproperties->use_lut_palette--;
+  }
+  if (failed && (is_class_unstable ("TVDEVICEPROPERTIES") || is_class_debugging ("TVDEVICEPROPERTIES")))
+    {
+      ok ("%s failed %d tests (TODO unstable)", "TVDEVICEPROPERTIES", failed);
+      failed = 0;
+    }
+  return failed;
+}
 static int test_UCS (const Dwg_Object *obj)
 {
   int error = 0;
@@ -40396,19 +41717,64 @@ static int test_UCS (const Dwg_Object *obj)
     ucs->elevation--;
   }
   {
-    BITCODE_RC flag;
+    BITCODE_RS flag;
     if (dwg_dynapi_entity_value (ucs, "UCS", "flag", &flag, NULL)
         && flag == ucs->flag)
       pass ();
     else
-      fail ("UCS.flag [RC] %u != %u", ucs->flag, flag);
+      fail ("UCS.flag [RS] %hu != %hu", ucs->flag, flag);
     flag++;
     if (dwg_dynapi_entity_set_value (ucs, "UCS", "flag", &flag, 0)
         && flag == ucs->flag)
       pass ();
     else
-      fail ("UCS.flag [RC] set+1 %u != %u", ucs->flag, flag);
+      fail ("UCS.flag [RS] set+1 %hu != %hu", ucs->flag, flag);
     ucs->flag--;
+  }
+  {
+    BITCODE_B is_xref_dep;
+    if (dwg_dynapi_entity_value (ucs, "UCS", "is_xref_dep", &is_xref_dep, NULL)
+        && is_xref_dep == ucs->is_xref_dep)
+      pass ();
+    else
+      fail ("UCS.is_xref_dep [B] " FORMAT_B " != " FORMAT_B "", ucs->is_xref_dep, is_xref_dep);
+    is_xref_dep++;
+    if (dwg_dynapi_entity_set_value (ucs, "UCS", "is_xref_dep", &is_xref_dep, 0)
+        && is_xref_dep == ucs->is_xref_dep)
+      pass ();
+    else
+      fail ("UCS.is_xref_dep [B] set+1 " FORMAT_B " != " FORMAT_B "", ucs->is_xref_dep, is_xref_dep);
+    ucs->is_xref_dep--;
+  }
+  {
+    BITCODE_B is_xref_ref;
+    if (dwg_dynapi_entity_value (ucs, "UCS", "is_xref_ref", &is_xref_ref, NULL)
+        && is_xref_ref == ucs->is_xref_ref)
+      pass ();
+    else
+      fail ("UCS.is_xref_ref [B] " FORMAT_B " != " FORMAT_B "", ucs->is_xref_ref, is_xref_ref);
+    is_xref_ref++;
+    if (dwg_dynapi_entity_set_value (ucs, "UCS", "is_xref_ref", &is_xref_ref, 0)
+        && is_xref_ref == ucs->is_xref_ref)
+      pass ();
+    else
+      fail ("UCS.is_xref_ref [B] set+1 " FORMAT_B " != " FORMAT_B "", ucs->is_xref_ref, is_xref_ref);
+    ucs->is_xref_ref--;
+  }
+  {
+    BITCODE_BS is_xref_resolved;
+    if (dwg_dynapi_entity_value (ucs, "UCS", "is_xref_resolved", &is_xref_resolved, NULL)
+        && is_xref_resolved == ucs->is_xref_resolved)
+      pass ();
+    else
+      fail ("UCS.is_xref_resolved [BS] %hu != %hu", ucs->is_xref_resolved, is_xref_resolved);
+    is_xref_resolved++;
+    if (dwg_dynapi_entity_set_value (ucs, "UCS", "is_xref_resolved", &is_xref_resolved, 0)
+        && is_xref_resolved == ucs->is_xref_resolved)
+      pass ();
+    else
+      fail ("UCS.is_xref_resolved [BS] set+1 %hu != %hu", ucs->is_xref_resolved, is_xref_resolved);
+    ucs->is_xref_resolved--;
   }
   {
     BITCODE_TV name;
@@ -40429,12 +41795,19 @@ static int test_UCS (const Dwg_Object *obj)
         fail ("UCS.named_ucs [H]");
   }
   {
-    BITCODE_H null_handle;
-    if (dwg_dynapi_entity_value (ucs, "UCS", "null_handle", &null_handle, NULL)
-        && !memcmp (&null_handle, &ucs->null_handle, sizeof (ucs->null_handle)))
-        pass ();
+    BITCODE_BL num_orthopts;
+    if (dwg_dynapi_entity_value (ucs, "UCS", "num_orthopts", &num_orthopts, NULL)
+        && num_orthopts == ucs->num_orthopts)
+      pass ();
     else
-        fail ("UCS.null_handle [H]");
+      fail ("UCS.num_orthopts [BL] %u != %u", ucs->num_orthopts, num_orthopts);
+    num_orthopts++;
+    if (dwg_dynapi_entity_set_value (ucs, "UCS", "num_orthopts", &num_orthopts, 0)
+        && num_orthopts == ucs->num_orthopts)
+      pass ();
+    else
+      fail ("UCS.num_orthopts [BL] set+1 %u != %u", ucs->num_orthopts, num_orthopts);
+    ucs->num_orthopts--;
   }
   {
     BITCODE_3BD origin;
@@ -40443,21 +41816,6 @@ static int test_UCS (const Dwg_Object *obj)
         pass ();
     else
         fail ("UCS.origin [3BD]");
-  }
-  {
-    BITCODE_BS orthographic_type;
-    if (dwg_dynapi_entity_value (ucs, "UCS", "orthographic_type", &orthographic_type, NULL)
-        && orthographic_type == ucs->orthographic_type)
-      pass ();
-    else
-      fail ("UCS.orthographic_type [BS] %hu != %hu", ucs->orthographic_type, orthographic_type);
-    orthographic_type++;
-    if (dwg_dynapi_entity_set_value (ucs, "UCS", "orthographic_type", &orthographic_type, 0)
-        && orthographic_type == ucs->orthographic_type)
-      pass ();
-    else
-      fail ("UCS.orthographic_type [BS] set+1 %hu != %hu", ucs->orthographic_type, orthographic_type);
-    ucs->orthographic_type--;
   }
   {
     BITCODE_BS orthographic_view_type;
@@ -40473,6 +41831,16 @@ static int test_UCS (const Dwg_Object *obj)
     else
       fail ("UCS.orthographic_view_type [BS] set+1 %hu != %hu", ucs->orthographic_view_type, orthographic_view_type);
     ucs->orthographic_view_type--;
+  }
+  {
+    Dwg_UCS_orthopts* orthopts;
+    BITCODE_BL count = 0;
+    if (dwg_dynapi_entity_value (ucs, "UCS", "num_orthopts", &count, NULL)
+        && dwg_dynapi_entity_value (ucs, "UCS", "orthopts", &orthopts, NULL)
+        && orthopts == ucs->orthopts)
+      pass ();
+    else
+      fail ("UCS.orthopts [Dwg_UCS_orthopts*] * %u num_orthopts", count);
   }
   {
     struct _dwg_object_object* parent;
@@ -40506,49 +41874,12 @@ static int test_UCS (const Dwg_Object *obj)
         fail ("UCS.x_direction [3BD]");
   }
   {
-    BITCODE_B xrefdep;
-    if (dwg_dynapi_entity_value (ucs, "UCS", "xrefdep", &xrefdep, NULL)
-        && xrefdep == ucs->xrefdep)
-      pass ();
+    BITCODE_H xref;
+    if (dwg_dynapi_entity_value (ucs, "UCS", "xref", &xref, NULL)
+        && !memcmp (&xref, &ucs->xref, sizeof (ucs->xref)))
+        pass ();
     else
-      fail ("UCS.xrefdep [B] " FORMAT_B " != " FORMAT_B "", ucs->xrefdep, xrefdep);
-    xrefdep++;
-    if (dwg_dynapi_entity_set_value (ucs, "UCS", "xrefdep", &xrefdep, 0)
-        && xrefdep == ucs->xrefdep)
-      pass ();
-    else
-      fail ("UCS.xrefdep [B] set+1 " FORMAT_B " != " FORMAT_B "", ucs->xrefdep, xrefdep);
-    ucs->xrefdep--;
-  }
-  {
-    BITCODE_BS xrefindex_plus1;
-    if (dwg_dynapi_entity_value (ucs, "UCS", "xrefindex_plus1", &xrefindex_plus1, NULL)
-        && xrefindex_plus1 == ucs->xrefindex_plus1)
-      pass ();
-    else
-      fail ("UCS.xrefindex_plus1 [BS] %hu != %hu", ucs->xrefindex_plus1, xrefindex_plus1);
-    xrefindex_plus1++;
-    if (dwg_dynapi_entity_set_value (ucs, "UCS", "xrefindex_plus1", &xrefindex_plus1, 0)
-        && xrefindex_plus1 == ucs->xrefindex_plus1)
-      pass ();
-    else
-      fail ("UCS.xrefindex_plus1 [BS] set+1 %hu != %hu", ucs->xrefindex_plus1, xrefindex_plus1);
-    ucs->xrefindex_plus1--;
-  }
-  {
-    BITCODE_B xrefref;
-    if (dwg_dynapi_entity_value (ucs, "UCS", "xrefref", &xrefref, NULL)
-        && xrefref == ucs->xrefref)
-      pass ();
-    else
-      fail ("UCS.xrefref [B] " FORMAT_B " != " FORMAT_B "", ucs->xrefref, xrefref);
-    xrefref++;
-    if (dwg_dynapi_entity_set_value (ucs, "UCS", "xrefref", &xrefref, 0)
-        && xrefref == ucs->xrefref)
-      pass ();
-    else
-      fail ("UCS.xrefref [B] set+1 " FORMAT_B " != " FORMAT_B "", ucs->xrefref, xrefref);
-    ucs->xrefref--;
+        fail ("UCS.xref [H]");
   }
   {
     BITCODE_3BD y_direction;
@@ -40877,18 +42208,18 @@ static int test_VIEW (const Dwg_Object *obj)
     view->elevation--;
   }
   {
-    BITCODE_RC flag;
+    BITCODE_RS flag;
     if (dwg_dynapi_entity_value (view, "VIEW", "flag", &flag, NULL)
         && flag == view->flag)
       pass ();
     else
-      fail ("VIEW.flag [RC] %u != %u", view->flag, flag);
+      fail ("VIEW.flag [RS] %hu != %hu", view->flag, flag);
     flag++;
     if (dwg_dynapi_entity_set_value (view, "VIEW", "flag", &flag, 0)
         && flag == view->flag)
       pass ();
     else
-      fail ("VIEW.flag [RC] set+1 %u != %u", view->flag, flag);
+      fail ("VIEW.flag [RS] set+1 %hu != %hu", view->flag, flag);
     view->flag--;
   }
   {
@@ -40920,6 +42251,51 @@ static int test_VIEW (const Dwg_Object *obj)
     else
       fail ("VIEW.height [BD] set+1 %g != %g", view->height, height);
     view->height--;
+  }
+  {
+    BITCODE_B is_xref_dep;
+    if (dwg_dynapi_entity_value (view, "VIEW", "is_xref_dep", &is_xref_dep, NULL)
+        && is_xref_dep == view->is_xref_dep)
+      pass ();
+    else
+      fail ("VIEW.is_xref_dep [B] " FORMAT_B " != " FORMAT_B "", view->is_xref_dep, is_xref_dep);
+    is_xref_dep++;
+    if (dwg_dynapi_entity_set_value (view, "VIEW", "is_xref_dep", &is_xref_dep, 0)
+        && is_xref_dep == view->is_xref_dep)
+      pass ();
+    else
+      fail ("VIEW.is_xref_dep [B] set+1 " FORMAT_B " != " FORMAT_B "", view->is_xref_dep, is_xref_dep);
+    view->is_xref_dep--;
+  }
+  {
+    BITCODE_B is_xref_ref;
+    if (dwg_dynapi_entity_value (view, "VIEW", "is_xref_ref", &is_xref_ref, NULL)
+        && is_xref_ref == view->is_xref_ref)
+      pass ();
+    else
+      fail ("VIEW.is_xref_ref [B] " FORMAT_B " != " FORMAT_B "", view->is_xref_ref, is_xref_ref);
+    is_xref_ref++;
+    if (dwg_dynapi_entity_set_value (view, "VIEW", "is_xref_ref", &is_xref_ref, 0)
+        && is_xref_ref == view->is_xref_ref)
+      pass ();
+    else
+      fail ("VIEW.is_xref_ref [B] set+1 " FORMAT_B " != " FORMAT_B "", view->is_xref_ref, is_xref_ref);
+    view->is_xref_ref--;
+  }
+  {
+    BITCODE_BS is_xref_resolved;
+    if (dwg_dynapi_entity_value (view, "VIEW", "is_xref_resolved", &is_xref_resolved, NULL)
+        && is_xref_resolved == view->is_xref_resolved)
+      pass ();
+    else
+      fail ("VIEW.is_xref_resolved [BS] %hu != %hu", view->is_xref_resolved, is_xref_resolved);
+    is_xref_resolved++;
+    if (dwg_dynapi_entity_set_value (view, "VIEW", "is_xref_resolved", &is_xref_resolved, 0)
+        && is_xref_resolved == view->is_xref_resolved)
+      pass ();
+    else
+      fail ("VIEW.is_xref_resolved [BS] set+1 %hu != %hu", view->is_xref_resolved, is_xref_resolved);
+    view->is_xref_resolved--;
   }
   {
     BITCODE_BD lens_length;
@@ -40961,14 +42337,6 @@ static int test_VIEW (const Dwg_Object *obj)
         pass ();
     else
         fail ("VIEW.named_ucs [H]");
-  }
-  {
-    BITCODE_H null_handle;
-    if (dwg_dynapi_entity_value (view, "VIEW", "null_handle", &null_handle, NULL)
-        && !memcmp (&null_handle, &view->null_handle, sizeof (view->null_handle)))
-        pass ();
-    else
-        fail ("VIEW.null_handle [H]");
   }
   {
     BITCODE_3BD origin;
@@ -41124,49 +42492,12 @@ static int test_VIEW (const Dwg_Object *obj)
         fail ("VIEW.x_direction [3BD]");
   }
   {
-    BITCODE_B xrefdep;
-    if (dwg_dynapi_entity_value (view, "VIEW", "xrefdep", &xrefdep, NULL)
-        && xrefdep == view->xrefdep)
-      pass ();
+    BITCODE_H xref;
+    if (dwg_dynapi_entity_value (view, "VIEW", "xref", &xref, NULL)
+        && !memcmp (&xref, &view->xref, sizeof (view->xref)))
+        pass ();
     else
-      fail ("VIEW.xrefdep [B] " FORMAT_B " != " FORMAT_B "", view->xrefdep, xrefdep);
-    xrefdep++;
-    if (dwg_dynapi_entity_set_value (view, "VIEW", "xrefdep", &xrefdep, 0)
-        && xrefdep == view->xrefdep)
-      pass ();
-    else
-      fail ("VIEW.xrefdep [B] set+1 " FORMAT_B " != " FORMAT_B "", view->xrefdep, xrefdep);
-    view->xrefdep--;
-  }
-  {
-    BITCODE_BS xrefindex_plus1;
-    if (dwg_dynapi_entity_value (view, "VIEW", "xrefindex_plus1", &xrefindex_plus1, NULL)
-        && xrefindex_plus1 == view->xrefindex_plus1)
-      pass ();
-    else
-      fail ("VIEW.xrefindex_plus1 [BS] %hu != %hu", view->xrefindex_plus1, xrefindex_plus1);
-    xrefindex_plus1++;
-    if (dwg_dynapi_entity_set_value (view, "VIEW", "xrefindex_plus1", &xrefindex_plus1, 0)
-        && xrefindex_plus1 == view->xrefindex_plus1)
-      pass ();
-    else
-      fail ("VIEW.xrefindex_plus1 [BS] set+1 %hu != %hu", view->xrefindex_plus1, xrefindex_plus1);
-    view->xrefindex_plus1--;
-  }
-  {
-    BITCODE_B xrefref;
-    if (dwg_dynapi_entity_value (view, "VIEW", "xrefref", &xrefref, NULL)
-        && xrefref == view->xrefref)
-      pass ();
-    else
-      fail ("VIEW.xrefref [B] " FORMAT_B " != " FORMAT_B "", view->xrefref, xrefref);
-    xrefref++;
-    if (dwg_dynapi_entity_set_value (view, "VIEW", "xrefref", &xrefref, 0)
-        && xrefref == view->xrefref)
-      pass ();
-    else
-      fail ("VIEW.xrefref [B] set+1 " FORMAT_B " != " FORMAT_B "", view->xrefref, xrefref);
-    view->xrefref--;
+        fail ("VIEW.xref [H]");
   }
   {
     BITCODE_3BD y_direction;
@@ -41251,29 +42582,6 @@ static int test_VISUALSTYLE (const Dwg_Object *obj)
   Dwg_Object_VISUALSTYLE *restrict visualstyle = obj->tio.object->tio.VISUALSTYLE;
   failed = 0;
   {
-    BITCODE_CMC color;
-    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "color", &color, NULL)
-        && !memcmp (&color, &visualstyle->color, sizeof (visualstyle->color)))
-        pass ();
-    else
-        fail ("VISUALSTYLE.color [CMC]");
-  }
-  {
-    BITCODE_BS color_ext;
-    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "color_ext", &color_ext, NULL)
-        && color_ext == visualstyle->color_ext)
-      pass ();
-    else
-      fail ("VISUALSTYLE.color_ext [BS] %hu != %hu", visualstyle->color_ext, color_ext);
-    color_ext++;
-    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "color_ext", &color_ext, 0)
-        && color_ext == visualstyle->color_ext)
-      pass ();
-    else
-      fail ("VISUALSTYLE.color_ext [BS] set+1 %hu != %hu", visualstyle->color_ext, color_ext);
-    visualstyle->color_ext--;
-  }
-  {
     BITCODE_T description;
     if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "description", &description, NULL)
         && description
@@ -41284,34 +42592,34 @@ static int test_VISUALSTYLE (const Dwg_Object *obj)
       fail ("VISUALSTYLE.description [T] '%s' <> '%s'", description, visualstyle->description);
   }
   {
-    BITCODE_BD display_brightness;
+    BITCODE_BL display_brightness;
     if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "display_brightness", &display_brightness, NULL)
         && display_brightness == visualstyle->display_brightness)
       pass ();
     else
-      fail ("VISUALSTYLE.display_brightness [BD] %g != %g", visualstyle->display_brightness, display_brightness);
+      fail ("VISUALSTYLE.display_brightness [BL] %u != %u", visualstyle->display_brightness, display_brightness);
     display_brightness++;
     if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "display_brightness", &display_brightness, 0)
         && display_brightness == visualstyle->display_brightness)
       pass ();
     else
-      fail ("VISUALSTYLE.display_brightness [BD] set+1 %g != %g", visualstyle->display_brightness, display_brightness);
+      fail ("VISUALSTYLE.display_brightness [BL] set+1 %u != %u", visualstyle->display_brightness, display_brightness);
     visualstyle->display_brightness--;
   }
   {
-    BITCODE_BS display_brightness_ext;
-    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "display_brightness_ext", &display_brightness_ext, NULL)
-        && display_brightness_ext == visualstyle->display_brightness_ext)
+    BITCODE_BS display_brightness_int;
+    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "display_brightness_int", &display_brightness_int, NULL)
+        && display_brightness_int == visualstyle->display_brightness_int)
       pass ();
     else
-      fail ("VISUALSTYLE.display_brightness_ext [BS] %hu != %hu", visualstyle->display_brightness_ext, display_brightness_ext);
-    display_brightness_ext++;
-    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "display_brightness_ext", &display_brightness_ext, 0)
-        && display_brightness_ext == visualstyle->display_brightness_ext)
+      fail ("VISUALSTYLE.display_brightness_int [BS] %hu != %hu", visualstyle->display_brightness_int, display_brightness_int);
+    display_brightness_int++;
+    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "display_brightness_int", &display_brightness_int, 0)
+        && display_brightness_int == visualstyle->display_brightness_int)
       pass ();
     else
-      fail ("VISUALSTYLE.display_brightness_ext [BS] set+1 %hu != %hu", visualstyle->display_brightness_ext, display_brightness_ext);
-    visualstyle->display_brightness_ext--;
+      fail ("VISUALSTYLE.display_brightness_int [BS] set+1 %hu != %hu", visualstyle->display_brightness_int, display_brightness_int);
+    visualstyle->display_brightness_int--;
   }
   {
     BITCODE_BS display_shadow_type;
@@ -41329,19 +42637,19 @@ static int test_VISUALSTYLE (const Dwg_Object *obj)
     visualstyle->display_shadow_type--;
   }
   {
-    BITCODE_BS display_shadow_type_ext;
-    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "display_shadow_type_ext", &display_shadow_type_ext, NULL)
-        && display_shadow_type_ext == visualstyle->display_shadow_type_ext)
+    BITCODE_BS display_shadow_type_int;
+    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "display_shadow_type_int", &display_shadow_type_int, NULL)
+        && display_shadow_type_int == visualstyle->display_shadow_type_int)
       pass ();
     else
-      fail ("VISUALSTYLE.display_shadow_type_ext [BS] %hu != %hu", visualstyle->display_shadow_type_ext, display_shadow_type_ext);
-    display_shadow_type_ext++;
-    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "display_shadow_type_ext", &display_shadow_type_ext, 0)
-        && display_shadow_type_ext == visualstyle->display_shadow_type_ext)
+      fail ("VISUALSTYLE.display_shadow_type_int [BS] %hu != %hu", visualstyle->display_shadow_type_int, display_shadow_type_int);
+    display_shadow_type_int++;
+    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "display_shadow_type_int", &display_shadow_type_int, 0)
+        && display_shadow_type_int == visualstyle->display_shadow_type_int)
       pass ();
     else
-      fail ("VISUALSTYLE.display_shadow_type_ext [BS] set+1 %hu != %hu", visualstyle->display_shadow_type_ext, display_shadow_type_ext);
-    visualstyle->display_shadow_type_ext--;
+      fail ("VISUALSTYLE.display_shadow_type_int [BS] set+1 %hu != %hu", visualstyle->display_shadow_type_int, display_shadow_type_int);
+    visualstyle->display_shadow_type_int--;
   }
   {
     BITCODE_BS display_style;
@@ -41359,19 +42667,19 @@ static int test_VISUALSTYLE (const Dwg_Object *obj)
     visualstyle->display_style--;
   }
   {
-    BITCODE_BS display_style_ext;
-    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "display_style_ext", &display_style_ext, NULL)
-        && display_style_ext == visualstyle->display_style_ext)
+    BITCODE_BS display_style_int;
+    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "display_style_int", &display_style_int, NULL)
+        && display_style_int == visualstyle->display_style_int)
       pass ();
     else
-      fail ("VISUALSTYLE.display_style_ext [BS] %hu != %hu", visualstyle->display_style_ext, display_style_ext);
-    display_style_ext++;
-    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "display_style_ext", &display_style_ext, 0)
-        && display_style_ext == visualstyle->display_style_ext)
+      fail ("VISUALSTYLE.display_style_int [BS] %hu != %hu", visualstyle->display_style_int, display_style_int);
+    display_style_int++;
+    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "display_style_int", &display_style_int, 0)
+        && display_style_int == visualstyle->display_style_int)
       pass ();
     else
-      fail ("VISUALSTYLE.display_style_ext [BS] set+1 %hu != %hu", visualstyle->display_style_ext, display_style_ext);
-    visualstyle->display_style_ext--;
+      fail ("VISUALSTYLE.display_style_int [BS] set+1 %hu != %hu", visualstyle->display_style_int, display_style_int);
+    visualstyle->display_style_int--;
   }
   {
     BITCODE_CMC edge_color;
@@ -41382,19 +42690,19 @@ static int test_VISUALSTYLE (const Dwg_Object *obj)
         fail ("VISUALSTYLE.edge_color [CMC]");
   }
   {
-    BITCODE_BS edge_color_ext;
-    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "edge_color_ext", &edge_color_ext, NULL)
-        && edge_color_ext == visualstyle->edge_color_ext)
+    BITCODE_BS edge_color_int;
+    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "edge_color_int", &edge_color_int, NULL)
+        && edge_color_int == visualstyle->edge_color_int)
       pass ();
     else
-      fail ("VISUALSTYLE.edge_color_ext [BS] %hu != %hu", visualstyle->edge_color_ext, edge_color_ext);
-    edge_color_ext++;
-    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "edge_color_ext", &edge_color_ext, 0)
-        && edge_color_ext == visualstyle->edge_color_ext)
+      fail ("VISUALSTYLE.edge_color_int [BS] %hu != %hu", visualstyle->edge_color_int, edge_color_int);
+    edge_color_int++;
+    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "edge_color_int", &edge_color_int, 0)
+        && edge_color_int == visualstyle->edge_color_int)
       pass ();
     else
-      fail ("VISUALSTYLE.edge_color_ext [BS] set+1 %hu != %hu", visualstyle->edge_color_ext, edge_color_ext);
-    visualstyle->edge_color_ext--;
+      fail ("VISUALSTYLE.edge_color_int [BS] set+1 %hu != %hu", visualstyle->edge_color_int, edge_color_int);
+    visualstyle->edge_color_int--;
   }
   {
     BITCODE_BD edge_crease_angle;
@@ -41412,19 +42720,19 @@ static int test_VISUALSTYLE (const Dwg_Object *obj)
     visualstyle->edge_crease_angle--;
   }
   {
-    BITCODE_BS edge_crease_angle_ext;
-    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "edge_crease_angle_ext", &edge_crease_angle_ext, NULL)
-        && edge_crease_angle_ext == visualstyle->edge_crease_angle_ext)
+    BITCODE_BS edge_crease_angle_int;
+    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "edge_crease_angle_int", &edge_crease_angle_int, NULL)
+        && edge_crease_angle_int == visualstyle->edge_crease_angle_int)
       pass ();
     else
-      fail ("VISUALSTYLE.edge_crease_angle_ext [BS] %hu != %hu", visualstyle->edge_crease_angle_ext, edge_crease_angle_ext);
-    edge_crease_angle_ext++;
-    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "edge_crease_angle_ext", &edge_crease_angle_ext, 0)
-        && edge_crease_angle_ext == visualstyle->edge_crease_angle_ext)
+      fail ("VISUALSTYLE.edge_crease_angle_int [BS] %hu != %hu", visualstyle->edge_crease_angle_int, edge_crease_angle_int);
+    edge_crease_angle_int++;
+    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "edge_crease_angle_int", &edge_crease_angle_int, 0)
+        && edge_crease_angle_int == visualstyle->edge_crease_angle_int)
       pass ();
     else
-      fail ("VISUALSTYLE.edge_crease_angle_ext [BS] set+1 %hu != %hu", visualstyle->edge_crease_angle_ext, edge_crease_angle_ext);
-    visualstyle->edge_crease_angle_ext--;
+      fail ("VISUALSTYLE.edge_crease_angle_int [BS] set+1 %hu != %hu", visualstyle->edge_crease_angle_int, edge_crease_angle_int);
+    visualstyle->edge_crease_angle_int--;
   }
   {
     BITCODE_BS edge_halo_gap;
@@ -41442,19 +42750,19 @@ static int test_VISUALSTYLE (const Dwg_Object *obj)
     visualstyle->edge_halo_gap--;
   }
   {
-    BITCODE_BS edge_halo_gap_ext;
-    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "edge_halo_gap_ext", &edge_halo_gap_ext, NULL)
-        && edge_halo_gap_ext == visualstyle->edge_halo_gap_ext)
+    BITCODE_BS edge_halo_gap_int;
+    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "edge_halo_gap_int", &edge_halo_gap_int, NULL)
+        && edge_halo_gap_int == visualstyle->edge_halo_gap_int)
       pass ();
     else
-      fail ("VISUALSTYLE.edge_halo_gap_ext [BS] %hu != %hu", visualstyle->edge_halo_gap_ext, edge_halo_gap_ext);
-    edge_halo_gap_ext++;
-    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "edge_halo_gap_ext", &edge_halo_gap_ext, 0)
-        && edge_halo_gap_ext == visualstyle->edge_halo_gap_ext)
+      fail ("VISUALSTYLE.edge_halo_gap_int [BS] %hu != %hu", visualstyle->edge_halo_gap_int, edge_halo_gap_int);
+    edge_halo_gap_int++;
+    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "edge_halo_gap_int", &edge_halo_gap_int, 0)
+        && edge_halo_gap_int == visualstyle->edge_halo_gap_int)
       pass ();
     else
-      fail ("VISUALSTYLE.edge_halo_gap_ext [BS] set+1 %hu != %hu", visualstyle->edge_halo_gap_ext, edge_halo_gap_ext);
-    visualstyle->edge_halo_gap_ext--;
+      fail ("VISUALSTYLE.edge_halo_gap_int [BS] set+1 %hu != %hu", visualstyle->edge_halo_gap_int, edge_halo_gap_int);
+    visualstyle->edge_halo_gap_int--;
   }
   {
     BITCODE_B edge_hide_precision_flag;
@@ -41472,19 +42780,19 @@ static int test_VISUALSTYLE (const Dwg_Object *obj)
     visualstyle->edge_hide_precision_flag--;
   }
   {
-    BITCODE_BS edge_hide_precision_flag_ext;
-    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "edge_hide_precision_flag_ext", &edge_hide_precision_flag_ext, NULL)
-        && edge_hide_precision_flag_ext == visualstyle->edge_hide_precision_flag_ext)
+    BITCODE_BS edge_hide_precision_flag_int;
+    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "edge_hide_precision_flag_int", &edge_hide_precision_flag_int, NULL)
+        && edge_hide_precision_flag_int == visualstyle->edge_hide_precision_flag_int)
       pass ();
     else
-      fail ("VISUALSTYLE.edge_hide_precision_flag_ext [BS] %hu != %hu", visualstyle->edge_hide_precision_flag_ext, edge_hide_precision_flag_ext);
-    edge_hide_precision_flag_ext++;
-    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "edge_hide_precision_flag_ext", &edge_hide_precision_flag_ext, 0)
-        && edge_hide_precision_flag_ext == visualstyle->edge_hide_precision_flag_ext)
+      fail ("VISUALSTYLE.edge_hide_precision_flag_int [BS] %hu != %hu", visualstyle->edge_hide_precision_flag_int, edge_hide_precision_flag_int);
+    edge_hide_precision_flag_int++;
+    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "edge_hide_precision_flag_int", &edge_hide_precision_flag_int, 0)
+        && edge_hide_precision_flag_int == visualstyle->edge_hide_precision_flag_int)
       pass ();
     else
-      fail ("VISUALSTYLE.edge_hide_precision_flag_ext [BS] set+1 %hu != %hu", visualstyle->edge_hide_precision_flag_ext, edge_hide_precision_flag_ext);
-    visualstyle->edge_hide_precision_flag_ext--;
+      fail ("VISUALSTYLE.edge_hide_precision_flag_int [BS] set+1 %hu != %hu", visualstyle->edge_hide_precision_flag_int, edge_hide_precision_flag_int);
+    visualstyle->edge_hide_precision_flag_int--;
   }
   {
     BITCODE_CMC edge_intersection_color;
@@ -41495,19 +42803,19 @@ static int test_VISUALSTYLE (const Dwg_Object *obj)
         fail ("VISUALSTYLE.edge_intersection_color [CMC]");
   }
   {
-    BITCODE_BS edge_intersection_color_ext;
-    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "edge_intersection_color_ext", &edge_intersection_color_ext, NULL)
-        && edge_intersection_color_ext == visualstyle->edge_intersection_color_ext)
+    BITCODE_BS edge_intersection_color_int;
+    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "edge_intersection_color_int", &edge_intersection_color_int, NULL)
+        && edge_intersection_color_int == visualstyle->edge_intersection_color_int)
       pass ();
     else
-      fail ("VISUALSTYLE.edge_intersection_color_ext [BS] %hu != %hu", visualstyle->edge_intersection_color_ext, edge_intersection_color_ext);
-    edge_intersection_color_ext++;
-    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "edge_intersection_color_ext", &edge_intersection_color_ext, 0)
-        && edge_intersection_color_ext == visualstyle->edge_intersection_color_ext)
+      fail ("VISUALSTYLE.edge_intersection_color_int [BS] %hu != %hu", visualstyle->edge_intersection_color_int, edge_intersection_color_int);
+    edge_intersection_color_int++;
+    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "edge_intersection_color_int", &edge_intersection_color_int, 0)
+        && edge_intersection_color_int == visualstyle->edge_intersection_color_int)
       pass ();
     else
-      fail ("VISUALSTYLE.edge_intersection_color_ext [BS] set+1 %hu != %hu", visualstyle->edge_intersection_color_ext, edge_intersection_color_ext);
-    visualstyle->edge_intersection_color_ext--;
+      fail ("VISUALSTYLE.edge_intersection_color_int [BS] set+1 %hu != %hu", visualstyle->edge_intersection_color_int, edge_intersection_color_int);
+    visualstyle->edge_intersection_color_int--;
   }
   {
     BITCODE_BS edge_intersection_line_pattern;
@@ -41525,19 +42833,19 @@ static int test_VISUALSTYLE (const Dwg_Object *obj)
     visualstyle->edge_intersection_line_pattern--;
   }
   {
-    BITCODE_BS edge_intersection_line_pattern_ext;
-    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "edge_intersection_line_pattern_ext", &edge_intersection_line_pattern_ext, NULL)
-        && edge_intersection_line_pattern_ext == visualstyle->edge_intersection_line_pattern_ext)
+    BITCODE_BS edge_intersection_line_pattern_int;
+    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "edge_intersection_line_pattern_int", &edge_intersection_line_pattern_int, NULL)
+        && edge_intersection_line_pattern_int == visualstyle->edge_intersection_line_pattern_int)
       pass ();
     else
-      fail ("VISUALSTYLE.edge_intersection_line_pattern_ext [BS] %hu != %hu", visualstyle->edge_intersection_line_pattern_ext, edge_intersection_line_pattern_ext);
-    edge_intersection_line_pattern_ext++;
-    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "edge_intersection_line_pattern_ext", &edge_intersection_line_pattern_ext, 0)
-        && edge_intersection_line_pattern_ext == visualstyle->edge_intersection_line_pattern_ext)
+      fail ("VISUALSTYLE.edge_intersection_line_pattern_int [BS] %hu != %hu", visualstyle->edge_intersection_line_pattern_int, edge_intersection_line_pattern_int);
+    edge_intersection_line_pattern_int++;
+    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "edge_intersection_line_pattern_int", &edge_intersection_line_pattern_int, 0)
+        && edge_intersection_line_pattern_int == visualstyle->edge_intersection_line_pattern_int)
       pass ();
     else
-      fail ("VISUALSTYLE.edge_intersection_line_pattern_ext [BS] set+1 %hu != %hu", visualstyle->edge_intersection_line_pattern_ext, edge_intersection_line_pattern_ext);
-    visualstyle->edge_intersection_line_pattern_ext--;
+      fail ("VISUALSTYLE.edge_intersection_line_pattern_int [BS] set+1 %hu != %hu", visualstyle->edge_intersection_line_pattern_int, edge_intersection_line_pattern_int);
+    visualstyle->edge_intersection_line_pattern_int--;
   }
   {
     BITCODE_BS edge_jitter;
@@ -41555,19 +42863,19 @@ static int test_VISUALSTYLE (const Dwg_Object *obj)
     visualstyle->edge_jitter--;
   }
   {
-    BITCODE_BS edge_jitter_ext;
-    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "edge_jitter_ext", &edge_jitter_ext, NULL)
-        && edge_jitter_ext == visualstyle->edge_jitter_ext)
+    BITCODE_BS edge_jitter_int;
+    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "edge_jitter_int", &edge_jitter_int, NULL)
+        && edge_jitter_int == visualstyle->edge_jitter_int)
       pass ();
     else
-      fail ("VISUALSTYLE.edge_jitter_ext [BS] %hu != %hu", visualstyle->edge_jitter_ext, edge_jitter_ext);
-    edge_jitter_ext++;
-    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "edge_jitter_ext", &edge_jitter_ext, 0)
-        && edge_jitter_ext == visualstyle->edge_jitter_ext)
+      fail ("VISUALSTYLE.edge_jitter_int [BS] %hu != %hu", visualstyle->edge_jitter_int, edge_jitter_int);
+    edge_jitter_int++;
+    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "edge_jitter_int", &edge_jitter_int, 0)
+        && edge_jitter_int == visualstyle->edge_jitter_int)
       pass ();
     else
-      fail ("VISUALSTYLE.edge_jitter_ext [BS] set+1 %hu != %hu", visualstyle->edge_jitter_ext, edge_jitter_ext);
-    visualstyle->edge_jitter_ext--;
+      fail ("VISUALSTYLE.edge_jitter_int [BS] set+1 %hu != %hu", visualstyle->edge_jitter_int, edge_jitter_int);
+    visualstyle->edge_jitter_int--;
   }
   {
     BITCODE_BS edge_model;
@@ -41585,19 +42893,19 @@ static int test_VISUALSTYLE (const Dwg_Object *obj)
     visualstyle->edge_model--;
   }
   {
-    BITCODE_BS edge_model_ext;
-    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "edge_model_ext", &edge_model_ext, NULL)
-        && edge_model_ext == visualstyle->edge_model_ext)
+    BITCODE_BS edge_model_int;
+    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "edge_model_int", &edge_model_int, NULL)
+        && edge_model_int == visualstyle->edge_model_int)
       pass ();
     else
-      fail ("VISUALSTYLE.edge_model_ext [BS] %hu != %hu", visualstyle->edge_model_ext, edge_model_ext);
-    edge_model_ext++;
-    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "edge_model_ext", &edge_model_ext, 0)
-        && edge_model_ext == visualstyle->edge_model_ext)
+      fail ("VISUALSTYLE.edge_model_int [BS] %hu != %hu", visualstyle->edge_model_int, edge_model_int);
+    edge_model_int++;
+    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "edge_model_int", &edge_model_int, 0)
+        && edge_model_int == visualstyle->edge_model_int)
       pass ();
     else
-      fail ("VISUALSTYLE.edge_model_ext [BS] set+1 %hu != %hu", visualstyle->edge_model_ext, edge_model_ext);
-    visualstyle->edge_model_ext--;
+      fail ("VISUALSTYLE.edge_model_int [BS] set+1 %hu != %hu", visualstyle->edge_model_int, edge_model_int);
+    visualstyle->edge_model_int--;
   }
   {
     BITCODE_BS edge_modifier;
@@ -41615,19 +42923,19 @@ static int test_VISUALSTYLE (const Dwg_Object *obj)
     visualstyle->edge_modifier--;
   }
   {
-    BITCODE_BS edge_modifier_ext;
-    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "edge_modifier_ext", &edge_modifier_ext, NULL)
-        && edge_modifier_ext == visualstyle->edge_modifier_ext)
+    BITCODE_BS edge_modifier_int;
+    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "edge_modifier_int", &edge_modifier_int, NULL)
+        && edge_modifier_int == visualstyle->edge_modifier_int)
       pass ();
     else
-      fail ("VISUALSTYLE.edge_modifier_ext [BS] %hu != %hu", visualstyle->edge_modifier_ext, edge_modifier_ext);
-    edge_modifier_ext++;
-    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "edge_modifier_ext", &edge_modifier_ext, 0)
-        && edge_modifier_ext == visualstyle->edge_modifier_ext)
+      fail ("VISUALSTYLE.edge_modifier_int [BS] %hu != %hu", visualstyle->edge_modifier_int, edge_modifier_int);
+    edge_modifier_int++;
+    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "edge_modifier_int", &edge_modifier_int, 0)
+        && edge_modifier_int == visualstyle->edge_modifier_int)
       pass ();
     else
-      fail ("VISUALSTYLE.edge_modifier_ext [BS] set+1 %hu != %hu", visualstyle->edge_modifier_ext, edge_modifier_ext);
-    visualstyle->edge_modifier_ext--;
+      fail ("VISUALSTYLE.edge_modifier_int [BS] set+1 %hu != %hu", visualstyle->edge_modifier_int, edge_modifier_int);
+    visualstyle->edge_modifier_int--;
   }
   {
     BITCODE_CMC edge_obscured_color;
@@ -41638,19 +42946,19 @@ static int test_VISUALSTYLE (const Dwg_Object *obj)
         fail ("VISUALSTYLE.edge_obscured_color [CMC]");
   }
   {
-    BITCODE_BS edge_obscured_color_ext;
-    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "edge_obscured_color_ext", &edge_obscured_color_ext, NULL)
-        && edge_obscured_color_ext == visualstyle->edge_obscured_color_ext)
+    BITCODE_BS edge_obscured_color_int;
+    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "edge_obscured_color_int", &edge_obscured_color_int, NULL)
+        && edge_obscured_color_int == visualstyle->edge_obscured_color_int)
       pass ();
     else
-      fail ("VISUALSTYLE.edge_obscured_color_ext [BS] %hu != %hu", visualstyle->edge_obscured_color_ext, edge_obscured_color_ext);
-    edge_obscured_color_ext++;
-    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "edge_obscured_color_ext", &edge_obscured_color_ext, 0)
-        && edge_obscured_color_ext == visualstyle->edge_obscured_color_ext)
+      fail ("VISUALSTYLE.edge_obscured_color_int [BS] %hu != %hu", visualstyle->edge_obscured_color_int, edge_obscured_color_int);
+    edge_obscured_color_int++;
+    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "edge_obscured_color_int", &edge_obscured_color_int, 0)
+        && edge_obscured_color_int == visualstyle->edge_obscured_color_int)
       pass ();
     else
-      fail ("VISUALSTYLE.edge_obscured_color_ext [BS] set+1 %hu != %hu", visualstyle->edge_obscured_color_ext, edge_obscured_color_ext);
-    visualstyle->edge_obscured_color_ext--;
+      fail ("VISUALSTYLE.edge_obscured_color_int [BS] set+1 %hu != %hu", visualstyle->edge_obscured_color_int, edge_obscured_color_int);
+    visualstyle->edge_obscured_color_int--;
   }
   {
     BITCODE_BS edge_obscured_line_pattern;
@@ -41668,19 +42976,19 @@ static int test_VISUALSTYLE (const Dwg_Object *obj)
     visualstyle->edge_obscured_line_pattern--;
   }
   {
-    BITCODE_BS edge_obscured_line_pattern_ext;
-    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "edge_obscured_line_pattern_ext", &edge_obscured_line_pattern_ext, NULL)
-        && edge_obscured_line_pattern_ext == visualstyle->edge_obscured_line_pattern_ext)
+    BITCODE_BS edge_obscured_line_pattern_int;
+    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "edge_obscured_line_pattern_int", &edge_obscured_line_pattern_int, NULL)
+        && edge_obscured_line_pattern_int == visualstyle->edge_obscured_line_pattern_int)
       pass ();
     else
-      fail ("VISUALSTYLE.edge_obscured_line_pattern_ext [BS] %hu != %hu", visualstyle->edge_obscured_line_pattern_ext, edge_obscured_line_pattern_ext);
-    edge_obscured_line_pattern_ext++;
-    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "edge_obscured_line_pattern_ext", &edge_obscured_line_pattern_ext, 0)
-        && edge_obscured_line_pattern_ext == visualstyle->edge_obscured_line_pattern_ext)
+      fail ("VISUALSTYLE.edge_obscured_line_pattern_int [BS] %hu != %hu", visualstyle->edge_obscured_line_pattern_int, edge_obscured_line_pattern_int);
+    edge_obscured_line_pattern_int++;
+    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "edge_obscured_line_pattern_int", &edge_obscured_line_pattern_int, 0)
+        && edge_obscured_line_pattern_int == visualstyle->edge_obscured_line_pattern_int)
       pass ();
     else
-      fail ("VISUALSTYLE.edge_obscured_line_pattern_ext [BS] set+1 %hu != %hu", visualstyle->edge_obscured_line_pattern_ext, edge_obscured_line_pattern_ext);
-    visualstyle->edge_obscured_line_pattern_ext--;
+      fail ("VISUALSTYLE.edge_obscured_line_pattern_int [BS] set+1 %hu != %hu", visualstyle->edge_obscured_line_pattern_int, edge_obscured_line_pattern_int);
+    visualstyle->edge_obscured_line_pattern_int--;
   }
   {
     BITCODE_BD edge_opacity;
@@ -41698,19 +43006,19 @@ static int test_VISUALSTYLE (const Dwg_Object *obj)
     visualstyle->edge_opacity--;
   }
   {
-    BITCODE_BS edge_opacity_ext;
-    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "edge_opacity_ext", &edge_opacity_ext, NULL)
-        && edge_opacity_ext == visualstyle->edge_opacity_ext)
+    BITCODE_BS edge_opacity_int;
+    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "edge_opacity_int", &edge_opacity_int, NULL)
+        && edge_opacity_int == visualstyle->edge_opacity_int)
       pass ();
     else
-      fail ("VISUALSTYLE.edge_opacity_ext [BS] %hu != %hu", visualstyle->edge_opacity_ext, edge_opacity_ext);
-    edge_opacity_ext++;
-    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "edge_opacity_ext", &edge_opacity_ext, 0)
-        && edge_opacity_ext == visualstyle->edge_opacity_ext)
+      fail ("VISUALSTYLE.edge_opacity_int [BS] %hu != %hu", visualstyle->edge_opacity_int, edge_opacity_int);
+    edge_opacity_int++;
+    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "edge_opacity_int", &edge_opacity_int, 0)
+        && edge_opacity_int == visualstyle->edge_opacity_int)
       pass ();
     else
-      fail ("VISUALSTYLE.edge_opacity_ext [BS] set+1 %hu != %hu", visualstyle->edge_opacity_ext, edge_opacity_ext);
-    visualstyle->edge_opacity_ext--;
+      fail ("VISUALSTYLE.edge_opacity_int [BS] set+1 %hu != %hu", visualstyle->edge_opacity_int, edge_opacity_int);
+    visualstyle->edge_opacity_int--;
   }
   {
     BITCODE_BS edge_overhang;
@@ -41728,19 +43036,19 @@ static int test_VISUALSTYLE (const Dwg_Object *obj)
     visualstyle->edge_overhang--;
   }
   {
-    BITCODE_BS edge_overhang_ext;
-    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "edge_overhang_ext", &edge_overhang_ext, NULL)
-        && edge_overhang_ext == visualstyle->edge_overhang_ext)
+    BITCODE_BS edge_overhang_int;
+    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "edge_overhang_int", &edge_overhang_int, NULL)
+        && edge_overhang_int == visualstyle->edge_overhang_int)
       pass ();
     else
-      fail ("VISUALSTYLE.edge_overhang_ext [BS] %hu != %hu", visualstyle->edge_overhang_ext, edge_overhang_ext);
-    edge_overhang_ext++;
-    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "edge_overhang_ext", &edge_overhang_ext, 0)
-        && edge_overhang_ext == visualstyle->edge_overhang_ext)
+      fail ("VISUALSTYLE.edge_overhang_int [BS] %hu != %hu", visualstyle->edge_overhang_int, edge_overhang_int);
+    edge_overhang_int++;
+    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "edge_overhang_int", &edge_overhang_int, 0)
+        && edge_overhang_int == visualstyle->edge_overhang_int)
       pass ();
     else
-      fail ("VISUALSTYLE.edge_overhang_ext [BS] set+1 %hu != %hu", visualstyle->edge_overhang_ext, edge_overhang_ext);
-    visualstyle->edge_overhang_ext--;
+      fail ("VISUALSTYLE.edge_overhang_int [BS] set+1 %hu != %hu", visualstyle->edge_overhang_int, edge_overhang_int);
+    visualstyle->edge_overhang_int--;
   }
   {
     BITCODE_CMC edge_silhouette_color;
@@ -41751,19 +43059,19 @@ static int test_VISUALSTYLE (const Dwg_Object *obj)
         fail ("VISUALSTYLE.edge_silhouette_color [CMC]");
   }
   {
-    BITCODE_BS edge_silhouette_color_ext;
-    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "edge_silhouette_color_ext", &edge_silhouette_color_ext, NULL)
-        && edge_silhouette_color_ext == visualstyle->edge_silhouette_color_ext)
+    BITCODE_BS edge_silhouette_color_int;
+    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "edge_silhouette_color_int", &edge_silhouette_color_int, NULL)
+        && edge_silhouette_color_int == visualstyle->edge_silhouette_color_int)
       pass ();
     else
-      fail ("VISUALSTYLE.edge_silhouette_color_ext [BS] %hu != %hu", visualstyle->edge_silhouette_color_ext, edge_silhouette_color_ext);
-    edge_silhouette_color_ext++;
-    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "edge_silhouette_color_ext", &edge_silhouette_color_ext, 0)
-        && edge_silhouette_color_ext == visualstyle->edge_silhouette_color_ext)
+      fail ("VISUALSTYLE.edge_silhouette_color_int [BS] %hu != %hu", visualstyle->edge_silhouette_color_int, edge_silhouette_color_int);
+    edge_silhouette_color_int++;
+    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "edge_silhouette_color_int", &edge_silhouette_color_int, 0)
+        && edge_silhouette_color_int == visualstyle->edge_silhouette_color_int)
       pass ();
     else
-      fail ("VISUALSTYLE.edge_silhouette_color_ext [BS] set+1 %hu != %hu", visualstyle->edge_silhouette_color_ext, edge_silhouette_color_ext);
-    visualstyle->edge_silhouette_color_ext--;
+      fail ("VISUALSTYLE.edge_silhouette_color_int [BS] set+1 %hu != %hu", visualstyle->edge_silhouette_color_int, edge_silhouette_color_int);
+    visualstyle->edge_silhouette_color_int--;
   }
   {
     BITCODE_BS edge_silhouette_width;
@@ -41781,19 +43089,19 @@ static int test_VISUALSTYLE (const Dwg_Object *obj)
     visualstyle->edge_silhouette_width--;
   }
   {
-    BITCODE_BS edge_silhouette_width_ext;
-    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "edge_silhouette_width_ext", &edge_silhouette_width_ext, NULL)
-        && edge_silhouette_width_ext == visualstyle->edge_silhouette_width_ext)
+    BITCODE_BS edge_silhouette_width_int;
+    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "edge_silhouette_width_int", &edge_silhouette_width_int, NULL)
+        && edge_silhouette_width_int == visualstyle->edge_silhouette_width_int)
       pass ();
     else
-      fail ("VISUALSTYLE.edge_silhouette_width_ext [BS] %hu != %hu", visualstyle->edge_silhouette_width_ext, edge_silhouette_width_ext);
-    edge_silhouette_width_ext++;
-    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "edge_silhouette_width_ext", &edge_silhouette_width_ext, 0)
-        && edge_silhouette_width_ext == visualstyle->edge_silhouette_width_ext)
+      fail ("VISUALSTYLE.edge_silhouette_width_int [BS] %hu != %hu", visualstyle->edge_silhouette_width_int, edge_silhouette_width_int);
+    edge_silhouette_width_int++;
+    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "edge_silhouette_width_int", &edge_silhouette_width_int, 0)
+        && edge_silhouette_width_int == visualstyle->edge_silhouette_width_int)
       pass ();
     else
-      fail ("VISUALSTYLE.edge_silhouette_width_ext [BS] set+1 %hu != %hu", visualstyle->edge_silhouette_width_ext, edge_silhouette_width_ext);
-    visualstyle->edge_silhouette_width_ext--;
+      fail ("VISUALSTYLE.edge_silhouette_width_int [BS] set+1 %hu != %hu", visualstyle->edge_silhouette_width_int, edge_silhouette_width_int);
+    visualstyle->edge_silhouette_width_int--;
   }
   {
     BITCODE_BL edge_style;
@@ -41826,34 +43134,34 @@ static int test_VISUALSTYLE (const Dwg_Object *obj)
     visualstyle->edge_style_apply_flag--;
   }
   {
-    BITCODE_BS edge_style_apply_flag_ext;
-    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "edge_style_apply_flag_ext", &edge_style_apply_flag_ext, NULL)
-        && edge_style_apply_flag_ext == visualstyle->edge_style_apply_flag_ext)
+    BITCODE_BS edge_style_apply_flag_int;
+    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "edge_style_apply_flag_int", &edge_style_apply_flag_int, NULL)
+        && edge_style_apply_flag_int == visualstyle->edge_style_apply_flag_int)
       pass ();
     else
-      fail ("VISUALSTYLE.edge_style_apply_flag_ext [BS] %hu != %hu", visualstyle->edge_style_apply_flag_ext, edge_style_apply_flag_ext);
-    edge_style_apply_flag_ext++;
-    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "edge_style_apply_flag_ext", &edge_style_apply_flag_ext, 0)
-        && edge_style_apply_flag_ext == visualstyle->edge_style_apply_flag_ext)
+      fail ("VISUALSTYLE.edge_style_apply_flag_int [BS] %hu != %hu", visualstyle->edge_style_apply_flag_int, edge_style_apply_flag_int);
+    edge_style_apply_flag_int++;
+    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "edge_style_apply_flag_int", &edge_style_apply_flag_int, 0)
+        && edge_style_apply_flag_int == visualstyle->edge_style_apply_flag_int)
       pass ();
     else
-      fail ("VISUALSTYLE.edge_style_apply_flag_ext [BS] set+1 %hu != %hu", visualstyle->edge_style_apply_flag_ext, edge_style_apply_flag_ext);
-    visualstyle->edge_style_apply_flag_ext--;
+      fail ("VISUALSTYLE.edge_style_apply_flag_int [BS] set+1 %hu != %hu", visualstyle->edge_style_apply_flag_int, edge_style_apply_flag_int);
+    visualstyle->edge_style_apply_flag_int--;
   }
   {
-    BITCODE_BS edge_style_ext;
-    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "edge_style_ext", &edge_style_ext, NULL)
-        && edge_style_ext == visualstyle->edge_style_ext)
+    BITCODE_BS edge_style_int;
+    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "edge_style_int", &edge_style_int, NULL)
+        && edge_style_int == visualstyle->edge_style_int)
       pass ();
     else
-      fail ("VISUALSTYLE.edge_style_ext [BS] %hu != %hu", visualstyle->edge_style_ext, edge_style_ext);
-    edge_style_ext++;
-    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "edge_style_ext", &edge_style_ext, 0)
-        && edge_style_ext == visualstyle->edge_style_ext)
+      fail ("VISUALSTYLE.edge_style_int [BS] %hu != %hu", visualstyle->edge_style_int, edge_style_int);
+    edge_style_int++;
+    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "edge_style_int", &edge_style_int, 0)
+        && edge_style_int == visualstyle->edge_style_int)
       pass ();
     else
-      fail ("VISUALSTYLE.edge_style_ext [BS] set+1 %hu != %hu", visualstyle->edge_style_ext, edge_style_ext);
-    visualstyle->edge_style_ext--;
+      fail ("VISUALSTYLE.edge_style_int [BS] set+1 %hu != %hu", visualstyle->edge_style_int, edge_style_int);
+    visualstyle->edge_style_int--;
   }
   {
     BITCODE_BS edge_width;
@@ -41871,19 +43179,19 @@ static int test_VISUALSTYLE (const Dwg_Object *obj)
     visualstyle->edge_width--;
   }
   {
-    BITCODE_BS edge_width_ext;
-    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "edge_width_ext", &edge_width_ext, NULL)
-        && edge_width_ext == visualstyle->edge_width_ext)
+    BITCODE_BS edge_width_int;
+    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "edge_width_int", &edge_width_int, NULL)
+        && edge_width_int == visualstyle->edge_width_int)
       pass ();
     else
-      fail ("VISUALSTYLE.edge_width_ext [BS] %hu != %hu", visualstyle->edge_width_ext, edge_width_ext);
-    edge_width_ext++;
-    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "edge_width_ext", &edge_width_ext, 0)
-        && edge_width_ext == visualstyle->edge_width_ext)
+      fail ("VISUALSTYLE.edge_width_int [BS] %hu != %hu", visualstyle->edge_width_int, edge_width_int);
+    edge_width_int++;
+    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "edge_width_int", &edge_width_int, 0)
+        && edge_width_int == visualstyle->edge_width_int)
       pass ();
     else
-      fail ("VISUALSTYLE.edge_width_ext [BS] set+1 %hu != %hu", visualstyle->edge_width_ext, edge_width_ext);
-    visualstyle->edge_width_ext--;
+      fail ("VISUALSTYLE.edge_width_int [BS] set+1 %hu != %hu", visualstyle->edge_width_int, edge_width_int);
+    visualstyle->edge_width_int--;
   }
   {
     BITCODE_BS ext_lighting_model;
@@ -41901,94 +43209,94 @@ static int test_VISUALSTYLE (const Dwg_Object *obj)
     visualstyle->ext_lighting_model--;
   }
   {
-    BITCODE_BS face_color_mode;
+    BITCODE_BL face_color_mode;
     if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "face_color_mode", &face_color_mode, NULL)
         && face_color_mode == visualstyle->face_color_mode)
       pass ();
     else
-      fail ("VISUALSTYLE.face_color_mode [BS] %hu != %hu", visualstyle->face_color_mode, face_color_mode);
+      fail ("VISUALSTYLE.face_color_mode [BL] %u != %u", visualstyle->face_color_mode, face_color_mode);
     face_color_mode++;
     if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "face_color_mode", &face_color_mode, 0)
         && face_color_mode == visualstyle->face_color_mode)
       pass ();
     else
-      fail ("VISUALSTYLE.face_color_mode [BS] set+1 %hu != %hu", visualstyle->face_color_mode, face_color_mode);
+      fail ("VISUALSTYLE.face_color_mode [BL] set+1 %u != %u", visualstyle->face_color_mode, face_color_mode);
     visualstyle->face_color_mode--;
   }
   {
-    BITCODE_BS face_color_mode_ext;
-    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "face_color_mode_ext", &face_color_mode_ext, NULL)
-        && face_color_mode_ext == visualstyle->face_color_mode_ext)
+    BITCODE_BS face_color_mode_int;
+    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "face_color_mode_int", &face_color_mode_int, NULL)
+        && face_color_mode_int == visualstyle->face_color_mode_int)
       pass ();
     else
-      fail ("VISUALSTYLE.face_color_mode_ext [BS] %hu != %hu", visualstyle->face_color_mode_ext, face_color_mode_ext);
-    face_color_mode_ext++;
-    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "face_color_mode_ext", &face_color_mode_ext, 0)
-        && face_color_mode_ext == visualstyle->face_color_mode_ext)
+      fail ("VISUALSTYLE.face_color_mode_int [BS] %hu != %hu", visualstyle->face_color_mode_int, face_color_mode_int);
+    face_color_mode_int++;
+    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "face_color_mode_int", &face_color_mode_int, 0)
+        && face_color_mode_int == visualstyle->face_color_mode_int)
       pass ();
     else
-      fail ("VISUALSTYLE.face_color_mode_ext [BS] set+1 %hu != %hu", visualstyle->face_color_mode_ext, face_color_mode_ext);
-    visualstyle->face_color_mode_ext--;
+      fail ("VISUALSTYLE.face_color_mode_int [BS] set+1 %hu != %hu", visualstyle->face_color_mode_int, face_color_mode_int);
+    visualstyle->face_color_mode_int--;
   }
   {
-    BITCODE_BS face_lighting_model;
+    BITCODE_BL face_lighting_model;
     if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "face_lighting_model", &face_lighting_model, NULL)
         && face_lighting_model == visualstyle->face_lighting_model)
       pass ();
     else
-      fail ("VISUALSTYLE.face_lighting_model [BS] %hu != %hu", visualstyle->face_lighting_model, face_lighting_model);
+      fail ("VISUALSTYLE.face_lighting_model [BL] %u != %u", visualstyle->face_lighting_model, face_lighting_model);
     face_lighting_model++;
     if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "face_lighting_model", &face_lighting_model, 0)
         && face_lighting_model == visualstyle->face_lighting_model)
       pass ();
     else
-      fail ("VISUALSTYLE.face_lighting_model [BS] set+1 %hu != %hu", visualstyle->face_lighting_model, face_lighting_model);
+      fail ("VISUALSTYLE.face_lighting_model [BL] set+1 %u != %u", visualstyle->face_lighting_model, face_lighting_model);
     visualstyle->face_lighting_model--;
   }
   {
-    BITCODE_BS face_lighting_model_ext;
-    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "face_lighting_model_ext", &face_lighting_model_ext, NULL)
-        && face_lighting_model_ext == visualstyle->face_lighting_model_ext)
+    BITCODE_BS face_lighting_model_int;
+    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "face_lighting_model_int", &face_lighting_model_int, NULL)
+        && face_lighting_model_int == visualstyle->face_lighting_model_int)
       pass ();
     else
-      fail ("VISUALSTYLE.face_lighting_model_ext [BS] %hu != %hu", visualstyle->face_lighting_model_ext, face_lighting_model_ext);
-    face_lighting_model_ext++;
-    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "face_lighting_model_ext", &face_lighting_model_ext, 0)
-        && face_lighting_model_ext == visualstyle->face_lighting_model_ext)
+      fail ("VISUALSTYLE.face_lighting_model_int [BS] %hu != %hu", visualstyle->face_lighting_model_int, face_lighting_model_int);
+    face_lighting_model_int++;
+    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "face_lighting_model_int", &face_lighting_model_int, 0)
+        && face_lighting_model_int == visualstyle->face_lighting_model_int)
       pass ();
     else
-      fail ("VISUALSTYLE.face_lighting_model_ext [BS] set+1 %hu != %hu", visualstyle->face_lighting_model_ext, face_lighting_model_ext);
-    visualstyle->face_lighting_model_ext--;
+      fail ("VISUALSTYLE.face_lighting_model_int [BS] set+1 %hu != %hu", visualstyle->face_lighting_model_int, face_lighting_model_int);
+    visualstyle->face_lighting_model_int--;
   }
   {
-    BITCODE_BS face_lighting_quality;
+    BITCODE_BL face_lighting_quality;
     if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "face_lighting_quality", &face_lighting_quality, NULL)
         && face_lighting_quality == visualstyle->face_lighting_quality)
       pass ();
     else
-      fail ("VISUALSTYLE.face_lighting_quality [BS] %hu != %hu", visualstyle->face_lighting_quality, face_lighting_quality);
+      fail ("VISUALSTYLE.face_lighting_quality [BL] %u != %u", visualstyle->face_lighting_quality, face_lighting_quality);
     face_lighting_quality++;
     if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "face_lighting_quality", &face_lighting_quality, 0)
         && face_lighting_quality == visualstyle->face_lighting_quality)
       pass ();
     else
-      fail ("VISUALSTYLE.face_lighting_quality [BS] set+1 %hu != %hu", visualstyle->face_lighting_quality, face_lighting_quality);
+      fail ("VISUALSTYLE.face_lighting_quality [BL] set+1 %u != %u", visualstyle->face_lighting_quality, face_lighting_quality);
     visualstyle->face_lighting_quality--;
   }
   {
-    BITCODE_BS face_lighting_quality_ext;
-    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "face_lighting_quality_ext", &face_lighting_quality_ext, NULL)
-        && face_lighting_quality_ext == visualstyle->face_lighting_quality_ext)
+    BITCODE_BS face_lighting_quality_int;
+    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "face_lighting_quality_int", &face_lighting_quality_int, NULL)
+        && face_lighting_quality_int == visualstyle->face_lighting_quality_int)
       pass ();
     else
-      fail ("VISUALSTYLE.face_lighting_quality_ext [BS] %hu != %hu", visualstyle->face_lighting_quality_ext, face_lighting_quality_ext);
-    face_lighting_quality_ext++;
-    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "face_lighting_quality_ext", &face_lighting_quality_ext, 0)
-        && face_lighting_quality_ext == visualstyle->face_lighting_quality_ext)
+      fail ("VISUALSTYLE.face_lighting_quality_int [BS] %hu != %hu", visualstyle->face_lighting_quality_int, face_lighting_quality_int);
+    face_lighting_quality_int++;
+    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "face_lighting_quality_int", &face_lighting_quality_int, 0)
+        && face_lighting_quality_int == visualstyle->face_lighting_quality_int)
       pass ();
     else
-      fail ("VISUALSTYLE.face_lighting_quality_ext [BS] set+1 %hu != %hu", visualstyle->face_lighting_quality_ext, face_lighting_quality_ext);
-    visualstyle->face_lighting_quality_ext--;
+      fail ("VISUALSTYLE.face_lighting_quality_int [BS] set+1 %hu != %hu", visualstyle->face_lighting_quality_int, face_lighting_quality_int);
+    visualstyle->face_lighting_quality_int--;
   }
   {
     BITCODE_BS face_modifier;
@@ -42006,19 +43314,19 @@ static int test_VISUALSTYLE (const Dwg_Object *obj)
     visualstyle->face_modifier--;
   }
   {
-    BITCODE_BS face_modifier_ext;
-    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "face_modifier_ext", &face_modifier_ext, NULL)
-        && face_modifier_ext == visualstyle->face_modifier_ext)
+    BITCODE_BS face_modifier_int;
+    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "face_modifier_int", &face_modifier_int, NULL)
+        && face_modifier_int == visualstyle->face_modifier_int)
       pass ();
     else
-      fail ("VISUALSTYLE.face_modifier_ext [BS] %hu != %hu", visualstyle->face_modifier_ext, face_modifier_ext);
-    face_modifier_ext++;
-    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "face_modifier_ext", &face_modifier_ext, 0)
-        && face_modifier_ext == visualstyle->face_modifier_ext)
+      fail ("VISUALSTYLE.face_modifier_int [BS] %hu != %hu", visualstyle->face_modifier_int, face_modifier_int);
+    face_modifier_int++;
+    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "face_modifier_int", &face_modifier_int, 0)
+        && face_modifier_int == visualstyle->face_modifier_int)
       pass ();
     else
-      fail ("VISUALSTYLE.face_modifier_ext [BS] set+1 %hu != %hu", visualstyle->face_modifier_ext, face_modifier_ext);
-    visualstyle->face_modifier_ext--;
+      fail ("VISUALSTYLE.face_modifier_int [BS] set+1 %hu != %hu", visualstyle->face_modifier_int, face_modifier_int);
+    visualstyle->face_modifier_int--;
   }
   {
     BITCODE_CMC face_mono_color;
@@ -42029,19 +43337,19 @@ static int test_VISUALSTYLE (const Dwg_Object *obj)
         fail ("VISUALSTYLE.face_mono_color [CMC]");
   }
   {
-    BITCODE_BS face_mono_color_ext;
-    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "face_mono_color_ext", &face_mono_color_ext, NULL)
-        && face_mono_color_ext == visualstyle->face_mono_color_ext)
+    BITCODE_BS face_mono_color_int;
+    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "face_mono_color_int", &face_mono_color_int, NULL)
+        && face_mono_color_int == visualstyle->face_mono_color_int)
       pass ();
     else
-      fail ("VISUALSTYLE.face_mono_color_ext [BS] %hu != %hu", visualstyle->face_mono_color_ext, face_mono_color_ext);
-    face_mono_color_ext++;
-    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "face_mono_color_ext", &face_mono_color_ext, 0)
-        && face_mono_color_ext == visualstyle->face_mono_color_ext)
+      fail ("VISUALSTYLE.face_mono_color_int [BS] %hu != %hu", visualstyle->face_mono_color_int, face_mono_color_int);
+    face_mono_color_int++;
+    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "face_mono_color_int", &face_mono_color_int, 0)
+        && face_mono_color_int == visualstyle->face_mono_color_int)
       pass ();
     else
-      fail ("VISUALSTYLE.face_mono_color_ext [BS] set+1 %hu != %hu", visualstyle->face_mono_color_ext, face_mono_color_ext);
-    visualstyle->face_mono_color_ext--;
+      fail ("VISUALSTYLE.face_mono_color_int [BS] set+1 %hu != %hu", visualstyle->face_mono_color_int, face_mono_color_int);
+    visualstyle->face_mono_color_int--;
   }
   {
     BITCODE_BD face_opacity;
@@ -42059,19 +43367,19 @@ static int test_VISUALSTYLE (const Dwg_Object *obj)
     visualstyle->face_opacity--;
   }
   {
-    BITCODE_BS face_opacity_ext;
-    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "face_opacity_ext", &face_opacity_ext, NULL)
-        && face_opacity_ext == visualstyle->face_opacity_ext)
+    BITCODE_BS face_opacity_int;
+    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "face_opacity_int", &face_opacity_int, NULL)
+        && face_opacity_int == visualstyle->face_opacity_int)
       pass ();
     else
-      fail ("VISUALSTYLE.face_opacity_ext [BS] %hu != %hu", visualstyle->face_opacity_ext, face_opacity_ext);
-    face_opacity_ext++;
-    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "face_opacity_ext", &face_opacity_ext, 0)
-        && face_opacity_ext == visualstyle->face_opacity_ext)
+      fail ("VISUALSTYLE.face_opacity_int [BS] %hu != %hu", visualstyle->face_opacity_int, face_opacity_int);
+    face_opacity_int++;
+    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "face_opacity_int", &face_opacity_int, 0)
+        && face_opacity_int == visualstyle->face_opacity_int)
       pass ();
     else
-      fail ("VISUALSTYLE.face_opacity_ext [BS] set+1 %hu != %hu", visualstyle->face_opacity_ext, face_opacity_ext);
-    visualstyle->face_opacity_ext--;
+      fail ("VISUALSTYLE.face_opacity_int [BS] set+1 %hu != %hu", visualstyle->face_opacity_int, face_opacity_int);
+    visualstyle->face_opacity_int--;
   }
   {
     BITCODE_BD face_specular;
@@ -42089,64 +43397,64 @@ static int test_VISUALSTYLE (const Dwg_Object *obj)
     visualstyle->face_specular--;
   }
   {
-    BITCODE_BS face_specular_ext;
-    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "face_specular_ext", &face_specular_ext, NULL)
-        && face_specular_ext == visualstyle->face_specular_ext)
+    BITCODE_BS face_specular_int;
+    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "face_specular_int", &face_specular_int, NULL)
+        && face_specular_int == visualstyle->face_specular_int)
       pass ();
     else
-      fail ("VISUALSTYLE.face_specular_ext [BS] %hu != %hu", visualstyle->face_specular_ext, face_specular_ext);
-    face_specular_ext++;
-    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "face_specular_ext", &face_specular_ext, 0)
-        && face_specular_ext == visualstyle->face_specular_ext)
+      fail ("VISUALSTYLE.face_specular_int [BS] %hu != %hu", visualstyle->face_specular_int, face_specular_int);
+    face_specular_int++;
+    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "face_specular_int", &face_specular_int, 0)
+        && face_specular_int == visualstyle->face_specular_int)
       pass ();
     else
-      fail ("VISUALSTYLE.face_specular_ext [BS] set+1 %hu != %hu", visualstyle->face_specular_ext, face_specular_ext);
-    visualstyle->face_specular_ext--;
+      fail ("VISUALSTYLE.face_specular_int [BS] set+1 %hu != %hu", visualstyle->face_specular_int, face_specular_int);
+    visualstyle->face_specular_int--;
   }
   {
-    BITCODE_B has_ext;
-    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "has_ext", &has_ext, NULL)
-        && has_ext == visualstyle->has_ext)
+    BITCODE_B int_only;
+    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "int_only", &int_only, NULL)
+        && int_only == visualstyle->int_only)
       pass ();
     else
-      fail ("VISUALSTYLE.has_ext [B] " FORMAT_B " != " FORMAT_B "", visualstyle->has_ext, has_ext);
-    has_ext++;
-    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "has_ext", &has_ext, 0)
-        && has_ext == visualstyle->has_ext)
+      fail ("VISUALSTYLE.int_only [B] " FORMAT_B " != " FORMAT_B "", visualstyle->int_only, int_only);
+    int_only++;
+    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "int_only", &int_only, 0)
+        && int_only == visualstyle->int_only)
       pass ();
     else
-      fail ("VISUALSTYLE.has_ext [B] set+1 " FORMAT_B " != " FORMAT_B "", visualstyle->has_ext, has_ext);
-    visualstyle->has_ext--;
+      fail ("VISUALSTYLE.int_only [B] set+1 " FORMAT_B " != " FORMAT_B "", visualstyle->int_only, int_only);
+    visualstyle->int_only--;
   }
   {
-    BITCODE_BS num_edge_isolines;
-    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "num_edge_isolines", &num_edge_isolines, NULL)
-        && num_edge_isolines == visualstyle->num_edge_isolines)
+    BITCODE_BS numedge_isolines;
+    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "numedge_isolines", &numedge_isolines, NULL)
+        && numedge_isolines == visualstyle->numedge_isolines)
       pass ();
     else
-      fail ("VISUALSTYLE.num_edge_isolines [BS] %hu != %hu", visualstyle->num_edge_isolines, num_edge_isolines);
-    num_edge_isolines++;
-    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "num_edge_isolines", &num_edge_isolines, 0)
-        && num_edge_isolines == visualstyle->num_edge_isolines)
+      fail ("VISUALSTYLE.numedge_isolines [BS] %hu != %hu", visualstyle->numedge_isolines, numedge_isolines);
+    numedge_isolines++;
+    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "numedge_isolines", &numedge_isolines, 0)
+        && numedge_isolines == visualstyle->numedge_isolines)
       pass ();
     else
-      fail ("VISUALSTYLE.num_edge_isolines [BS] set+1 %hu != %hu", visualstyle->num_edge_isolines, num_edge_isolines);
-    visualstyle->num_edge_isolines--;
+      fail ("VISUALSTYLE.numedge_isolines [BS] set+1 %hu != %hu", visualstyle->numedge_isolines, numedge_isolines);
+    visualstyle->numedge_isolines--;
   }
   {
-    BITCODE_BS num_edge_isolines_ext;
-    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "num_edge_isolines_ext", &num_edge_isolines_ext, NULL)
-        && num_edge_isolines_ext == visualstyle->num_edge_isolines_ext)
+    BITCODE_BS numedge_isolines_int;
+    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "numedge_isolines_int", &numedge_isolines_int, NULL)
+        && numedge_isolines_int == visualstyle->numedge_isolines_int)
       pass ();
     else
-      fail ("VISUALSTYLE.num_edge_isolines_ext [BS] %hu != %hu", visualstyle->num_edge_isolines_ext, num_edge_isolines_ext);
-    num_edge_isolines_ext++;
-    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "num_edge_isolines_ext", &num_edge_isolines_ext, 0)
-        && num_edge_isolines_ext == visualstyle->num_edge_isolines_ext)
+      fail ("VISUALSTYLE.numedge_isolines_int [BS] %hu != %hu", visualstyle->numedge_isolines_int, numedge_isolines_int);
+    numedge_isolines_int++;
+    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "numedge_isolines_int", &numedge_isolines_int, 0)
+        && numedge_isolines_int == visualstyle->numedge_isolines_int)
       pass ();
     else
-      fail ("VISUALSTYLE.num_edge_isolines_ext [BS] set+1 %hu != %hu", visualstyle->num_edge_isolines_ext, num_edge_isolines_ext);
-    visualstyle->num_edge_isolines_ext--;
+      fail ("VISUALSTYLE.numedge_isolines_int [BS] set+1 %hu != %hu", visualstyle->numedge_isolines_int, numedge_isolines_int);
+    visualstyle->numedge_isolines_int--;
   }
   {
     struct _dwg_object_object* parent;
@@ -42157,34 +43465,19 @@ static int test_VISUALSTYLE (const Dwg_Object *obj)
         fail ("VISUALSTYLE.parent [struct _dwg_object_object*]");
   }
   {
-    BITCODE_BS style_type;
+    BITCODE_BL style_type;
     if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "style_type", &style_type, NULL)
         && style_type == visualstyle->style_type)
       pass ();
     else
-      fail ("VISUALSTYLE.style_type [BS] %hu != %hu", visualstyle->style_type, style_type);
+      fail ("VISUALSTYLE.style_type [BL] %u != %u", visualstyle->style_type, style_type);
     style_type++;
     if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "style_type", &style_type, 0)
         && style_type == visualstyle->style_type)
       pass ();
     else
-      fail ("VISUALSTYLE.style_type [BS] set+1 %hu != %hu", visualstyle->style_type, style_type);
+      fail ("VISUALSTYLE.style_type [BL] set+1 %u != %u", visualstyle->style_type, style_type);
     visualstyle->style_type--;
-  }
-  {
-    BITCODE_B unknown_b;
-    if (dwg_dynapi_entity_value (visualstyle, "VISUALSTYLE", "unknown_b", &unknown_b, NULL)
-        && unknown_b == visualstyle->unknown_b)
-      pass ();
-    else
-      fail ("VISUALSTYLE.unknown_b [B] " FORMAT_B " != " FORMAT_B "", visualstyle->unknown_b, unknown_b);
-    unknown_b++;
-    if (dwg_dynapi_entity_set_value (visualstyle, "VISUALSTYLE", "unknown_b", &unknown_b, 0)
-        && unknown_b == visualstyle->unknown_b)
-      pass ();
-    else
-      fail ("VISUALSTYLE.unknown_b [B] set+1 " FORMAT_B " != " FORMAT_B "", visualstyle->unknown_b, unknown_b);
-    visualstyle->unknown_b--;
   }
   {
     BITCODE_BD unknown_float45;
@@ -42533,18 +43826,18 @@ static int test_VPORT (const Dwg_Object *obj)
     vport->default_lightning_type--;
   }
   {
-    BITCODE_RC flag;
+    BITCODE_RS flag;
     if (dwg_dynapi_entity_value (vport, "VPORT", "flag", &flag, NULL)
         && flag == vport->flag)
       pass ();
     else
-      fail ("VPORT.flag [RC] %u != %u", vport->flag, flag);
+      fail ("VPORT.flag [RS] %hu != %hu", vport->flag, flag);
     flag++;
     if (dwg_dynapi_entity_set_value (vport, "VPORT", "flag", &flag, 0)
         && flag == vport->flag)
       pass ();
     else
-      fail ("VPORT.flag [RC] set+1 %u != %u", vport->flag, flag);
+      fail ("VPORT.flag [RS] set+1 %hu != %hu", vport->flag, flag);
     vport->flag--;
   }
   {
@@ -42593,6 +43886,51 @@ static int test_VPORT (const Dwg_Object *obj)
     vport->grid_major--;
   }
   {
+    BITCODE_B is_xref_dep;
+    if (dwg_dynapi_entity_value (vport, "VPORT", "is_xref_dep", &is_xref_dep, NULL)
+        && is_xref_dep == vport->is_xref_dep)
+      pass ();
+    else
+      fail ("VPORT.is_xref_dep [B] " FORMAT_B " != " FORMAT_B "", vport->is_xref_dep, is_xref_dep);
+    is_xref_dep++;
+    if (dwg_dynapi_entity_set_value (vport, "VPORT", "is_xref_dep", &is_xref_dep, 0)
+        && is_xref_dep == vport->is_xref_dep)
+      pass ();
+    else
+      fail ("VPORT.is_xref_dep [B] set+1 " FORMAT_B " != " FORMAT_B "", vport->is_xref_dep, is_xref_dep);
+    vport->is_xref_dep--;
+  }
+  {
+    BITCODE_B is_xref_ref;
+    if (dwg_dynapi_entity_value (vport, "VPORT", "is_xref_ref", &is_xref_ref, NULL)
+        && is_xref_ref == vport->is_xref_ref)
+      pass ();
+    else
+      fail ("VPORT.is_xref_ref [B] " FORMAT_B " != " FORMAT_B "", vport->is_xref_ref, is_xref_ref);
+    is_xref_ref++;
+    if (dwg_dynapi_entity_set_value (vport, "VPORT", "is_xref_ref", &is_xref_ref, 0)
+        && is_xref_ref == vport->is_xref_ref)
+      pass ();
+    else
+      fail ("VPORT.is_xref_ref [B] set+1 " FORMAT_B " != " FORMAT_B "", vport->is_xref_ref, is_xref_ref);
+    vport->is_xref_ref--;
+  }
+  {
+    BITCODE_BS is_xref_resolved;
+    if (dwg_dynapi_entity_value (vport, "VPORT", "is_xref_resolved", &is_xref_resolved, NULL)
+        && is_xref_resolved == vport->is_xref_resolved)
+      pass ();
+    else
+      fail ("VPORT.is_xref_resolved [BS] %hu != %hu", vport->is_xref_resolved, is_xref_resolved);
+    is_xref_resolved++;
+    if (dwg_dynapi_entity_set_value (vport, "VPORT", "is_xref_resolved", &is_xref_resolved, 0)
+        && is_xref_resolved == vport->is_xref_resolved)
+      pass ();
+    else
+      fail ("VPORT.is_xref_resolved [BS] set+1 %hu != %hu", vport->is_xref_resolved, is_xref_resolved);
+    vport->is_xref_resolved--;
+  }
+  {
     BITCODE_BD lens_length;
     if (dwg_dynapi_entity_value (vport, "VPORT", "lens_length", &lens_length, NULL)
         && lens_length == vport->lens_length)
@@ -42632,14 +43970,6 @@ static int test_VPORT (const Dwg_Object *obj)
         pass ();
     else
         fail ("VPORT.named_ucs [H]");
-  }
-  {
-    BITCODE_H null_handle;
-    if (dwg_dynapi_entity_value (vport, "VPORT", "null_handle", &null_handle, NULL)
-        && !memcmp (&null_handle, &vport->null_handle, sizeof (vport->null_handle)))
-        pass ();
-    else
-        fail ("VPORT.null_handle [H]");
   }
   {
     struct _dwg_object_object* parent;
@@ -42826,49 +44156,12 @@ static int test_VPORT (const Dwg_Object *obj)
         fail ("VPORT.visualstyle [H]");
   }
   {
-    BITCODE_B xrefdep;
-    if (dwg_dynapi_entity_value (vport, "VPORT", "xrefdep", &xrefdep, NULL)
-        && xrefdep == vport->xrefdep)
-      pass ();
+    BITCODE_H xref;
+    if (dwg_dynapi_entity_value (vport, "VPORT", "xref", &xref, NULL)
+        && !memcmp (&xref, &vport->xref, sizeof (vport->xref)))
+        pass ();
     else
-      fail ("VPORT.xrefdep [B] " FORMAT_B " != " FORMAT_B "", vport->xrefdep, xrefdep);
-    xrefdep++;
-    if (dwg_dynapi_entity_set_value (vport, "VPORT", "xrefdep", &xrefdep, 0)
-        && xrefdep == vport->xrefdep)
-      pass ();
-    else
-      fail ("VPORT.xrefdep [B] set+1 " FORMAT_B " != " FORMAT_B "", vport->xrefdep, xrefdep);
-    vport->xrefdep--;
-  }
-  {
-    BITCODE_BS xrefindex_plus1;
-    if (dwg_dynapi_entity_value (vport, "VPORT", "xrefindex_plus1", &xrefindex_plus1, NULL)
-        && xrefindex_plus1 == vport->xrefindex_plus1)
-      pass ();
-    else
-      fail ("VPORT.xrefindex_plus1 [BS] %hu != %hu", vport->xrefindex_plus1, xrefindex_plus1);
-    xrefindex_plus1++;
-    if (dwg_dynapi_entity_set_value (vport, "VPORT", "xrefindex_plus1", &xrefindex_plus1, 0)
-        && xrefindex_plus1 == vport->xrefindex_plus1)
-      pass ();
-    else
-      fail ("VPORT.xrefindex_plus1 [BS] set+1 %hu != %hu", vport->xrefindex_plus1, xrefindex_plus1);
-    vport->xrefindex_plus1--;
-  }
-  {
-    BITCODE_B xrefref;
-    if (dwg_dynapi_entity_value (vport, "VPORT", "xrefref", &xrefref, NULL)
-        && xrefref == vport->xrefref)
-      pass ();
-    else
-      fail ("VPORT.xrefref [B] " FORMAT_B " != " FORMAT_B "", vport->xrefref, xrefref);
-    xrefref++;
-    if (dwg_dynapi_entity_set_value (vport, "VPORT", "xrefref", &xrefref, 0)
-        && xrefref == vport->xrefref)
-      pass ();
-    else
-      fail ("VPORT.xrefref [B] set+1 " FORMAT_B " != " FORMAT_B "", vport->xrefref, xrefref);
-    vport->xrefref--;
+        fail ("VPORT.xref [H]");
   }
   if (failed && (is_class_unstable ("VPORT") || is_class_debugging ("VPORT")))
     {
@@ -43006,18 +44299,18 @@ static int test_VPORT_ENTITY_HEADER (const Dwg_Object *obj)
   Dwg_Object_VPORT_ENTITY_HEADER *restrict vport_entity_header = obj->tio.object->tio.VPORT_ENTITY_HEADER;
   failed = 0;
   {
-    BITCODE_RC flag;
+    BITCODE_RS flag;
     if (dwg_dynapi_entity_value (vport_entity_header, "VPORT_ENTITY_HEADER", "flag", &flag, NULL)
         && flag == vport_entity_header->flag)
       pass ();
     else
-      fail ("VPORT_ENTITY_HEADER.flag [RC] %u != %u", vport_entity_header->flag, flag);
+      fail ("VPORT_ENTITY_HEADER.flag [RS] %hu != %hu", vport_entity_header->flag, flag);
     flag++;
     if (dwg_dynapi_entity_set_value (vport_entity_header, "VPORT_ENTITY_HEADER", "flag", &flag, 0)
         && flag == vport_entity_header->flag)
       pass ();
     else
-      fail ("VPORT_ENTITY_HEADER.flag [RC] set+1 %u != %u", vport_entity_header->flag, flag);
+      fail ("VPORT_ENTITY_HEADER.flag [RS] set+1 %hu != %hu", vport_entity_header->flag, flag);
     vport_entity_header->flag--;
   }
   {
@@ -43036,6 +44329,51 @@ static int test_VPORT_ENTITY_HEADER (const Dwg_Object *obj)
     vport_entity_header->flag1--;
   }
   {
+    BITCODE_B is_xref_dep;
+    if (dwg_dynapi_entity_value (vport_entity_header, "VPORT_ENTITY_HEADER", "is_xref_dep", &is_xref_dep, NULL)
+        && is_xref_dep == vport_entity_header->is_xref_dep)
+      pass ();
+    else
+      fail ("VPORT_ENTITY_HEADER.is_xref_dep [B] " FORMAT_B " != " FORMAT_B "", vport_entity_header->is_xref_dep, is_xref_dep);
+    is_xref_dep++;
+    if (dwg_dynapi_entity_set_value (vport_entity_header, "VPORT_ENTITY_HEADER", "is_xref_dep", &is_xref_dep, 0)
+        && is_xref_dep == vport_entity_header->is_xref_dep)
+      pass ();
+    else
+      fail ("VPORT_ENTITY_HEADER.is_xref_dep [B] set+1 " FORMAT_B " != " FORMAT_B "", vport_entity_header->is_xref_dep, is_xref_dep);
+    vport_entity_header->is_xref_dep--;
+  }
+  {
+    BITCODE_B is_xref_ref;
+    if (dwg_dynapi_entity_value (vport_entity_header, "VPORT_ENTITY_HEADER", "is_xref_ref", &is_xref_ref, NULL)
+        && is_xref_ref == vport_entity_header->is_xref_ref)
+      pass ();
+    else
+      fail ("VPORT_ENTITY_HEADER.is_xref_ref [B] " FORMAT_B " != " FORMAT_B "", vport_entity_header->is_xref_ref, is_xref_ref);
+    is_xref_ref++;
+    if (dwg_dynapi_entity_set_value (vport_entity_header, "VPORT_ENTITY_HEADER", "is_xref_ref", &is_xref_ref, 0)
+        && is_xref_ref == vport_entity_header->is_xref_ref)
+      pass ();
+    else
+      fail ("VPORT_ENTITY_HEADER.is_xref_ref [B] set+1 " FORMAT_B " != " FORMAT_B "", vport_entity_header->is_xref_ref, is_xref_ref);
+    vport_entity_header->is_xref_ref--;
+  }
+  {
+    BITCODE_BS is_xref_resolved;
+    if (dwg_dynapi_entity_value (vport_entity_header, "VPORT_ENTITY_HEADER", "is_xref_resolved", &is_xref_resolved, NULL)
+        && is_xref_resolved == vport_entity_header->is_xref_resolved)
+      pass ();
+    else
+      fail ("VPORT_ENTITY_HEADER.is_xref_resolved [BS] %hu != %hu", vport_entity_header->is_xref_resolved, is_xref_resolved);
+    is_xref_resolved++;
+    if (dwg_dynapi_entity_set_value (vport_entity_header, "VPORT_ENTITY_HEADER", "is_xref_resolved", &is_xref_resolved, 0)
+        && is_xref_resolved == vport_entity_header->is_xref_resolved)
+      pass ();
+    else
+      fail ("VPORT_ENTITY_HEADER.is_xref_resolved [BS] set+1 %hu != %hu", vport_entity_header->is_xref_resolved, is_xref_resolved);
+    vport_entity_header->is_xref_resolved--;
+  }
+  {
     BITCODE_TV name;
     if (dwg_dynapi_entity_value (vport_entity_header, "VPORT_ENTITY_HEADER", "name", &name, NULL)
         && name
@@ -43044,6 +44382,21 @@ static int test_VPORT_ENTITY_HEADER (const Dwg_Object *obj)
       pass ();
     else
       fail ("VPORT_ENTITY_HEADER.name [TV] '%s' <> '%s'", name, vport_entity_header->name);
+  }
+  {
+    BITCODE_BL num_viewports;
+    if (dwg_dynapi_entity_value (vport_entity_header, "VPORT_ENTITY_HEADER", "num_viewports", &num_viewports, NULL)
+        && num_viewports == vport_entity_header->num_viewports)
+      pass ();
+    else
+      fail ("VPORT_ENTITY_HEADER.num_viewports [BL] %u != %u", vport_entity_header->num_viewports, num_viewports);
+    num_viewports++;
+    if (dwg_dynapi_entity_set_value (vport_entity_header, "VPORT_ENTITY_HEADER", "num_viewports", &num_viewports, 0)
+        && num_viewports == vport_entity_header->num_viewports)
+      pass ();
+    else
+      fail ("VPORT_ENTITY_HEADER.num_viewports [BL] set+1 %u != %u", vport_entity_header->num_viewports, num_viewports);
+    vport_entity_header->num_viewports--;
   }
   {
     struct _dwg_object_object* parent;
@@ -43069,65 +44422,22 @@ static int test_VPORT_ENTITY_HEADER (const Dwg_Object *obj)
     vport_entity_header->used--;
   }
   {
-    BITCODE_H vport_entity;
-    if (dwg_dynapi_entity_value (vport_entity_header, "VPORT_ENTITY_HEADER", "vport_entity", &vport_entity, NULL)
-        && !memcmp (&vport_entity, &vport_entity_header->vport_entity, sizeof (vport_entity_header->vport_entity)))
+    BITCODE_H* viewports;
+    BITCODE_BL count = 0;
+    if (dwg_dynapi_entity_value (vport_entity_header, "VPORT_ENTITY_HEADER", "num_viewports", &count, NULL)
+        && dwg_dynapi_entity_value (vport_entity_header, "VPORT_ENTITY_HEADER", "viewports", &viewports, NULL)
+        && viewports == vport_entity_header->viewports)
+      pass ();
+    else
+      fail ("VPORT_ENTITY_HEADER.viewports [H*] * %u num_viewports", count);
+  }
+  {
+    BITCODE_H xref;
+    if (dwg_dynapi_entity_value (vport_entity_header, "VPORT_ENTITY_HEADER", "xref", &xref, NULL)
+        && !memcmp (&xref, &vport_entity_header->xref, sizeof (vport_entity_header->xref)))
         pass ();
     else
-        fail ("VPORT_ENTITY_HEADER.vport_entity [H]");
-  }
-  {
-    BITCODE_H xref_handle;
-    if (dwg_dynapi_entity_value (vport_entity_header, "VPORT_ENTITY_HEADER", "xref_handle", &xref_handle, NULL)
-        && !memcmp (&xref_handle, &vport_entity_header->xref_handle, sizeof (vport_entity_header->xref_handle)))
-        pass ();
-    else
-        fail ("VPORT_ENTITY_HEADER.xref_handle [H]");
-  }
-  {
-    BITCODE_B xrefdep;
-    if (dwg_dynapi_entity_value (vport_entity_header, "VPORT_ENTITY_HEADER", "xrefdep", &xrefdep, NULL)
-        && xrefdep == vport_entity_header->xrefdep)
-      pass ();
-    else
-      fail ("VPORT_ENTITY_HEADER.xrefdep [B] " FORMAT_B " != " FORMAT_B "", vport_entity_header->xrefdep, xrefdep);
-    xrefdep++;
-    if (dwg_dynapi_entity_set_value (vport_entity_header, "VPORT_ENTITY_HEADER", "xrefdep", &xrefdep, 0)
-        && xrefdep == vport_entity_header->xrefdep)
-      pass ();
-    else
-      fail ("VPORT_ENTITY_HEADER.xrefdep [B] set+1 " FORMAT_B " != " FORMAT_B "", vport_entity_header->xrefdep, xrefdep);
-    vport_entity_header->xrefdep--;
-  }
-  {
-    BITCODE_BS xrefindex_plus1;
-    if (dwg_dynapi_entity_value (vport_entity_header, "VPORT_ENTITY_HEADER", "xrefindex_plus1", &xrefindex_plus1, NULL)
-        && xrefindex_plus1 == vport_entity_header->xrefindex_plus1)
-      pass ();
-    else
-      fail ("VPORT_ENTITY_HEADER.xrefindex_plus1 [BS] %hu != %hu", vport_entity_header->xrefindex_plus1, xrefindex_plus1);
-    xrefindex_plus1++;
-    if (dwg_dynapi_entity_set_value (vport_entity_header, "VPORT_ENTITY_HEADER", "xrefindex_plus1", &xrefindex_plus1, 0)
-        && xrefindex_plus1 == vport_entity_header->xrefindex_plus1)
-      pass ();
-    else
-      fail ("VPORT_ENTITY_HEADER.xrefindex_plus1 [BS] set+1 %hu != %hu", vport_entity_header->xrefindex_plus1, xrefindex_plus1);
-    vport_entity_header->xrefindex_plus1--;
-  }
-  {
-    BITCODE_B xrefref;
-    if (dwg_dynapi_entity_value (vport_entity_header, "VPORT_ENTITY_HEADER", "xrefref", &xrefref, NULL)
-        && xrefref == vport_entity_header->xrefref)
-      pass ();
-    else
-      fail ("VPORT_ENTITY_HEADER.xrefref [B] " FORMAT_B " != " FORMAT_B "", vport_entity_header->xrefref, xrefref);
-    xrefref++;
-    if (dwg_dynapi_entity_set_value (vport_entity_header, "VPORT_ENTITY_HEADER", "xrefref", &xrefref, 0)
-        && xrefref == vport_entity_header->xrefref)
-      pass ();
-    else
-      fail ("VPORT_ENTITY_HEADER.xrefref [B] set+1 " FORMAT_B " != " FORMAT_B "", vport_entity_header->xrefref, xrefref);
-    vport_entity_header->xrefref--;
+        fail ("VPORT_ENTITY_HEADER.xref [H]");
   }
   if (failed && (is_class_unstable ("VPORT_ENTITY_HEADER") || is_class_debugging ("VPORT_ENTITY_HEADER")))
     {
@@ -43279,7 +44589,7 @@ static int
 test_object (const Dwg_Data *restrict dwg, const Dwg_Object *restrict obj)
 {
   int error = 0;
-#line 43282 "dynapi_test.c"
+#line 45260 "dynapi_test.c"
   /* @@for if_test_OBJECT@@ */
   if (obj->fixedtype == DWG_TYPE__3DFACE)
     error += test__3DFACE(obj);
@@ -43289,6 +44599,8 @@ test_object (const Dwg_Data *restrict dwg, const Dwg_Object *restrict obj)
     error += test_ARC(obj);
   else  if (obj->fixedtype == DWG_TYPE_ARC_DIMENSION)
     error += test_ARC_DIMENSION(obj);
+  else  if (obj->fixedtype == DWG_TYPE_ATEXT)
+    error += test_ATEXT(obj);
   else  if (obj->fixedtype == DWG_TYPE_ATTDEF)
     error += test_ATTDEF(obj);
   else  if (obj->fixedtype == DWG_TYPE_ATTRIB)
@@ -43353,6 +44665,8 @@ test_object (const Dwg_Data *restrict dwg, const Dwg_Object *restrict obj)
     error += test_MULTILEADER(obj);
   else  if (obj->fixedtype == DWG_TYPE_NAVISWORKSMODEL)
     error += test_NAVISWORKSMODEL(obj);
+  else  if (obj->fixedtype == DWG_TYPE_NURBSURFACE)
+    error += test_NURBSURFACE(obj);
   else  if (obj->fixedtype == DWG_TYPE_OLE2FRAME)
     error += test_OLE2FRAME(obj);
   else  if (obj->fixedtype == DWG_TYPE_OLEFRAME)
@@ -43377,6 +44691,8 @@ test_object (const Dwg_Data *restrict dwg, const Dwg_Object *restrict obj)
     error += test_REGION(obj);
   else  if (obj->fixedtype == DWG_TYPE_REVOLVEDSURFACE)
     error += test_REVOLVEDSURFACE(obj);
+  else  if (obj->fixedtype == DWG_TYPE_RTEXT)
+    error += test_RTEXT(obj);
   else  if (obj->fixedtype == DWG_TYPE_SECTIONOBJECT)
     error += test_SECTIONOBJECT(obj);
   else  if (obj->fixedtype == DWG_TYPE_SEQEND)
@@ -43473,6 +44789,8 @@ test_object (const Dwg_Data *restrict dwg, const Dwg_Object *restrict obj)
     error += test_CELLSTYLEMAP(obj);
   else  if (obj->fixedtype == DWG_TYPE_CSACDOCUMENTOPTIONS)
     error += test_CSACDOCUMENTOPTIONS(obj);
+  else  if (obj->fixedtype == DWG_TYPE_CURVEPATH)
+    error += test_CURVEPATH(obj);
   else  if (obj->fixedtype == DWG_TYPE_DATALINK)
     error += test_DATALINK(obj);
   else  if (obj->fixedtype == DWG_TYPE_DATATABLE)
@@ -43547,6 +44865,8 @@ test_object (const Dwg_Data *restrict dwg, const Dwg_Object *restrict obj)
     error += test_MLEADERSTYLE(obj);
   else  if (obj->fixedtype == DWG_TYPE_MLINESTYLE)
     error += test_MLINESTYLE(obj);
+  else  if (obj->fixedtype == DWG_TYPE_MOTIONPATH)
+    error += test_MOTIONPATH(obj);
   else  if (obj->fixedtype == DWG_TYPE_MTEXTATTRIBUTEOBJECTCONTEXTDATA)
     error += test_MTEXTATTRIBUTEOBJECTCONTEXTDATA(obj);
   else  if (obj->fixedtype == DWG_TYPE_MTEXTOBJECTCONTEXTDATA)
@@ -43555,22 +44875,28 @@ test_object (const Dwg_Data *restrict dwg, const Dwg_Object *restrict obj)
     error += test_NAVISWORKSMODELDEF(obj);
   else  if (obj->fixedtype == DWG_TYPE_OBJECT_PTR)
     error += test_OBJECT_PTR(obj);
-  else  if (obj->fixedtype == DWG_TYPE_PERSSUBENTMANAGER)
-    error += test_PERSSUBENTMANAGER(obj);
+  else  if (obj->fixedtype == DWG_TYPE_PERSUBENTMGR)
+    error += test_PERSUBENTMGR(obj);
   else  if (obj->fixedtype == DWG_TYPE_PLACEHOLDER)
     error += test_PLACEHOLDER(obj);
   else  if (obj->fixedtype == DWG_TYPE_PLOTSETTINGS)
     error += test_PLOTSETTINGS(obj);
+  else  if (obj->fixedtype == DWG_TYPE_POINTPATH)
+    error += test_POINTPATH(obj);
   else  if (obj->fixedtype == DWG_TYPE_PROXY_OBJECT)
     error += test_PROXY_OBJECT(obj);
   else  if (obj->fixedtype == DWG_TYPE_RAPIDRTRENDERSETTINGS)
     error += test_RAPIDRTRENDERSETTINGS(obj);
   else  if (obj->fixedtype == DWG_TYPE_RASTERVARIABLES)
     error += test_RASTERVARIABLES(obj);
+  else  if (obj->fixedtype == DWG_TYPE_RENDERENTRY)
+    error += test_RENDERENTRY(obj);
   else  if (obj->fixedtype == DWG_TYPE_RENDERENVIRONMENT)
     error += test_RENDERENVIRONMENT(obj);
   else  if (obj->fixedtype == DWG_TYPE_RENDERGLOBAL)
     error += test_RENDERGLOBAL(obj);
+  else  if (obj->fixedtype == DWG_TYPE_RENDERSETTINGS)
+    error += test_RENDERSETTINGS(obj);
   else  if (obj->fixedtype == DWG_TYPE_SCALE)
     error += test_SCALE(obj);
   else  if (obj->fixedtype == DWG_TYPE_SECTIONVIEWSTYLE)
@@ -43601,6 +44927,8 @@ test_object (const Dwg_Data *restrict dwg, const Dwg_Object *restrict obj)
     error += test_TABLESTYLE(obj);
   else  if (obj->fixedtype == DWG_TYPE_TEXTOBJECTCONTEXTDATA)
     error += test_TEXTOBJECTCONTEXTDATA(obj);
+  else  if (obj->fixedtype == DWG_TYPE_TVDEVICEPROPERTIES)
+    error += test_TVDEVICEPROPERTIES(obj);
   else  if (obj->fixedtype == DWG_TYPE_UCS)
     error += test_UCS(obj);
   else  if (obj->fixedtype == DWG_TYPE_UCS_CONTROL)
@@ -43635,6 +44963,8 @@ test_object (const Dwg_Data *restrict dwg, const Dwg_Object *restrict obj)
     error += test_ARC (obj);
   else  if (obj->fixedtype == DWG_TYPE_ARC_DIMENSION)
     error += test_ARC_DIMENSION (obj);
+  else  if (obj->fixedtype == DWG_TYPE_ATEXT)
+    error += test_ATEXT (obj);
   else  if (obj->fixedtype == DWG_TYPE_ATTDEF)
     error += test_ATTDEF (obj);
   else  if (obj->fixedtype == DWG_TYPE_ATTRIB)
@@ -43699,6 +45029,8 @@ test_object (const Dwg_Data *restrict dwg, const Dwg_Object *restrict obj)
     error += test_MULTILEADER (obj);
   else  if (obj->fixedtype == DWG_TYPE_NAVISWORKSMODEL)
     error += test_NAVISWORKSMODEL (obj);
+  else  if (obj->fixedtype == DWG_TYPE_NURBSURFACE)
+    error += test_NURBSURFACE (obj);
   else  if (obj->fixedtype == DWG_TYPE_OLE2FRAME)
     error += test_OLE2FRAME (obj);
   else  if (obj->fixedtype == DWG_TYPE_OLEFRAME)
@@ -43723,6 +45055,8 @@ test_object (const Dwg_Data *restrict dwg, const Dwg_Object *restrict obj)
     error += test_REGION (obj);
   else  if (obj->fixedtype == DWG_TYPE_REVOLVEDSURFACE)
     error += test_REVOLVEDSURFACE (obj);
+  else  if (obj->fixedtype == DWG_TYPE_RTEXT)
+    error += test_RTEXT (obj);
   else  if (obj->fixedtype == DWG_TYPE_SECTIONOBJECT)
     error += test_SECTIONOBJECT (obj);
   else  if (obj->fixedtype == DWG_TYPE_SEQEND)
@@ -43819,6 +45153,8 @@ test_object (const Dwg_Data *restrict dwg, const Dwg_Object *restrict obj)
     error += test_CELLSTYLEMAP (obj);
   else  if (obj->fixedtype == DWG_TYPE_CSACDOCUMENTOPTIONS)
     error += test_CSACDOCUMENTOPTIONS (obj);
+  else  if (obj->fixedtype == DWG_TYPE_CURVEPATH)
+    error += test_CURVEPATH (obj);
   else  if (obj->fixedtype == DWG_TYPE_DATALINK)
     error += test_DATALINK (obj);
   else  if (obj->fixedtype == DWG_TYPE_DATATABLE)
@@ -43893,6 +45229,8 @@ test_object (const Dwg_Data *restrict dwg, const Dwg_Object *restrict obj)
     error += test_MLEADERSTYLE (obj);
   else  if (obj->fixedtype == DWG_TYPE_MLINESTYLE)
     error += test_MLINESTYLE (obj);
+  else  if (obj->fixedtype == DWG_TYPE_MOTIONPATH)
+    error += test_MOTIONPATH (obj);
   else  if (obj->fixedtype == DWG_TYPE_MTEXTATTRIBUTEOBJECTCONTEXTDATA)
     error += test_MTEXTATTRIBUTEOBJECTCONTEXTDATA (obj);
   else  if (obj->fixedtype == DWG_TYPE_MTEXTOBJECTCONTEXTDATA)
@@ -43901,22 +45239,28 @@ test_object (const Dwg_Data *restrict dwg, const Dwg_Object *restrict obj)
     error += test_NAVISWORKSMODELDEF (obj);
   else  if (obj->fixedtype == DWG_TYPE_OBJECT_PTR)
     error += test_OBJECT_PTR (obj);
-  else  if (obj->fixedtype == DWG_TYPE_PERSSUBENTMANAGER)
-    error += test_PERSSUBENTMANAGER (obj);
+  else  if (obj->fixedtype == DWG_TYPE_PERSUBENTMGR)
+    error += test_PERSUBENTMGR (obj);
   else  if (obj->fixedtype == DWG_TYPE_PLACEHOLDER)
     error += test_PLACEHOLDER (obj);
   else  if (obj->fixedtype == DWG_TYPE_PLOTSETTINGS)
     error += test_PLOTSETTINGS (obj);
+  else  if (obj->fixedtype == DWG_TYPE_POINTPATH)
+    error += test_POINTPATH (obj);
   else  if (obj->fixedtype == DWG_TYPE_PROXY_OBJECT)
     error += test_PROXY_OBJECT (obj);
   else  if (obj->fixedtype == DWG_TYPE_RAPIDRTRENDERSETTINGS)
     error += test_RAPIDRTRENDERSETTINGS (obj);
   else  if (obj->fixedtype == DWG_TYPE_RASTERVARIABLES)
     error += test_RASTERVARIABLES (obj);
+  else  if (obj->fixedtype == DWG_TYPE_RENDERENTRY)
+    error += test_RENDERENTRY (obj);
   else  if (obj->fixedtype == DWG_TYPE_RENDERENVIRONMENT)
     error += test_RENDERENVIRONMENT (obj);
   else  if (obj->fixedtype == DWG_TYPE_RENDERGLOBAL)
     error += test_RENDERGLOBAL (obj);
+  else  if (obj->fixedtype == DWG_TYPE_RENDERSETTINGS)
+    error += test_RENDERSETTINGS (obj);
   else  if (obj->fixedtype == DWG_TYPE_SCALE)
     error += test_SCALE (obj);
   else  if (obj->fixedtype == DWG_TYPE_SECTIONVIEWSTYLE)
@@ -43947,6 +45291,8 @@ test_object (const Dwg_Data *restrict dwg, const Dwg_Object *restrict obj)
     error += test_TABLESTYLE (obj);
   else  if (obj->fixedtype == DWG_TYPE_TEXTOBJECTCONTEXTDATA)
     error += test_TEXTOBJECTCONTEXTDATA (obj);
+  else  if (obj->fixedtype == DWG_TYPE_TVDEVICEPROPERTIES)
+    error += test_TVDEVICEPROPERTIES (obj);
   else  if (obj->fixedtype == DWG_TYPE_UCS)
     error += test_UCS (obj);
   else  if (obj->fixedtype == DWG_TYPE_UCS_CONTROL)
@@ -43983,7 +45329,7 @@ test_sizes (void)
 {
   int error = 0;
   int size1, size2;
-#line 43986 "dynapi_test.c"
+#line 46000 "dynapi_test.c"
   /* @@for test_SIZES@@ */
   size1 = sizeof (Dwg_Entity__3DFACE);
   size2 = dwg_dynapi_fields_size ("3DFACE");
@@ -44015,6 +45361,14 @@ test_sizes (void)
     {
       fprintf (stderr, "sizeof(Dwg_Entity_ARC_DIMENSION): %d != "
                "dwg_dynapi_fields_size (\"ARC_DIMENSION\"): %d\n", size1, size2);
+      error++;
+    }
+  size1 = sizeof (Dwg_Entity_ATEXT);
+  size2 = dwg_dynapi_fields_size ("ATEXT");
+  if (size1 != size2)
+    {
+      fprintf (stderr, "sizeof(Dwg_Entity_ATEXT): %d != "
+               "dwg_dynapi_fields_size (\"ATEXT\"): %d\n", size1, size2);
       error++;
     }
   size1 = sizeof (Dwg_Entity_ATTDEF);
@@ -44273,6 +45627,14 @@ test_sizes (void)
                "dwg_dynapi_fields_size (\"NAVISWORKSMODEL\"): %d\n", size1, size2);
       error++;
     }
+  size1 = sizeof (Dwg_Entity_NURBSURFACE);
+  size2 = dwg_dynapi_fields_size ("NURBSURFACE");
+  if (size1 != size2)
+    {
+      fprintf (stderr, "sizeof(Dwg_Entity_NURBSURFACE): %d != "
+               "dwg_dynapi_fields_size (\"NURBSURFACE\"): %d\n", size1, size2);
+      error++;
+    }
   size1 = sizeof (Dwg_Entity_OLE2FRAME);
   size2 = dwg_dynapi_fields_size ("OLE2FRAME");
   if (size1 != size2)
@@ -44377,6 +45739,14 @@ test_sizes (void)
     {
       fprintf (stderr, "sizeof(Dwg_Entity_REVOLVEDSURFACE): %d != "
                "dwg_dynapi_fields_size (\"REVOLVEDSURFACE\"): %d\n", size1, size2);
+      error++;
+    }
+  size1 = sizeof (Dwg_Entity_RTEXT);
+  size2 = dwg_dynapi_fields_size ("RTEXT");
+  if (size1 != size2)
+    {
+      fprintf (stderr, "sizeof(Dwg_Entity_RTEXT): %d != "
+               "dwg_dynapi_fields_size (\"RTEXT\"): %d\n", size1, size2);
       error++;
     }
   size1 = sizeof (Dwg_Entity_SECTIONOBJECT);
@@ -44771,6 +46141,14 @@ test_sizes (void)
                "dwg_dynapi_fields_size (\"CSACDOCUMENTOPTIONS\"): %d\n", size1, size2);
       error++;
     }
+  size1 = sizeof (struct _dwg_object_CURVEPATH);
+  size2 = dwg_dynapi_fields_size ("CURVEPATH");
+  if (size1 != size2)
+    {
+      fprintf (stderr, "sizeof(struct _dwg_object_CURVEPATH): %d != "
+               "dwg_dynapi_fields_size (\"CURVEPATH\"): %d\n", size1, size2);
+      error++;
+    }
   size1 = sizeof (struct _dwg_object_DATALINK);
   size2 = dwg_dynapi_fields_size ("DATALINK");
   if (size1 != size2)
@@ -45067,6 +46445,14 @@ test_sizes (void)
                "dwg_dynapi_fields_size (\"MLINESTYLE\"): %d\n", size1, size2);
       error++;
     }
+  size1 = sizeof (struct _dwg_object_MOTIONPATH);
+  size2 = dwg_dynapi_fields_size ("MOTIONPATH");
+  if (size1 != size2)
+    {
+      fprintf (stderr, "sizeof(struct _dwg_object_MOTIONPATH): %d != "
+               "dwg_dynapi_fields_size (\"MOTIONPATH\"): %d\n", size1, size2);
+      error++;
+    }
   size1 = sizeof (struct _dwg_object_MTEXTATTRIBUTEOBJECTCONTEXTDATA);
   size2 = dwg_dynapi_fields_size ("MTEXTATTRIBUTEOBJECTCONTEXTDATA");
   if (size1 != size2)
@@ -45099,12 +46485,12 @@ test_sizes (void)
                "dwg_dynapi_fields_size (\"OBJECT_PTR\"): %d\n", size1, size2);
       error++;
     }
-  size1 = sizeof (struct _dwg_object_PERSSUBENTMANAGER);
-  size2 = dwg_dynapi_fields_size ("PERSSUBENTMANAGER");
+  size1 = sizeof (struct _dwg_object_PERSUBENTMGR);
+  size2 = dwg_dynapi_fields_size ("PERSUBENTMGR");
   if (size1 != size2)
     {
-      fprintf (stderr, "sizeof(struct _dwg_object_PERSSUBENTMANAGER): %d != "
-               "dwg_dynapi_fields_size (\"PERSSUBENTMANAGER\"): %d\n", size1, size2);
+      fprintf (stderr, "sizeof(struct _dwg_object_PERSUBENTMGR): %d != "
+               "dwg_dynapi_fields_size (\"PERSUBENTMGR\"): %d\n", size1, size2);
       error++;
     }
   size1 = sizeof (struct _dwg_object_PLACEHOLDER);
@@ -45121,6 +46507,14 @@ test_sizes (void)
     {
       fprintf (stderr, "sizeof(struct _dwg_object_PLOTSETTINGS): %d != "
                "dwg_dynapi_fields_size (\"PLOTSETTINGS\"): %d\n", size1, size2);
+      error++;
+    }
+  size1 = sizeof (struct _dwg_object_POINTPATH);
+  size2 = dwg_dynapi_fields_size ("POINTPATH");
+  if (size1 != size2)
+    {
+      fprintf (stderr, "sizeof(struct _dwg_object_POINTPATH): %d != "
+               "dwg_dynapi_fields_size (\"POINTPATH\"): %d\n", size1, size2);
       error++;
     }
   size1 = sizeof (struct _dwg_object_PROXY_OBJECT);
@@ -45147,6 +46541,14 @@ test_sizes (void)
                "dwg_dynapi_fields_size (\"RASTERVARIABLES\"): %d\n", size1, size2);
       error++;
     }
+  size1 = sizeof (struct _dwg_object_RENDERENTRY);
+  size2 = dwg_dynapi_fields_size ("RENDERENTRY");
+  if (size1 != size2)
+    {
+      fprintf (stderr, "sizeof(struct _dwg_object_RENDERENTRY): %d != "
+               "dwg_dynapi_fields_size (\"RENDERENTRY\"): %d\n", size1, size2);
+      error++;
+    }
   size1 = sizeof (struct _dwg_object_RENDERENVIRONMENT);
   size2 = dwg_dynapi_fields_size ("RENDERENVIRONMENT");
   if (size1 != size2)
@@ -45161,6 +46563,14 @@ test_sizes (void)
     {
       fprintf (stderr, "sizeof(struct _dwg_object_RENDERGLOBAL): %d != "
                "dwg_dynapi_fields_size (\"RENDERGLOBAL\"): %d\n", size1, size2);
+      error++;
+    }
+  size1 = sizeof (struct _dwg_object_RENDERSETTINGS);
+  size2 = dwg_dynapi_fields_size ("RENDERSETTINGS");
+  if (size1 != size2)
+    {
+      fprintf (stderr, "sizeof(struct _dwg_object_RENDERSETTINGS): %d != "
+               "dwg_dynapi_fields_size (\"RENDERSETTINGS\"): %d\n", size1, size2);
       error++;
     }
   size1 = sizeof (struct _dwg_object_SCALE);
@@ -45281,6 +46691,14 @@ test_sizes (void)
     {
       fprintf (stderr, "sizeof(struct _dwg_object_TEXTOBJECTCONTEXTDATA): %d != "
                "dwg_dynapi_fields_size (\"TEXTOBJECTCONTEXTDATA\"): %d\n", size1, size2);
+      error++;
+    }
+  size1 = sizeof (struct _dwg_object_TVDEVICEPROPERTIES);
+  size2 = dwg_dynapi_fields_size ("TVDEVICEPROPERTIES");
+  if (size1 != size2)
+    {
+      fprintf (stderr, "sizeof(struct _dwg_object_TVDEVICEPROPERTIES): %d != "
+               "dwg_dynapi_fields_size (\"TVDEVICEPROPERTIES\"): %d\n", size1, size2);
       error++;
     }
   size1 = sizeof (struct _dwg_object_UCS);
@@ -45417,6 +46835,14 @@ test_sizes (void)
     {
       fprintf (stderr, "sizeof(struct _dwg_ACTIONBODY): %d != "
                "dwg_dynapi_fields_size (\"ACTIONBODY\"): %d\n", size1, size2);
+      error++;
+    }
+  size1 = sizeof (struct _dwg_ASSOCACTION_Deps);
+  size2 = dwg_dynapi_fields_size ("ASSOCACTION_Deps");
+  if (size1 != size2)
+    {
+      fprintf (stderr, "sizeof(struct _dwg_ASSOCACTION_Deps): %d != "
+               "dwg_dynapi_fields_size (\"ASSOCACTION_Deps\"): %d\n", size1, size2);
       error++;
     }
   size1 = sizeof (struct _dwg_AcDs_Data);
@@ -45795,6 +47221,14 @@ test_sizes (void)
                "dwg_dynapi_fields_size (\"LEADER_Node\"): %d\n", size1, size2);
       error++;
     }
+  size1 = sizeof (struct _dwg_LIGHTLIST_light);
+  size2 = dwg_dynapi_fields_size ("LIGHTLIST_light");
+  if (size1 != size2)
+    {
+      fprintf (stderr, "sizeof(struct _dwg_LIGHTLIST_light): %d != "
+               "dwg_dynapi_fields_size (\"LIGHTLIST_light\"): %d\n", size1, size2);
+      error++;
+    }
   size1 = sizeof (struct _dwg_LTYPE_dash);
   size2 = dwg_dynapi_fields_size ("LTYPE_dash");
   if (size1 != size2)
@@ -45825,6 +47259,22 @@ test_sizes (void)
     {
       fprintf (stderr, "sizeof(struct _dwg_LinkedTableData): %d != "
                "dwg_dynapi_fields_size (\"LinkedTableData\"): %d\n", size1, size2);
+      error++;
+    }
+  size1 = sizeof (struct _dwg_MATERIAL_color);
+  size2 = dwg_dynapi_fields_size ("MATERIAL_color");
+  if (size1 != size2)
+    {
+      fprintf (stderr, "sizeof(struct _dwg_MATERIAL_color): %d != "
+               "dwg_dynapi_fields_size (\"MATERIAL_color\"): %d\n", size1, size2);
+      error++;
+    }
+  size1 = sizeof (struct _dwg_MATERIAL_mapper);
+  size2 = dwg_dynapi_fields_size ("MATERIAL_mapper");
+  if (size1 != size2)
+    {
+      fprintf (stderr, "sizeof(struct _dwg_MATERIAL_mapper): %d != "
+               "dwg_dynapi_fields_size (\"MATERIAL_mapper\"): %d\n", size1, size2);
       error++;
     }
   size1 = sizeof (struct _dwg_MESH_edge);
@@ -45865,6 +47315,14 @@ test_sizes (void)
     {
       fprintf (stderr, "sizeof(struct _dwg_MLINE_vertex): %d != "
                "dwg_dynapi_fields_size (\"MLINE_vertex\"): %d\n", size1, size2);
+      error++;
+    }
+  size1 = sizeof (struct _dwg_R2004_Header);
+  size2 = dwg_dynapi_fields_size ("R2004_Header");
+  if (size1 != size2)
+    {
+      fprintf (stderr, "sizeof(struct _dwg_R2004_Header): %d != "
+               "dwg_dynapi_fields_size (\"R2004_Header\"): %d\n", size1, size2);
       error++;
     }
   size1 = sizeof (struct _dwg_SPLINE_control_point);
@@ -46001,6 +47459,14 @@ test_sizes (void)
     {
       fprintf (stderr, "sizeof(struct _dwg_TableRow): %d != "
                "dwg_dynapi_fields_size (\"TableRow\"): %d\n", size1, size2);
+      error++;
+    }
+  size1 = sizeof (struct _dwg_UCS_orthopts);
+  size2 = dwg_dynapi_fields_size ("UCS_orthopts");
+  if (size1 != size2)
+    {
+      fprintf (stderr, "sizeof(struct _dwg_UCS_orthopts): %d != "
+               "dwg_dynapi_fields_size (\"UCS_orthopts\"): %d\n", size1, size2);
       error++;
     }
   size1 = sizeof (union _dwg_MLEADER_Content);

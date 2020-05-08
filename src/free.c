@@ -249,7 +249,7 @@ static Bit_Chain pdat = { NULL, 0, 0, 0, 0, 0 };
 #define XDICOBJHANDLE(code)                                                   \
   SINCE (R_2004)                                                              \
   {                                                                           \
-    if (!obj->tio.object->xdic_missing_flag)                                  \
+    if (!obj->tio.object->is_xdic_missing)                                  \
       {                                                                       \
         VALUE_HANDLE (obj->tio.object->xdicobjhandle, xdicobjhandle, code,    \
                       0);                                                     \
@@ -262,7 +262,7 @@ static Bit_Chain pdat = { NULL, 0, 0, 0, 0, 0 };
 #define ENT_XDICOBJHANDLE(code)                                               \
   SINCE (R_2004)                                                              \
   {                                                                           \
-    if (!ent->xdic_missing_flag)                                              \
+    if (!ent->is_xdic_missing)                                              \
       {                                                                       \
         VALUE_HANDLE (ent->xdicobjhandle, xdicobjhandle, code, 0);            \
       }                                                                       \
@@ -467,6 +467,7 @@ dwg_free_variable_no_class (Dwg_Data *restrict dwg, Dwg_Object *restrict obj)
   switch (obj->fixedtype)
     {
     #include "objects.inc"
+
     case DWG_TYPE_FREED: break; // already freed
     case DWG_TYPE_UNUSED:
     case DWG_TYPE_ACDSRECORD:
@@ -474,11 +475,10 @@ dwg_free_variable_no_class (Dwg_Data *restrict dwg, Dwg_Object *restrict obj)
     case DWG_TYPE_ACSH_REVOLVE_CLASS:
     case DWG_TYPE_ACSH_PYRAMID_CLASS:
     case DWG_TYPE_ACSH_SPHERE_CLASS:
-    case DWG_TYPE_ARCALIGNEDTEXT:
+    case DWG_TYPE_BACKGROUND:
     case DWG_TYPE_NPOCOLLECTION:
     case DWG_TYPE_POINTCLOUD:
     case DWG_TYPE_RAPIDRTRENDERENVIRONMENT:
-    case DWG_TYPE_RTEXT:
     case DWG_TYPE_XREFPANELOBJECT:
     default: LOG_ERROR ("Unhandled class %s, fixedtype %d in objects.inc",
                         dwg_type_name (obj->fixedtype), (int)obj->fixedtype);

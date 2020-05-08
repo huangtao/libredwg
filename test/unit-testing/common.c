@@ -11,6 +11,9 @@
 #include <dirent.h>
 #include "../../src/common.h"
 #include "../../src/classes.h"
+static unsigned int loglevel;
+#define DWG_LOGLEVEL loglevel
+#include "../../src/logging.h"
 
 #include "dwg.h"
 #include "dwg_api.h"
@@ -68,6 +71,11 @@ main (int argc, char *argv[])
   char *dir = NULL;
   int error = 0;
   int i = 1, cov = 1;
+  //#ifdef USE_TRACING
+  char *probe = getenv ("LIBREDWG_TRACE");
+  if (probe)
+    loglevel = atoi (probe);
+  //#endif
 
   if (argc > i)
     {
@@ -535,18 +543,27 @@ output_test (dwg_data *dwg)
   _hdr = dwg_get_block_header (dwg, &error);
   _ctrl = dwg_block_header_get_block_control (_hdr, &error);
 
+#ifndef DWG_TYPE
   /* process all owned entities */
   ref = dwg_obj_block_control_get_model_space (_ctrl, &error);
   if (!error)
-    output_BLOCK_HEADER (ref);
+    {
+      LOG_INFO ("mspace\n");
+      output_BLOCK_HEADER (ref);
+    }
   ref = dwg_obj_block_control_get_paper_space (_ctrl, &error);
   if (!error)
-    output_BLOCK_HEADER (ref);
+    {
+      LOG_INFO ("pspace\n");
+      output_BLOCK_HEADER (ref);
+    }
+#endif
 
 #ifdef DWG_TYPE
   obj = &dwg->object[0];
   while ((obj = dwg_next_object (obj)))
     {
+      LOG_INFO ("  %s [%d]\n", obj->name, obj->index);
       // printf ("%s [%d]\n", obj->name, obj->index);
       if (obj->fixedtype == DWG_TYPE)
         {
@@ -592,6 +609,7 @@ output_object (dwg_object *obj)
       printf ("object is NULL\n");
       return;
     }
+  LOG_INFO ("  %s [%d]\n", obj->name, obj->index);
   if (obj->fixedtype == DWG_TYPE)
     {
       g_counter++;
@@ -716,7 +734,7 @@ api_common_entity (dwg_object *obj)
   BITCODE_H handle;
   BITCODE_BL num_reactors, num_eed;
   BITCODE_H *reactors;
-  BITCODE_B xdic_missing_flag, has_ds_binary_data, preview_exists;
+  BITCODE_B is_xdic_missing, has_ds_data, preview_exists;
   BITCODE_RC linewt;
   BITCODE_RL preview_size_rl;
   BITCODE_BLL preview_size;
@@ -779,12 +797,12 @@ api_common_entity (dwg_object *obj)
     }
   CHK_COMMON_TYPE (ent, invisible, BS, invisible);
 
-  CHK_COMMON_TYPE (ent, xdic_missing_flag, B, xdic_missing_flag);
-  if (!xdic_missing_flag)
+  CHK_COMMON_TYPE (ent, is_xdic_missing, B, is_xdic_missing);
+  if (!is_xdic_missing)
     CHK_COMMON_H (ent, xdicobjhandle, handle);
   CHK_COMMON_TYPE (ent, num_reactors, BL, num_reactors);
   CHK_COMMON_HV (ent, reactors, reactors, num_reactors);
-  CHK_COMMON_TYPE (ent, has_ds_binary_data, B, has_ds_binary_data);
+  CHK_COMMON_TYPE (ent, has_ds_data, B, has_ds_data);
   CHK_COMMON_TYPE (ent, num_eed, BL, num_eed);
 }
 
@@ -1193,20 +1211,20 @@ api_common_object (dwg_object *obj)
   BITCODE_H handle;
   BITCODE_BL num_reactors, num_eed;
   BITCODE_H *reactors;
-  BITCODE_B xdic_missing_flag, has_ds_binary_data;
+  BITCODE_B is_xdic_missing, has_ds_data;
   Dwg_Data *dwg = obj->parent;
   Dwg_Version_Type version = obj->parent->header.version;
   Dwg_Object_Object *obj_obj = obj->tio.object;
   Dwg_Object_LAYER *_obj = obj->tio.object->tio.LAYER;
 
   CHK_COMMON_H (_obj, ownerhandle, handle);
-  CHK_COMMON_TYPE (_obj, xdic_missing_flag, B, xdic_missing_flag);
-  if (!xdic_missing_flag)
+  CHK_COMMON_TYPE (_obj, is_xdic_missing, B, is_xdic_missing);
+  if (!is_xdic_missing)
     CHK_COMMON_H (_obj, xdicobjhandle, handle);
   CHK_COMMON_TYPE (_obj, num_reactors, BL, num_reactors);
   CHK_COMMON_HV (_obj, reactors, reactors, num_reactors);
   CHK_COMMON_H (_obj, handleref, handle);
-  CHK_COMMON_TYPE (_obj, has_ds_binary_data, B, has_ds_binary_data);
+  CHK_COMMON_TYPE (_obj, has_ds_data, B, has_ds_data);
   CHK_COMMON_TYPE (_obj, num_eed, BL, num_eed);
 
 #if 0

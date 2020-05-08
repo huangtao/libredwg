@@ -53,31 +53,26 @@ static unsigned int loglevel;
 void
 bit_advance_position (Bit_Chain *dat, long advance)
 {
-  long endpos = (long)dat->bit + advance;
-  if (dat->byte >= dat->size - 1 && endpos > 7)
-    {
-      // but allow pointing to the very end.
-      if (dat->byte != dat->size - 1 || dat->bit != 0)
-        {
-          loglevel = dat->opts & DWG_OPTS_LOGLEVEL;
-          LOG_ERROR ("%s buffer overflow at pos %lu, size %lu, advance by %ld",
-                     __FUNCTION__, dat->byte, dat->size, advance)
-        }
-      dat->byte = dat->size - 1;
-      dat->bit = 0;
-      return;
-    }
-  if ((long)dat->byte + (endpos / 8) < 0)
+  const unsigned long pos  = bit_position (dat);
+  const unsigned long endpos = dat->size * 8;
+  long bits = (long)dat->bit + advance;
+  if (pos + advance > endpos)
     {
       loglevel = dat->opts & DWG_OPTS_LOGLEVEL;
-      LOG_ERROR ("buffer underflow at pos %lu, size %lu, advance by %ld",
-                 dat->byte, dat->size, advance)
+      LOG_ERROR ("%s buffer overflow at pos %lu.%u, size %lu, advance by %ld",
+                 __FUNCTION__, dat->byte, dat->bit, dat->size, advance);
+    }
+  else if ((long)pos + advance < 0)
+    {
+      loglevel = dat->opts & DWG_OPTS_LOGLEVEL;
+      LOG_ERROR ("buffer underflow at pos %lu.%u, size %lu, advance by %ld",
+                 dat->byte, dat->bit, dat->size, advance)
       dat->byte = 0;
       dat->bit = 0;
       return;
     }
-  dat->byte += (endpos >> 3);
-  dat->bit = endpos & 7;
+  dat->byte += (bits >> 3);
+  dat->bit = bits & 7;
 }
 
 /* Absolute get in bits
@@ -116,21 +111,23 @@ bit_reset_chain (Bit_Chain *dat)
 }
 
 #ifdef DWG_ABORT
-#  define CHK_OVERFLOW(func,retval)                                           \
+#  define CHK_OVERFLOW(func, retval)                                          \
     if (dat->byte >= dat->size)                                               \
       {                                                                       \
         loglevel = dat->opts & DWG_OPTS_LOGLEVEL;                             \
-        LOG_ERROR ("%s buffer overflow at %lu", func, dat->byte)              \
+        LOG_ERROR ("%s buffer overflow at %lu >= %lu", func, dat->byte,       \
+                   dat->size)                                                 \
         if (++errors > DWG_ABORT_LIMIT)                                       \
           abort ();                                                           \
         return retval;                                                        \
       }
 #else
-#  define CHK_OVERFLOW(func,retval)                                           \
+#  define CHK_OVERFLOW(func, retval)                                          \
     if (dat->byte >= dat->size)                                               \
       {                                                                       \
         loglevel = dat->opts & DWG_OPTS_LOGLEVEL;                             \
-        LOG_ERROR ("%s buffer overflow at %lu", func, dat->byte)              \
+        LOG_ERROR ("%s buffer overflow at %lu >= %lu", func, dat->byte,       \
+                   dat->size)                                                 \
         return retval;                                                        \
       }
 #endif
@@ -1534,6 +1531,112 @@ bit_embed_TU_size (BITCODE_TU restrict wstr, const int len)
   return str;
 }
 
+#ifndef HAVE_NATIVE_WCHAR2
+
+/* len of wide string (unix-only) */
+int
+bit_wcs2len (BITCODE_TU restrict wstr)
+{
+  int len;
+
+  if (!wstr)
+    return 0;
+  len = 0;
+#  ifdef HAVE_ALIGNED_ACCESS_REQUIRED
+  // for strict alignment CPU's like sparc only. also for UBSAN.
+  if ((uintptr_t)wstr % SIZEOF_SIZE_T)
+    {
+      unsigned char *b = (unsigned char *)wstr;
+      uint16_t c = (b[0] << 8) + b[1];
+      while (c)
+        {
+          len++;
+          b += 2;
+          c = (b[0] << 8) + b[1];
+        }
+      return len;
+    }
+  else
+#  endif
+  {
+    BITCODE_TU c = wstr;
+    while (*c++)
+      {
+        len++;
+      }
+    return len;
+  }
+}
+
+/* copy wide string (unix-only) */
+BITCODE_TU
+bit_wcs2cpy (BITCODE_TU restrict dest, const BITCODE_TU restrict src)
+{
+  BITCODE_TU d;
+
+  if (!dest)
+    return src;
+  d = (BITCODE_TU)dest;
+#  ifdef HAVE_ALIGNED_ACCESS_REQUIRED
+  // for strict alignment CPU's like sparc only. also for UBSAN.
+  if ((uintptr_t)src % SIZEOF_SIZE_T)
+    {
+      unsigned char *b = (unsigned char *)src;
+      *d = (b[0] << 8) + b[1];
+      while (*d)
+        {
+          b += 2;
+          *d = (b[0] << 8) + b[1];
+        }
+      return dest;
+    }
+  else
+#  endif
+  {
+    BITCODE_TU s = (BITCODE_TU)src;
+    while ((*d++ = *s++))
+      ;
+    return dest;
+  }
+}
+
+#if 0
+/* compare wide string (unix-only). returns 0 if the same or 1 if not */
+// untested, unused
+int
+bit_wcs2cmp (BITCODE_TU restrict dest, const BITCODE_TU restrict src)
+{
+  BITCODE_TU d;
+
+  if (!dest)
+    return -1;
+  d = (BITCODE_TU)dest;
+#  ifdef HAVE_ALIGNED_ACCESS_REQUIRED
+  // for strict alignment CPU's like sparc only. also for UBSAN.
+  if ((uintptr_t)src % SIZEOF_SIZE_T)
+    {
+      unsigned char *s = (unsigned char *)src;
+      uint16_t s1 = (s[0] << 8) + s[1];
+      while (*d++ == s1)
+        {
+          s += 2;
+          s1 = (s[0] << 8) + s[1];
+        }
+      return (*d || *s1) ? 1 : 0;
+    }
+  else
+#  endif
+  {
+    BITCODE_TU s = (BITCODE_TU)src;
+    while ((*d++ == *s++))
+      ;
+    return (*d || *s) ? 1 : 0;
+  }
+}
+#endif
+
+#endif /* HAVE_NATIVE_WCHAR2 */
+
 /* converts TU to ASCII with embedded \U+XXXX */
 char *
 bit_embed_TU (BITCODE_TU restrict wstr)
@@ -1823,21 +1926,83 @@ bit_write_TU (Bit_Chain *restrict dat, BITCODE_TU restrict chain)
   unsigned int length;
 
   if (chain)
-    {
-#if defined(HAVE_WCHAR_H) && defined(SIZEOF_WCHAR_T) && SIZEOF_WCHAR_T == 2
-      length = wcslen (chain) + 1;
-#else
-      for (length = 0; chain[length]; length++)
-        ;
-      length++;
-#endif
-    }
+    length = bit_wcs2len (chain) + 1;
   else
     length = 0;
 
   bit_write_BS (dat, length);
   for (i = 0; i < length; i++)
     bit_write_RS (dat, chain[i]); // probably without byte swapping
+}
+
+// Unicode with RS length
+void bit_write_TU16 (Bit_Chain *restrict dat, BITCODE_TU restrict chain)
+{
+  unsigned int i;
+  unsigned int length;
+
+  if (chain)
+    length = bit_wcs2len (chain) + 1;
+  else
+    length = 0;
+
+  bit_write_RS (dat, length);
+  for (i = 0; i < length; i++)
+    bit_write_RS (dat, chain[i]);
+}
+// ASCII/UCS-2 string with a RL size (not length)
+void bit_write_T32 (Bit_Chain *restrict dat, BITCODE_T32 restrict chain)
+{
+  unsigned int i;
+  unsigned int length;
+
+  if (dat->version >= R_2007)
+    {
+      if (chain)
+        length = bit_wcs2len ((BITCODE_TU)chain) + 1;
+      else
+        length = 0;
+      bit_write_RL (dat, length * 2);
+      for (i = 0; i < length; i++)
+        bit_write_RS (dat, chain[i]);
+    }
+  else
+    {
+      if (chain)
+        length = strlen (chain) + 1;
+      else
+        length = 0;
+      bit_write_RL (dat, length);
+      for (i = 0; i < length; i++)
+        bit_write_RC (dat, chain[i]);
+    }
+}
+// ASCII/UCS-4 or -2 string with a RL size (not length)
+void bit_write_TU32 (Bit_Chain *restrict dat, BITCODE_TU32 restrict chain)
+{
+  unsigned int i;
+  unsigned int length;
+
+  if (dat->version >= R_2007)
+    {
+      if (chain)
+        length = bit_wcs2len ((BITCODE_TU)chain) + 1;
+      else
+        length = 0;
+      bit_write_RL (dat, length * 4);
+      for (i = 0; i < length; i++)
+        bit_write_RL (dat, chain[i]);
+    }
+  else
+    {
+      if (chain)
+        length = strlen (chain) + 1;
+      else
+        length = 0;
+      bit_write_RL (dat, length);
+      for (i = 0; i < length; i++)
+        bit_write_RC (dat, chain[i]);
+    }
 }
 
 BITCODE_T
@@ -2202,7 +2367,7 @@ bit_read_TIMERLL (Bit_Chain *dat)
  *  Ignores the double value.
  */
 void
-bit_write_TIMERLL (Bit_Chain *dat, BITCODE_TIMERLL date)
+bit_write_TIMERLL (Bit_Chain *restrict dat, BITCODE_TIMERLL date)
 {
   bit_write_RL (dat, date.days);
   bit_write_RL (dat, date.ms);
@@ -2211,7 +2376,7 @@ bit_write_TIMERLL (Bit_Chain *dat, BITCODE_TIMERLL date)
 /** Read color
  */
 void
-bit_read_CMC (Bit_Chain *restrict dat, Dwg_Color *restrict color)
+bit_read_CMC (Bit_Chain *dat, Bit_Chain *str_dat, Dwg_Color *restrict color)
 {
   memset (color, 0, sizeof (Dwg_Color));
   color->index = bit_read_BS (dat);
@@ -2219,27 +2384,25 @@ bit_read_CMC (Bit_Chain *restrict dat, Dwg_Color *restrict color)
     {
       color->rgb = bit_read_BL (dat);
       color->flag = bit_read_RC (dat);
-      // wide?
-      color->name = (color->flag & 1) ? (char *)bit_read_T (dat) : NULL;
-      color->book_name = (color->flag & 2) ? (char *)bit_read_T (dat) : NULL;
+      color->name = (color->flag & 1) ? (char *)bit_read_T (str_dat) : NULL;
+      color->book_name = (color->flag & 2) ? (char *)bit_read_T (str_dat) : NULL;
     }
 }
 
 /** Write color
  */
 void
-bit_write_CMC (Bit_Chain *restrict dat, Dwg_Color *restrict color)
+bit_write_CMC (Bit_Chain *dat, Bit_Chain *str_dat, Dwg_Color *restrict color)
 {
   bit_write_BS (dat, color->index);
   if (dat->version >= R_2004)
     {
       bit_write_BL (dat, color->rgb);
       bit_write_RC (dat, color->flag);
-      // wide?
       if (color->flag & 1)
-        bit_write_T (dat, color->name);
+        bit_write_T (str_dat, color->name);
       if (color->flag & 2)
-        bit_write_T (dat, color->book_name);
+        bit_write_T (str_dat, color->book_name);
     }
 }
 
@@ -2346,9 +2509,9 @@ bit_chain_init (Bit_Chain *dat, const int size)
 
 /*
  * Allocates or adds more memory space for bit_chain
- * adds 10 4kB pages.
+ * adds a 1kB page.
  */
-#define CHAIN_BLOCK 40960
+#define CHAIN_BLOCK 1024
 void
 bit_chain_alloc (Bit_Chain *dat)
 {

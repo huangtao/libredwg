@@ -1,5 +1,5 @@
 #!/bin/sh
-# create -v3 logs and dwg's with dwgwrite from DXF or JSON)
+# create -v3 logs and dwg's with dwgwrite from DXF, JSON or newer DWG
 srcdir="@srcdir@"
 top_builddir="@top_builddir@"
 CFLAGS="@CFLAGS@"
@@ -22,10 +22,11 @@ ob="$b"
 for d in "$@"; do
     case $d in
         -y) ;; # the default
+        --as=*) args="$args $d" ;;
         -Ijson) args="$args $d"
                 ext=json
                 ;;
-        -Idxf) args="$args $d"
+        -Idxf)  args="$args $d"
                 ext=dxf
                 ;;
         --force-free) args="$args $d"
@@ -37,14 +38,18 @@ for d in "$@"; do
             if [ -f "$srcdir/test/test-data/$d" ]
             then
                 d="$srcdir/test/test-data/$d";
-            else
-                if [ -f "$srcdir/test/test-data/$d.json" ]
-                then
-                    d="$srcdir/test/test-data/$d.json"
-                elif [ -f "$srcdir/test/test-data/$d.dxf" ]
-                then
-                    d="$srcdir/test/test-data/$d.dxf"
-                fi
+            elif [ -f "$srcdir/test/test-data/$d.json" ]
+            then
+                d="$srcdir/test/test-data/$d.json"
+                ext=json
+            elif [ -f "$srcdir/test/test-data/$d.dxf" ]
+            then
+                d="$srcdir/test/test-data/$d.dxf"
+                ext=dxf
+            elif [ -f "$srcdir/test/test-data/$d.dwg" ]
+            then
+                d="$srcdir/test/test-data/$d.dwg"
+                ext=dwg
             fi
         fi
         xd=$(dirname "$d")
@@ -54,6 +59,8 @@ for d in "$@"; do
         if [ "$dir" = "_." ]; then dir=""; fi
         if [ -z "$ext" ]; then
             case $(basename "$d") in
+                *.dwg)  ext=dwg ;;
+                *.DWG)  ext=dwg ;;
                 *.dxf)  ext=dxf ;;
                 *.DXF)  ext=dxf ;;
                 *.json) ext=json ;;
@@ -64,10 +71,11 @@ for d in "$@"; do
         b=$(basename "$d" .$ext)
         log="$b$dir.$ext.log"
         out="$b$dir.dwg"
-        [ "$ext" = "dxf" ] && timeout="env ASAN_OPTIONS=detect_leaks=0 $timeout"
+        [ "$ext" = "dxf" ] && timeout="env ASAN_OPTIONS=detect_leaks=0 @TIMEOUT_30@"
         echo "$timeout @LTEXEC@ programs/dwgwrite $args $v -o $out $d 2>$log"
         # shellcheck disable=SC2086
         $timeout @LTEXEC@ programs/dwgwrite $args "$v" -o "$out" "$d" 2>"$log"
+        tail -n2 "$log"
         ;;
     esac
 done

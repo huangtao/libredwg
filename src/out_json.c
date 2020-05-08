@@ -463,6 +463,17 @@ static char *_path_field (const char *path);
         FIELD_TEXT (nam, str);                                                \
       }                                                                       \
   }
+#define VALUE_T(str)                                                          \
+  {                                                                           \
+    if (dat->version >= R_2007)                                               \
+      {                                                                       \
+        VALUE_TEXT_TU (str);                                                  \
+      }                                                                       \
+    else                                                                      \
+      {                                                                       \
+        VALUE_TEXT (str);                                                     \
+      }                                                                       \
+  }
 #define _FIELD_TV_ALPHA(nam, str)                                             \
   if ((str) && isalpha (*(str)))                                              \
     {                                                                         \
@@ -532,7 +543,7 @@ static char *_path_field (const char *path);
   VALUE_3RD (_obj->o.nam, dxf)
 
 static void
-field_cmc (Bit_Chain *restrict dat, const char *restrict key,
+field_cmc (Bit_Chain *dat, const char *restrict key,
            const Dwg_Color *restrict _obj)
 {
   if (dat->version >= R_2004)
@@ -781,10 +792,10 @@ field_cmc (Bit_Chain *restrict dat, const char *restrict key,
     FIRSTPREFIX HASH;
 #undef END_REPEAT_BLOCK
 #define END_REPEAT_BLOCK                                                      \
-    ENDHASH;                                                                  \
-  }
+    ENDHASH;
 #undef END_REPEAT
 #define END_REPEAT(nam)                                                       \
+      }                                                                       \
       ENDARRAY;                                                               \
     }
 
@@ -795,7 +806,7 @@ field_cmc (Bit_Chain *restrict dat, const char *restrict key,
   error |= json_xdata (dat, _obj)
 
 #define XDICOBJHANDLE(code)                                                   \
-  if ((dat->version < R_2004 || obj->tio.object->xdic_missing_flag != 0)      \
+  if ((dat->version < R_2004 || obj->tio.object->is_xdic_missing != 0)      \
       && (obj->tio.object->xdicobjhandle != NULL)                             \
       && (obj->tio.object->xdicobjhandle->handleref.value != 0))              \
     {                                                                         \
@@ -803,7 +814,7 @@ field_cmc (Bit_Chain *restrict dat, const char *restrict key,
       VALUE_HANDLE (obj->tio.object->xdicobjhandle, xdicobjhandle, code, -3); \
     }
 #define ENT_XDICOBJHANDLE(code)                                               \
-  if ((dat->version < R_2004 || (ent->xdic_missing_flag != 0))                \
+  if ((dat->version < R_2004 || (ent->is_xdic_missing != 0))                \
       && (ent->xdicobjhandle != NULL)                                         \
       && (ent->xdicobjhandle->handleref.value != 0))                          \
     {                                                                         \
@@ -1324,7 +1335,7 @@ json_3dsolid (Bit_Chain *restrict dat, const Dwg_Object *restrict obj,
             {
               FIELD_3BD (point, 0);
             }
-          FIELD_BL (num_isolines, 0);
+          FIELD_BL (isolines, 0);
           FIELD_B (isoline_present, 0);
           if (FIELD_VALUE (isoline_present))
             {
@@ -1750,7 +1761,7 @@ json_thumbnail_write (Bit_Chain *restrict dat, Dwg_Data *restrict dwg)
 static int
 json_section_r2004fileheader (Bit_Chain *restrict dat, Dwg_Data *restrict dwg)
 {
-  struct Dwg_R2004_Header *_obj = &dwg->r2004_header;
+  Dwg_R2004_Header *_obj = &dwg->r2004_header;
   Dwg_Object *obj = NULL;
   int i;
 

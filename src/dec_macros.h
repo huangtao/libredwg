@@ -35,9 +35,42 @@
 #define ACTION decode
 #define IS_DECODER
 
+// redeclare versions to be from, not target
+#undef VERSION
+#undef NOT_VERSION
+#undef VERSIONS
+#undef PRE
+#undef SINCE
+#undef UNTIL
+#undef RESET_VER
+#define VERSION(v)                                                            \
+  cur_ver = v;                                                                \
+  if (dat->from_version == v)
+#define NOT_VERSION(v)                                                        \
+  cur_ver = v;                                                                \
+  if (dat->from_version != v)
+#define VERSIONS(v1, v2)                                                      \
+  cur_ver = v1;                                                               \
+  if (dat->from_version >= v1 && dat->from_version <= v2)
+#define OTHER_VERSIONS else
+#define PRE(v)                                                                \
+  cur_ver = v;                                                                \
+  if (dat->from_version < v)
+#define SINCE(v)                                                              \
+  cur_ver = v;                                                                \
+  if (dat->from_version >= v)
+#define PRIOR_VERSIONS else
+#define UNTIL(v)                                                              \
+  cur_ver = v;                                                                \
+  if (dat->from_version <= v)
+#define LATER_VERSIONS else
+#define RESET_VER cur_ver = dat->from_version;
+
 #define VALUE(value, type, dxf)                                               \
   LOG_TRACE (FORMAT_##type " [" #type " %d]\n", value, dxf)
 #define VALUE_RC(value, dxf) VALUE (value, RC, dxf)
+#define VALUE_BS(value, dxf) VALUE (value, BS, dxf)
+#define VALUE_BL(value, dxf) VALUE (value, BL, dxf)
 #define VALUE_RS(value, dxf) VALUE (value, RS, dxf)
 #define VALUE_RL(value, dxf) VALUE (value, RL, dxf)
 #define VALUE_RD(value, dxf) VALUE (value, RD, dxf)
@@ -366,8 +399,10 @@
 #define FIELD_RCu(nam, dxf)                                                   \
   {                                                                           \
     _obj->nam = bit_read_RC (dat);                                            \
-    LOG_TRACE (#nam ": %u [RC %d]\n", (unsigned)((unsigned char)_obj->nam),   \
+    LOG_TRACE (#nam ": %u [RC %d]", (unsigned)((unsigned char)_obj->nam),     \
                dxf);                                                          \
+    LOG_INSANE (" @%lu.%u", dat->byte, dat->bit)                              \
+    LOG_TRACE ("\n")                                                          \
   }
 #define FIELD_RCx(nam, dxf)                                                   \
   {                                                                           \
@@ -404,30 +439,38 @@
   {                                                                           \
     SINCE (R_13) { _obj->nam = NULL; VECTOR_CHKCOUNT (nam, TF, len, dat) }    \
     _obj->nam = bit_read_TF (dat, (int)len);                                  \
-    LOG_TRACE (#nam ": \"%s\" [TF %lu " #dxf "]\n", _obj->nam,                \
+    LOG_TRACE (#nam ": \"%s\" [TF %lu " #dxf "]", _obj->nam,                  \
                (unsigned long)len);                                           \
+    LOG_INSANE (" @%lu.%u", dat->byte, dat->bit)                              \
+    LOG_TRACE ("\n")                                                          \
     LOG_TRACE_TF (FIELD_VALUE (nam), (int)len);                               \
   }
 #define FIELD_TFv(nam, len, dxf)                                              \
   {                                                                           \
     SINCE (R_13) { _obj->nam = NULL; VECTOR_CHKCOUNT (nam, TF, len, dat) }    \
     _obj->nam = (BITCODE_TV)bit_read_TF (dat, (int)len);                      \
-    LOG_TRACE (#nam ": \"%s\" [TF %lu " #dxf "]\n", _obj->nam,                \
+    LOG_TRACE (#nam ": \"%s\" [TF %lu " #dxf "]", _obj->nam,                  \
                (unsigned long)len);                                           \
+    LOG_INSANE (" @%lu.%u", dat->byte, dat->bit)                              \
+    LOG_TRACE ("\n")                                                          \
     LOG_TRACE_TF (FIELD_VALUE (nam), (int)len);                               \
   }
 #define FIELD_TFF(nam, len, dxf)                                              \
   {                                                                           \
     SINCE (R_13) { VECTOR_CHKCOUNT (nam, TF, len, dat) }                      \
     bit_read_fixed (dat, _obj->nam, (int)len);                                \
-    LOG_TRACE (#nam ": \"%s\" [TFF %d " #dxf "]\n", _obj->nam, (int)len);     \
+    LOG_TRACE (#nam ": \"%s\" [TFF %d " #dxf "]", _obj->nam, (int)len);       \
+    LOG_INSANE (" @%lu.%u", dat->byte, dat->bit)                              \
+    LOG_TRACE ("\n")                                                          \
     LOG_TRACE_TF (FIELD_VALUE (nam), (int)len);                               \
   }
 #define FIELD_TFFx(nam, len, dxf)                                             \
   {                                                                           \
     SINCE (R_13) { VECTOR_CHKCOUNT (nam, TF, len, dat) }                      \
     bit_read_fixed (dat, (BITCODE_RC*)_obj->nam, (int)len);                   \
-    LOG_TRACE (#nam ": [TFFx %d " #dxf "]\n  ", (int)len);                    \
+    LOG_TRACE (#nam ": [TFFx %d " #dxf "]", (int)len);                        \
+    LOG_INSANE (" @%lu.%u", dat->byte, dat->bit)                              \
+    LOG_TRACE ("\n")                                                          \
     LOG_TRACE_TF ((BITCODE_RC*)_obj->nam, (int)len);                          \
   }
 #define FIELD_T16(nam, dxf) FIELDG (nam, T16, dxf)
@@ -439,7 +482,7 @@
 #define FIELD_TU32(nam, dxf)                                                  \
   {                                                                           \
     _obj->nam = bit_read_TU32 (dat);                                          \
-    if (dat->version < R_2007)                                                \
+    if (dat->from_version < R_2007)                                           \
       {                                                                       \
         LOG_TRACE (#nam ": \"%s\" [TU32 %d]\n", _obj->nam, dxf)               \
       }                                                                       \
@@ -451,7 +494,7 @@
 #define FIELD_T32(nam, dxf)                                                   \
   {                                                                           \
     _obj->nam = bit_read_T32 (dat);                                           \
-    if (dat->version < R_2007)                                                \
+    if (dat->from_version < R_2007)                                           \
       {                                                                       \
         LOG_TRACE (#nam ": \"%s\" [T32 %d]\n", _obj->nam, dxf);               \
       }                                                                       \
@@ -475,7 +518,7 @@
 // clang-format on
 #define FIELD_T(nam, dxf)                                                     \
   {                                                                           \
-    if (dat->version < R_2007)                                                \
+    if (dat->from_version < R_2007)                                           \
       {                                                                       \
         _obj->nam = bit_read_TV (dat);                                        \
         LOG_TRACE (#nam ": \"%s\" [T %d]", _obj->nam, dxf);                   \
@@ -544,14 +587,14 @@
   {                                                                           \
     FIELD_DD (nam.x, dx, dxf);                                                \
     FIELD_DD (nam.y, dy, dxf + 10);                                           \
-    FIELD_2PT_TRACE (nam, 2DD, dxf);                                           \
+    FIELD_2PT_TRACE (nam, 2DD, dxf);                                          \
   }
 #define FIELD_3DD(nam, def, dxf)                                              \
   {                                                                           \
     FIELD_DD (nam.x, FIELD_VALUE (def.x), dxf);                               \
     FIELD_DD (nam.y, FIELD_VALUE (def.y), dxf + 10);                          \
     FIELD_DD (nam.z, FIELD_VALUE (def.z), dxf + 20);                          \
-    FIELD_3PT_TRACE (nam, 3DD, dxf);                                           \
+    FIELD_3PT_TRACE (nam, 3DD, dxf);                                          \
   }
 #define FIELD_3RD(nam, dxf)                                                   \
   {                                                                           \
@@ -564,7 +607,7 @@
         LOG_ERROR ("Invalid 3RD " #nam);                                      \
         return DWG_ERR_VALUEOUTOFBOUNDS;                                      \
       }                                                                       \
-    FIELD_3PT_TRACE (nam, 3RD, dxf);                                           \
+    FIELD_3PT_TRACE (nam, 3RD, dxf);                                          \
   }
 #define FIELD_3BD(nam, dxf)                                                   \
   {                                                                           \
@@ -577,7 +620,7 @@
         LOG_ERROR ("Invalid 3BD " #nam);                                      \
         return DWG_ERR_VALUEOUTOFBOUNDS;                                      \
       }                                                                       \
-    FIELD_3PT_TRACE (nam, 3BD, dxf);                                           \
+    FIELD_3PT_TRACE (nam, 3BD, dxf);                                          \
   }
 #define FIELD_2RD(nam, dxf)                                                   \
   {                                                                           \
@@ -588,7 +631,7 @@
         LOG_ERROR ("Invalid 2RD " #nam);                                      \
         return DWG_ERR_VALUEOUTOFBOUNDS;                                      \
       }                                                                       \
-    FIELD_2PT_TRACE (nam, 2RD, dxf);                                           \
+    FIELD_2PT_TRACE (nam, 2RD, dxf);                                          \
   }
 #define FIELD_2BD(nam, dxf)                                                   \
   {                                                                           \
@@ -599,7 +642,7 @@
         LOG_ERROR ("Invalid 2BD " #nam);                                      \
         return DWG_ERR_VALUEOUTOFBOUNDS;                                      \
       }                                                                       \
-    FIELD_2PT_TRACE (nam, 2BD, dxf);                                           \
+    FIELD_2PT_TRACE (nam, 2BD, dxf);                                          \
   }
 #define FIELD_2BD_1(nam, dxf)                                                 \
   {                                                                           \
@@ -610,7 +653,7 @@
         LOG_ERROR ("Invalid 2BD_1 " #nam);                                    \
         return DWG_ERR_VALUEOUTOFBOUNDS;                                      \
       }                                                                       \
-    FIELD_2PT_TRACE (nam, 2BD_1, dxf);                                           \
+    FIELD_2PT_TRACE (nam, 2BD_1, dxf);                                        \
   }
 // FIELDG(nam.x, BD, dxf); FIELDG(nam.y, BD, dxf+1);
 #define FIELD_3BD_1(nam, dxf)                                                 \
@@ -624,7 +667,7 @@
         LOG_ERROR ("Invalid 3BD_1 " #nam);                                    \
         return DWG_ERR_VALUEOUTOFBOUNDS;                                      \
       }                                                                       \
-    FIELD_3PT_TRACE (nam, 3BD_1, dxf);                                           \
+    FIELD_3PT_TRACE (nam, 3BD_1, dxf);                                        \
   }
 //    FIELDG(nam.x, BD, dxf); FIELDG(nam.y, BD, dxf+1);
 //    FIELDG(nam.z, BD, dxf+2); }
@@ -648,11 +691,11 @@
   }
 #define FIELD_CMC(color, dxf1, dxf2)                                          \
   {                                                                           \
-    bit_read_CMC (dat, &_obj->color);                                         \
+    bit_read_CMC (dat, str_dat, &_obj->color);                                \
     LOG_TRACE (#color ".index: %d [CMC.BS %d]", _obj->color.index, dxf1);     \
     LOG_INSANE (" @%lu.%u", dat->byte, dat->bit);                             \
     LOG_TRACE ("\n");                                                         \
-    if (dat->version >= R_2004)                                               \
+    if (dat->from_version >= R_2004)                                          \
       {                                                                       \
         LOG_TRACE (#color ".rgb: 0x%06x [CMC.BL %d]\n",                       \
                    (unsigned)_obj->color.rgb, dxf2);                          \
@@ -671,12 +714,12 @@
   }
 #define SUB_FIELD_CMC(o, color, dxf1, dxf2)                                   \
   {                                                                           \
-    bit_read_CMC (dat, &_obj->o.color);                                       \
+    bit_read_CMC (dat, str_dat, &_obj->o.color);                              \
     LOG_TRACE (#o "." #color ".index: %d [CMC.BS %d]", _obj->o.color.index,   \
                dxf1);                                                         \
     LOG_INSANE (" @%lu.%u", dat->byte, dat->bit);                             \
     LOG_TRACE ("\n");                                                         \
-    if (dat->version >= R_2004)                                               \
+    if (dat->from_version >= R_2004)                                          \
       {                                                                       \
         LOG_TRACE (#o "." #color ".rgb: 0x%06x [CMC.BL %d]\n",                \
                    (unsigned)_obj->o.color.rgb, dxf2);                        \
@@ -698,7 +741,7 @@
   {                                                                           \
     bit_read_ENC (dat, hdl_dat, str_dat, &_obj->color);                       \
     LOG_TRACE (#color ".index: %d [ENC.BS %d]\n", _obj->color.index, dxf1);   \
-    if (dat->version >= R_2004)                                               \
+    if (dat->from_version >= R_2004)                                          \
       {                                                                       \
         if (_obj->color.flag)                                                 \
           LOG_TRACE (#color ".flag: 0x%x\n", (unsigned)_obj->color.flag);     \
@@ -716,23 +759,24 @@
 #define SUB_FIELD_ENC(o, color, dxf1, dxf2)                                   \
   {                                                                           \
     bit_read_ENC (dat, hdl_dat, str_dat, &_obj->o.color);                     \
-    LOG_TRACE (#o "." #color ".index: %d [ENC.BS %d]\n", _obj->o.color.index, dxf1); \
-    if (dat->version >= R_2004)                                               \
+    LOG_TRACE (#o "." #color ".index: %d [ENC.BS %d]\n", _obj->o.color.index, \
+               dxf1);                                                         \
+    if (dat->from_version >= R_2004)                                          \
       {                                                                       \
         if (_obj->o.color.flag)                                               \
-          LOG_TRACE (#o "." #color ".flag: 0x%x\n", (unsigned)_obj->o.color.flag);   \
+          LOG_TRACE (#o "." #color ".flag: 0x%x\n",                           \
+                     (unsigned)_obj->o.color.flag);                           \
         if (_obj->o.color.flag & 0x20)                                        \
-          LOG_TRACE (#o "." #color ".alpha: %d [ENC.BL %d]\n",                       \
+          LOG_TRACE (#o "." #color ".alpha: %d [ENC.BL %d]\n",                \
                      (unsigned)_obj->o.color.alpha, dxf2 + 20);               \
         if (_obj->o.color.flag & 0x80)                                        \
-          LOG_TRACE (#o "." #color ".rgb: 0x%06x [ENC.BL %d]\n",                     \
+          LOG_TRACE (#o "." #color ".rgb: 0x%06x [ENC.BL %d]\n",              \
                      (unsigned)_obj->o.color.rgb, dxf2);                      \
         if (_obj->o.color.flag & 0x40 && _obj->o.color.handle)                \
           LOG_TRACE (#o "." #color ".handle: %lX [ENC.H %d]\n",               \
                      _obj->o.color.handle->handleref.value, dxf2 + 10);       \
       }                                                                       \
   }
-
 
 #undef DEBUG_POS
 #undef DEBUG_HERE
@@ -911,7 +955,7 @@
   if (_obj->size > 0)                                                         \
     {                                                                         \
       _VECTOR_CHKCOUNT (name, _obj->size,                                     \
-                        dat->version >= R_2007 ? 18 : 2, dat)                 \
+                        dat->from_version >= R_2007 ? 18 : 2, dat)            \
       _obj->name = calloc (_obj->size, sizeof (char *));                      \
       for (vcount = 0; vcount < (BITCODE_BL)_obj->size; vcount++)             \
         {                                                                     \
@@ -1031,9 +1075,7 @@
         {                                                                     \
           FIELD_3DPOINT (name[vcount], dxf);                                  \
         }                                                                     \
-    }                                                                         \
-  else                                                                        \
-    return DWG_ERR_VALUEOUTOFBOUNDS;
+    }
 
 // shortest handle: 8 bit
 #define HANDLE_VECTOR_N(nam, size, code, dxf)                                 \
@@ -1112,12 +1154,12 @@
 #define XDICOBJHANDLE(code)                                                   \
   SINCE (R_2004)                                                              \
   {                                                                           \
-    if (!obj->tio.object->xdic_missing_flag)                                  \
+    if (!obj->tio.object->is_xdic_missing)                                  \
       {                                                                       \
         VALUE_HANDLE (obj->tio.object->xdicobjhandle, xdicobjhandle, code,    \
                       360);                                                   \
         if (!obj->tio.object->xdicobjhandle)                                  \
-          obj->tio.object->xdic_missing_flag = 1;                             \
+          obj->tio.object->is_xdic_missing = 1;                             \
       }                                                                       \
   }                                                                           \
   else                                                                        \
@@ -1132,7 +1174,7 @@
 #define ENT_XDICOBJHANDLE(code)                                               \
   SINCE (R_2004)                                                              \
   {                                                                           \
-    if (!_ent->xdic_missing_flag)                                             \
+    if (!_ent->is_xdic_missing)                                             \
       {                                                                       \
         VALUE_HANDLE (_ent->xdicobjhandle, xdicobjhandle, code, 360);         \
       }                                                                       \
@@ -1278,7 +1320,7 @@
 */
 
 #define DWG_ENTITY(token)                                                     \
-  EXPORT int dwg_add_##token (Dwg_Object *obj)                                \
+  EXPORT int dwg_setup_##token (Dwg_Object *obj)                              \
   {                                                                           \
     Dwg_Object_Entity *_ent;                                                  \
     Dwg_Entity_##token *_obj;                                                 \
@@ -1288,6 +1330,10 @@
     if (!(int)obj->fixedtype)                                                 \
       {                                                                       \
         obj->fixedtype = DWG_TYPE_##token;                                    \
+      }                                                                       \
+    if (!(int)obj->type && obj->fixedtype <= DWG_TYPE_LAYOUT)                 \
+      {                                                                       \
+        obj->type = DWG_TYPE_##token;                                         \
       }                                                                       \
     if (!obj->dxfname)                                                        \
       {                                                                       \
@@ -1302,6 +1348,12 @@
           obj->name = (char *)&#token[1];                                     \
         else                                                                  \
           obj->name = (char *)#token;                                         \
+      }                                                                       \
+    if (obj->parent->opts & DWG_OPTS_IN)                                      \
+      {                                                                       \
+        obj->dxfname = strdup (obj->dxfname);                                 \
+        if (obj->parent->opts & DWG_OPTS_INJSON)                              \
+          obj->name = strdup (obj->name);                                     \
       }                                                                       \
     _ent = obj->tio.entity = calloc (1, sizeof (Dwg_Object_Entity));          \
     if (!_ent)                                                                \
@@ -1319,12 +1371,12 @@
       Bit_Chain *dat, Bit_Chain *hdl_dat, Bit_Chain *str_dat,                 \
       Dwg_Object *restrict obj);                                              \
                                                                               \
-  /**Call dwg_add_##token and write the fields from the bitstream dat to the  \
+  /**Call dwg_setup_##token and write the fields from the bitstream dat to the  \
    * entity or object. */                                                     \
   static int dwg_decode_##token (Bit_Chain *restrict dat,                     \
                                  Dwg_Object *restrict obj)                    \
   {                                                                           \
-    int error = dwg_add_##token (obj);                                        \
+    int error = dwg_setup_##token (obj);                                      \
     Bit_Chain hdl_dat = *dat;                                                 \
     if (error)                                                                \
       return error;                                                           \
@@ -1378,7 +1430,7 @@
   }
 
 #define DWG_OBJECT(token)                                                     \
-  EXPORT int dwg_add_##token (Dwg_Object *obj)                                \
+  EXPORT int dwg_setup_##token (Dwg_Object *obj)                              \
   {                                                                           \
     Dwg_Object_##token *_obj;                                                 \
     LOG_INFO ("Add object " #token " [%d] ", obj->index)                      \
@@ -1400,12 +1452,22 @@
         obj->fixedtype = DWG_TYPE_##token;                                    \
         obj->name = (char *)#token;                                           \
       }                                                                       \
+    if (!(int)obj->type && obj->fixedtype <= DWG_TYPE_LAYOUT)                 \
+      {                                                                       \
+        obj->type = DWG_TYPE_##token;                                         \
+      }                                                                       \
     if (!obj->dxfname)                                                        \
       {                                                                       \
         if (!strcmp (#token, "PLACEHOLDER"))                                  \
           obj->dxfname = (char *)"ACDBPLACEHOLDER";                           \
         else                                                                  \
           obj->dxfname = (char *)#token;                                      \
+      }                                                                       \
+    if (obj->parent->opts & DWG_OPTS_IN)                                      \
+      {                                                                       \
+        obj->dxfname = strdup (obj->dxfname);                                 \
+        if (obj->parent->opts & DWG_OPTS_INJSON)                              \
+          obj->name = strdup (obj->name);                                     \
       }                                                                       \
     _obj->parent = obj->tio.object;                                           \
     obj->tio.object->dwg = obj->parent;                                       \
@@ -1419,7 +1481,7 @@
   static int dwg_decode_##token (Bit_Chain *restrict dat,                     \
                                  Dwg_Object *restrict obj)                    \
   {                                                                           \
-    int error = dwg_add_##token (obj);                                        \
+    int error = dwg_setup_##token (obj);                                      \
     Bit_Chain hdl_dat = *dat;                                                 \
     if (error)                                                                \
       return error;                                                           \
@@ -1445,7 +1507,7 @@
     int error = 0;                                                            \
     Dwg_Object_##token *_obj = NULL;                                          \
     Dwg_Data *dwg = obj->parent;                                              \
-    LOG_INFO ("Decode object " #token "\n")                                 \
+    LOG_INFO ("Decode object " #token "\n")                                   \
     if (strNE (#token, "TABLECONTENT") || obj->fixedtype != DWG_TYPE_TABLE)   \
       {                                                                       \
         _obj = obj->tio.object->tio.token;                                    \

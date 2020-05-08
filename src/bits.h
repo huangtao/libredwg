@@ -62,10 +62,10 @@ typedef struct _bit_chain
   long unsigned int size;
   long unsigned int byte;
   unsigned char bit;
+  unsigned char opts; // from dwg->opts, see DWG_OPTS_*
   FILE *fh;
   Dwg_Version_Type version;
   Dwg_Version_Type from_version;
-  unsigned char opts; // from dwg->opts, see DWG_OPTS_*
 } Bit_Chain;
 
 /* Functions for raw data manipulations.
@@ -231,6 +231,9 @@ BITCODE_T32 bit_read_T32 (Bit_Chain *restrict dat);
 BITCODE_TU32 bit_read_TU32 (Bit_Chain *restrict dat);
 
 void bit_write_TU (Bit_Chain *restrict dat, BITCODE_TU restrict value);
+void bit_write_TU16 (Bit_Chain *restrict dat, BITCODE_TU restrict value);
+void bit_write_T32 (Bit_Chain *restrict dat, BITCODE_T32 restrict value);
+void bit_write_TU32 (Bit_Chain *restrict dat, BITCODE_TU32 restrict value);
 
 BITCODE_T bit_read_T (Bit_Chain *restrict dat);
 void bit_write_T (Bit_Chain *restrict dat, BITCODE_T restrict chain);
@@ -238,6 +241,18 @@ void bit_write_T (Bit_Chain *restrict dat, BITCODE_T restrict chain);
 /* Converts UCS-2 to ASCII (with \U+XXXX), returning a copy. */
 EXPORT char *bit_embed_TU (BITCODE_TU restrict wstr) ATTRIBUTE_MALLOC;
 EXPORT char *bit_embed_TU_size (BITCODE_TU restrict wstr, const int len) ATTRIBUTE_MALLOC;
+
+#ifdef HAVE_NATIVE_WCHAR2
+#define bit_wcs2len(wstr) wcslen(wstr)
+#define bit_wcs2cpy(dest,src) wcscpy(dest,src)
+#define bit_wcs2cmp(dest,src) wcscmp(s1,s2)
+#else
+/* length of UCS-2 string */
+int bit_wcs2len (BITCODE_TU restrict wstr);
+BITCODE_TU bit_wcs2cpy (BITCODE_TU restrict dest, const BITCODE_TU restrict src);
+int bit_wcs2cmp (BITCODE_TU restrict s1, const BITCODE_TU restrict s2);
+#endif
+
 /* Converts UCS-2 to UTF-8, returning a copy. */
 EXPORT char *bit_convert_TU (BITCODE_TU restrict wstr) ATTRIBUTE_MALLOC;
 
@@ -263,8 +278,8 @@ void bit_write_TIMEBLL (Bit_Chain *dat, BITCODE_TIMEBLL date);
 BITCODE_TIMERLL bit_read_TIMERLL (Bit_Chain *dat);
 void bit_write_TIMERLL (Bit_Chain *dat, BITCODE_TIMERLL date);
 
-void bit_read_CMC (Bit_Chain *restrict dat, Dwg_Color *restrict color);
-void bit_write_CMC (Bit_Chain *restrict dat, Dwg_Color *restrict color);
+void bit_read_CMC (Bit_Chain *dat, Bit_Chain *str_dat, Dwg_Color *restrict color);
+void bit_write_CMC (Bit_Chain *dat, Bit_Chain *str_dat, Dwg_Color *restrict color);
 
 void bit_read_ENC (Bit_Chain *dat, Bit_Chain *hdl_dat, Bit_Chain *str_dat,
                    Dwg_Color *restrict color);
@@ -277,6 +292,12 @@ void bit_write_sentinel (Bit_Chain *dat, unsigned char sentinel[16]);
 void bit_chain_init (Bit_Chain *dat, const int size);
 void bit_chain_alloc (Bit_Chain *dat);
 void bit_chain_free (Bit_Chain *dat);
+// after bit_chain_init
+#define bit_chain_set_version(to, from)                                       \
+  (to)->version = (from)->version;                                            \
+  (to)->from_version = (from)->from_version;                                  \
+  (to)->opts = (from)->opts;                                                  \
+  (to)->fh = (from)->fh
 
 void bit_print (Bit_Chain *dat, long unsigned int size);
 

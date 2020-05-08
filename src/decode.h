@@ -28,6 +28,8 @@
 #error in_dxf.h must be included after decode.h because of FORMAT_BD
 #endif
 
+#define REFS_PER_REALLOC 128
+
 int dwg_decode (Bit_Chain *restrict dat, Dwg_Data *restrict dwg);
 int dwg_decode_unknown (Bit_Chain *restrict dat, Dwg_Object *restrict obj);
 Dwg_Object_Ref *dwg_find_objectref (const Dwg_Data *restrict dwg,
@@ -52,12 +54,17 @@ int obj_handle_stream (Bit_Chain *restrict dat, Dwg_Object *restrict obj,
                        Bit_Chain *restrict hdl_dat);
 void bfr_read (void *restrict dst, BITCODE_RC *restrict *restrict src,
                size_t size);
+void decrypt_R2004_header (BITCODE_RC *restrict dest,
+                           const BITCODE_RC *restrict src, unsigned size);
 
 /* reused with free */
 void dwg_free_xdata_resbuf (Dwg_Resbuf *restrict rbuf);
 
 /* reused with encode */
 void dwg_resolve_objectrefs_silent (Dwg_Data *restrict dwg);
+uint32_t dwg_section_page_checksum (const uint32_t seed, Bit_Chain *restrict dat,
+                                    int32_t size);
+unsigned int section_max_decomp_size (const Dwg_Data *dwg, const Dwg_Section_Type id);
 
 /* reused with out_dxf */
 char *dwg_dim_blockname (Dwg_Data *restrict dwg,

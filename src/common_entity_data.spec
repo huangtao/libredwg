@@ -84,7 +84,7 @@
     }
   SINCE (R_2004) //ODA bug
     {
-      FIELD_B (xdic_missing_flag, 0);
+      FIELD_B (is_xdic_missing, 0);
     }
   PRE (R_2004) //ODA bug
     {
@@ -92,7 +92,7 @@
     }
   SINCE (R_2013)
     {
-      FIELD_B (has_ds_binary_data, 0)
+      FIELD_B (has_ds_data, 0)
     }
 
   // no ENC type as it's only used once, here, and we would need to write
@@ -185,7 +185,7 @@
         if (FIELD_VALUE (material_flags))
           FIELD_HANDLE (material, 0, 347)
       }
-      FIELD_RC (shadow_flags, 284); /* r2007+: 0 both, 1 casts, 2, receives, 3 no */
+      FIELD_RC (shadow_flags, 284); /* r2007+: 0 both, 1 receives, 2 casts, 3 no */
     }
   SINCE (R_2010)
     {
@@ -203,6 +203,7 @@
 
   SINCE (R_2000) {
     // DXF later after 6, see common_entity_handle_data
+    // Ideally CMC 60 should be deferred after layer 8, before linewt 370 also
 #ifndef IS_DXF
     FIELD_RC (linewt, 370);
 #endif

@@ -69,6 +69,7 @@ testobjects = \
 	assocrevolvedsurfaceactionbody \
 	assocsweptsurfaceactionbody \
 	assocvertexactionparam \
+	atext \
 	attdef \
 	attrib \
 	blkrefobjectcontextdata \
@@ -80,6 +81,7 @@ testobjects = \
 	cellstylemap \
 	circle \
 	csacdocumentoptions \
+	curvepath \
 	datalink \
 	datatable \
 	dbcolor \
@@ -140,20 +142,23 @@ testobjects = \
 	mleaderstyle \
 	mline \
 	mlinestyle \
+	motionpath \
 	mtext \
 	mtextattributeobjectcontextdata \
 	mtextobjectcontextdata \
 	multileader \
 	navisworksmodel \
 	navisworksmodeldef \
+	nurbsurface \
 	object_ptr \
 	ole2frame \
 	oleframe \
-	perssubentmanager \
+	persubentmgr \
 	placeholder \
 	planesurface \
 	plotsettings \
 	point \
+	pointpath \
 	polyline_2d \
 	polyline_3d \
 	polyline_mesh \
@@ -165,8 +170,11 @@ testobjects = \
 	ray \
 	region \
 	renderenvironment \
+	renderentry \
 	renderglobal \
+	rendersettings \
 	revolvedsurface \
+	rtext \
 	scale \
 	section_manager \
 	section_settings \
@@ -192,6 +200,7 @@ testobjects = \
 	textobjectcontextdata \
 	tolerance \
 	trace \
+	tvdeviceproperties \
 	ucs \
 	ucs_control \
 	underlay \

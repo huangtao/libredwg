@@ -83,7 +83,10 @@ static void dxf_fixup_string (Bit_Chain *restrict dat, char *restrict str);
     {                                                                         \
       char *u8 = bit_convert_TU ((BITCODE_TU)wstr);                           \
       GROUP (dxf);                                                            \
-      fprintf (dat->fh, "%s\r\n", u8);                                        \
+      if (u8)                                                                 \
+        fprintf (dat->fh, "%s\r\n", u8);                                      \
+      else                                                                    \
+        fprintf (dat->fh, "\r\n");                                            \
       free (u8);                                                              \
     }
 #define VALUE_TFF(str, dxf)                                                   \
@@ -437,6 +440,32 @@ dxf_print_rd (Bit_Chain *dat, BITCODE_RD value, int dxf)
   {                                                                           \
     if (!(_obj->nam.x == 0.0 && _obj->nam.y == 0.0 && _obj->nam.z == 1.0))    \
       FIELD_3RD (nam, dxf)                                                    \
+  }
+// skip if 0
+#define FIELD_BD0(nam, dxf)                                                   \
+  {                                                                           \
+    if (_obj->nam != 0.0)                                                     \
+      FIELD_BD (nam, dxf)                                                     \
+  }
+#define FIELD_BL0(nam, dxf)                                                   \
+  {                                                                           \
+    if (_obj->nam != 0)                                                       \
+      FIELD_BL (nam, dxf)                                                     \
+  }
+#define FIELD_BS0(nam, dxf)                                                   \
+  {                                                                           \
+    if (_obj->nam != 0)                                                       \
+      FIELD_BS (nam, dxf)                                                     \
+  }
+#define FIELD_RC0(nam, dxf)                                                   \
+  {                                                                           \
+    if (_obj->nam != 0)                                                       \
+      FIELD_RC (nam, dxf)                                                     \
+  }
+#define FIELD_BT0(nam, dxf)                                                   \
+  {                                                                           \
+    if (_obj->nam != 0)                                                       \
+      FIELD_BT (nam, dxf)                                                     \
   }
 
 #define FIELD_DD(nam, _default, dxf) FIELD_BD (nam, dxf)
@@ -873,15 +902,18 @@ static int
 dxf_write_eed (Bit_Chain *restrict dat, const Dwg_Object_Object *restrict obj)
 {
   int error = 0;
+  Dwg_Data *dwg = obj->dwg;
   for (BITCODE_BL i = 0; i < obj->num_eed; i++)
     {
       const Dwg_Eed* _obj = &obj->eed[i];
       if (_obj->size)
         {
           // name of APPID
-          Dwg_Object *appid = dwg_resolve_handle (obj->dwg, _obj->handle.value);
+          Dwg_Object *appid = dwg_resolve_handle (dwg, _obj->handle.value);
           if (appid && appid->fixedtype == DWG_TYPE_APPID)
-            VALUE_T (appid->tio.object->tio.APPID->name, 1001);
+            VALUE_T (appid->tio.object->tio.APPID->name, 1001)
+          else
+            VALUE_TFF ("ACAD", 1001);
         }
       if (_obj->data)
         {
@@ -889,15 +921,21 @@ dxf_write_eed (Bit_Chain *restrict dat, const Dwg_Object_Object *restrict obj)
           const int dxf = data->code + 1000;
           switch (data->code)
             {
-            case 0: VALUE_T (data->u.eed_0.string, dxf); break;
+            case 0:
+              if (dwg->header.from_version >= R_2007)
+                VALUE_TU (data->u.eed_0_r2007.string, 1000)
+              else
+                VALUE_TV (data->u.eed_0.string, 1000)
+              break;
             case 2:
-              GROUP (dxf);
-              fprintf (dat->fh, "%6i", data->u.eed_2.byte);
-              //VALUE_RC (data->u.eed_2.byte, dxf);
+              if (data->u.eed_2.byte)
+                VALUE_TFF ("}", 1002)
+              else
+                VALUE_TFF ("{", 1002)
               break;
             case 3:
               GROUP (dxf);
-              fprintf (dat->fh, "%9li", (long)data->u.eed_3.layer);
+              fprintf (dat->fh, "%9li\r\n", (long)data->u.eed_3.layer);
               //VALUE_RL (data->u.eed_3.layer, dxf);
               break;
             case 4: VALUE_BINARY (data->u.eed_4.data, data->u.eed_4.length, dxf); break;
@@ -1167,16 +1205,11 @@ static int
 dxf_3dsolid (Bit_Chain *restrict dat, const Dwg_Object *restrict obj,
              Dwg_Entity_3DSOLID *restrict _obj)
 {
-  Dwg_Data *dwg = obj->parent;
-  unsigned long j;
-  BITCODE_BL vcount, rcount1, rcount2;
   BITCODE_BL i;
   int error = 0;
-  int index;
-  int total_size = 0;
-  int num_blocks = 0;
 
   COMMON_ENTITY_HANDLE_DATA;
+  SUBCLASS (AcDbModelerGeometry);
 
   FIELD_B (acis_empty, 0);
   if (!FIELD_VALUE (acis_empty))
@@ -1222,63 +1255,10 @@ dxf_3dsolid (Bit_Chain *restrict dat, const Dwg_Object *restrict obj,
         }
       else // if (FIELD_VALUE(version)==2)
         {
-          // TODO
-          LOG_ERROR ("TODO: Implement parsing of SAT file (version 2) "
-                     "in entities 37,38 and 39.");
+          LOG_ERROR ("ACIS BinaryFile v2 not yet supported");
         }
-      /*
-            FIELD_B (wireframe_data_present, 0);
-            if (FIELD_VALUE(wireframe_data_present))
-              {
-                FIELD_B (point_present, 0);
-                if (FIELD_VALUE(point_present))
-                  {
-                    FIELD_3BD (point, 0);
-                  }
-                FIELD_BL (num_isolines, 0);
-                FIELD_B (isoline_present, 0);
-                if (FIELD_VALUE(isoline_present))
-                  {
-                    FIELD_BL (num_wires, 0);
-                    REPEAT(num_wires, wires, Dwg_3DSOLID_wire)
-                      {
-                        PARSE_WIRE_STRUCT(wires[rcount1])
-                      }
-                    END_REPEAT(wires);
-                    FIELD_BL (num_silhouettes, 0);
-                    REPEAT(num_silhouettes, silhouettes,
-         Dwg_3DSOLID_silhouette)
-                      {
-                        FIELD_BL (silhouettes[rcount1].vp_id, 0);
-                        FIELD_3BD (silhouettes[rcount1].vp_target, 0);
-                        FIELD_3BD (silhouettes[rcount1].vp_dir_from_target, 0);
-                        FIELD_3BD (silhouettes[rcount1].vp_up_dir, 0);
-                        FIELD_B (silhouettes[rcount1].vp_perspective, 0);
-                        FIELD_BL (silhouettes[rcount1].num_wires, 0);
-                        REPEAT2(silhouettes[rcount1].num_wires,
-         silhouettes[rcount1].wires, Dwg_3DSOLID_wire)
-                          {
-                            PARSE_WIRE_STRUCT(silhouettes[rcount1].wires[rcount2])
-                          }
-                        END_REPEAT(silhouettes[rcount1].wires);
-                      }
-                    END_REPEAT(silhouettes);
-                  }
-              }
-      */
-      FIELD_B (acis_empty_bit, 0);
-      if (!FIELD_VALUE (acis_empty_bit))
-        {
-          LOG_ERROR ("TODO: Implement parsing of ACIS data at the end "
-                     "of 3dsolid object parsing (acis_empty_bit==0).");
-        }
-
-      SINCE (R_2007)
-      {
-        FIELD_BL (unknown_2007, 0);
-        FIELD_HANDLE (history_id, ANYCODE, 350);
-      }
     }
+  // the rest is done in COMMON_3DSOLID in the spec.
   return error;
 }
 
@@ -2199,7 +2179,7 @@ dxf_ENDBLK_empty (Bit_Chain *restrict dat, const Dwg_Object *restrict hdr)
   // Dwg_Entity_ENDBLK *_obj;
   obj->parent = dwg;
   obj->index = dwg->num_objects;
-  dwg_add_ENDBLK (obj);
+  dwg_setup_ENDBLK (obj);
   obj->tio.entity->ownerhandle = calloc (1, sizeof (Dwg_Object_Ref));
   obj->tio.entity->ownerhandle->obj = (Dwg_Object *)hdr;
   obj->tio.entity->ownerhandle->handleref = hdr->handle;
@@ -2231,7 +2211,14 @@ dxf_block_write (Bit_Chain *restrict dat, const Dwg_Object *restrict hdr,
       SINCE (R_2004)
         {
           // first_owned_block
-          LOG_ERROR ("BLOCK_HEADER %s block_entity[0] missing", _hdr->name);
+          SINCE (R_2007)
+            {
+              char *s = bit_convert_TU ((BITCODE_TU)_hdr->name);
+              LOG_ERROR ("BLOCK_HEADER %s block_entity[0] missing", s);
+              free (s);
+            }
+          else
+            LOG_ERROR ("BLOCK_HEADER %s block_entity[0] missing", _hdr->name);
           return DWG_ERR_INVALIDDWG;
         }
       else

@@ -64,10 +64,12 @@ EXPORT int dwg_read_dxfb (Bit_Chain *restrict dat, Dwg_Data *restrict dwg);
 /*------------------------------------------------------------------------------
  * Internal functions
  */
-// used only by in_dxf.c for now
+// used in in_dxf.c, encode.c
 BITCODE_H
 dwg_find_tablehandle_silent (Dwg_Data *restrict dwg, const char *restrict name,
                              const char *restrict table);
+// used in encode.c
+void set_handle_size (Dwg_Handle *restrict hdl);
 
 /*------------------------------------------------------------------------------
  * Private functions
@@ -373,7 +375,9 @@ dwg_write_file (const char *restrict filename, const Dwg_Data *restrict dwg)
   error = dwg_encode ((Dwg_Data *)dwg, &dat);
   if (error >= DWG_ERR_CRITICAL)
     {
-      LOG_ERROR ("Failed to encode Dwg_Data\n")
+      LOG_ERROR ("Failed to encode Dwg_Data\n");
+      /* In development we want to look at the corpses */
+#ifdef IS_RELEASE
       if (dat.size > 0)
         {
           free (dat.chain);
@@ -381,6 +385,7 @@ dwg_write_file (const char *restrict filename, const Dwg_Data *restrict dwg)
           dat.size = 0;
         }
       return error;
+#endif
     }
 
   // try opening the output file in write mode
@@ -427,29 +432,28 @@ dwg_write_file (const char *restrict filename, const Dwg_Data *restrict dwg)
 
 /* THUMBNAIL IMAGE DATA (R13C3+).
    Supports multiple preview pictures.
-   Currently 2 types: BMP and WMF.
+   Currently 3 types: BMP, WMF and PNG. but returns only the size of the BMP.
  */
 EXPORT unsigned char *
 dwg_bmp (const Dwg_Data *restrict dwg, BITCODE_RL *restrict size)
 {
-  BITCODE_RC i, num_pictures, code;
+  BITCODE_RC i, num_pictures, type;
   int found;
   BITCODE_RL header_size, address, osize;
-  Bit_Chain *dat;
+  Bit_Chain dat = { NULL, 0, 0, 0 };
 
   loglevel = dwg->opts & DWG_OPTS_LOGLEVEL;
   *size = 0;
   assert (dwg);
-  dat = (Bit_Chain *)&dwg->thumbnail;
-  if (!dat || !dat->size)
+  // copy the chain data. bit_* needs a full chain with opts and version
+  dat = *(Bit_Chain *)&dwg->thumbnail;
+  if (!dat.size || !dat.chain)
     {
       LOG_INFO ("no THUMBNAIL Image Data\n")
       return NULL;
     }
-  dat->byte = 0;
-  dat->bit = 0;
-  dat->version = dwg->header.version;
-  dat->from_version = dwg->header.from_version;
+  dat.byte = 0;
+  dat.bit = 0;
 
 #ifdef USE_TRACING
   /* Before starting, set the logging level, but only do so once.  */
@@ -462,57 +466,62 @@ dwg_bmp (const Dwg_Data *restrict dwg, BITCODE_RL *restrict size)
     }
 #endif /* USE_TRACING */
 
-  osize = bit_read_RL (dat); /* overall size of all images */
+  osize = bit_read_RL (&dat); /* overall size of all images */
   LOG_TRACE ("overall size: " FORMAT_RL " [RL]\n", osize);
-  if (osize > dat->size)
+  if (osize > dat.size)
     {
-      LOG_ERROR ("Preview overflow > %lu", dat->size);
+      LOG_ERROR ("Preview overflow > %lu", dat.size);
       return NULL;
     }
-  num_pictures = bit_read_RC (dat);
+  num_pictures = bit_read_RC (&dat);
   LOG_INFO ("num_pictures: %d [RC]\n", (int)num_pictures)
 
   found = 0;
   header_size = 0;
   for (i = 0; i < num_pictures; i++)
     {
-      if (dat->byte > dat->size)
+      if (dat.byte > dat.size)
         {
           LOG_ERROR ("Preview overflow");
           break;
         }
-      code = bit_read_RC (dat);
-      LOG_TRACE ("\t[%i] Code: %i [RC]\n", i, code)
-      address = bit_read_RL (dat);
+      type = bit_read_RC (&dat);
+      LOG_TRACE ("\t[%i] Code: %i [RC]\n", i, type)
+      address = bit_read_RL (&dat);
       LOG_TRACE ("\t\tHeader data start: 0x%x [RL]\n", address)
-      if (code == 1)
+      if (type == 1)
         {
-          header_size += bit_read_RL (dat);
+          header_size += bit_read_RL (&dat);
           LOG_TRACE ("\t\tHeader data size: %i [RL]\n", header_size)
         }
-      else if (code == 2 && found == 0)
+      else if (type == 2 && found == 0)
         {
-          *size = bit_read_RL (dat);
+          *size = bit_read_RL (&dat);
           found = 1;
           LOG_INFO ("\t\tBMP size: %i [RL]\n", *size)
         }
-      else if (code == 3)
+      else if (type == 3)
         {
-          osize = bit_read_RL (dat);
+          osize = bit_read_RL (&dat);
           LOG_INFO ("\t\tWMF size: %i [RL]\n", osize)
+        }
+      else if (type == 4) // type 4?
+        {
+          osize = bit_read_RL (&dat);
+          LOG_INFO ("\t\tPNG size: %i [RL]\n", osize)
         }
       else
         {
-          osize = bit_read_RL (dat);
-          LOG_TRACE ("\t\tSize of unknown code %i: %i [RL]\n", code, osize)
+          osize = bit_read_RL (&dat);
+          LOG_TRACE ("\t\tSize of unknown type %i: %i [RL]\n", type, osize)
         }
     }
-  dat->byte += header_size;
+  dat.byte += header_size;
   if (*size)
-    LOG_TRACE ("BMP offset: %lu\n", dat->byte)
+    LOG_TRACE ("BMP offset: %lu\n", dat.byte)
 
   if (*size > 0)
-    return (dat->chain + dat->byte);
+    return (dat.chain + dat.byte);
   else
     return NULL;
 }
@@ -840,8 +849,17 @@ dwg_block_control (Dwg_Data *dwg)
 {
   if (!dwg->block_control.parent)
     {
-      LOG_ERROR ("dwg->block_control missing");
-      return NULL;
+      Dwg_Object *obj;
+      Dwg_Object_Ref *ctrl = dwg->header_vars.BLOCK_CONTROL_OBJECT;
+      if (!ctrl || !(obj = dwg_ref_object (dwg, ctrl)) || obj->type != DWG_TYPE_BLOCK_CONTROL)
+        {
+          LOG_ERROR ("dwg.block_control and HEADER.BLOCK_CONTROL_OBJECT missing");
+          return NULL;
+        }
+      else
+        {
+          dwg->block_control = *obj->tio.object->tio.BLOCK_CONTROL;
+        }
     }
   return &(dwg->block_control);
 }
@@ -961,7 +979,8 @@ EXPORT Dwg_Object *
 get_next_owned_entity (const Dwg_Object *restrict hdr,
                        const Dwg_Object *restrict current)
 {
-  unsigned int version = hdr->parent->header.version;
+  Dwg_Data *dwg = hdr->parent;
+  Dwg_Version_Type version = dwg->header.version;
   Dwg_Object_BLOCK_HEADER *_hdr = hdr->tio.object->tio.BLOCK_HEADER;
   if (hdr->type != DWG_TYPE_BLOCK_HEADER)
     {
@@ -1006,7 +1025,7 @@ get_next_owned_entity (const Dwg_Object *restrict hdr,
       if (_hdr->__iterator == _hdr->num_owned)
         return NULL;
       ref = _hdr->entities ? _hdr->entities[_hdr->__iterator] : NULL;
-      return ref ? ref->obj : NULL;
+      return ref ? dwg_ref_object (dwg, ref) : NULL;
     }
 
   LOG_ERROR ("Unsupported version: %d\n", version);
@@ -1018,7 +1037,8 @@ get_next_owned_entity (const Dwg_Object *restrict hdr,
 EXPORT Dwg_Object *
 get_first_owned_subentity (const Dwg_Object *owner)
 {
-  unsigned int version = owner->parent->header.version;
+  Dwg_Data *dwg = owner->parent;
+  Dwg_Version_Type version = dwg->header.version;
   const unsigned int type = owner->type;
   if (type == DWG_TYPE_INSERT)
     {
@@ -1027,17 +1047,17 @@ get_first_owned_subentity (const Dwg_Object *owner)
         return _obj->first_attrib ? _obj->first_attrib->obj : NULL;
       else
         return _obj->attrib_handles && _obj->attrib_handles[0]
-                   ? _obj->attrib_handles[0]->obj
+                   ? dwg_ref_object (dwg, _obj->attrib_handles[0])
                    : NULL;
     }
   else if (type == DWG_TYPE_MINSERT)
     {
       Dwg_Entity_MINSERT *_obj = owner->tio.entity->tio.MINSERT;
       if (version <= R_2000)
-        return _obj->first_attrib ? _obj->first_attrib->obj : NULL;
+        return _obj->first_attrib ? dwg_ref_object (dwg, _obj->first_attrib) : NULL;
       else
         return _obj->attrib_handles && _obj->attrib_handles[0]
-                   ? _obj->attrib_handles[0]->obj
+                   ? dwg_ref_object (dwg, _obj->attrib_handles[0])
                    : NULL;
     }
   else if (type == DWG_TYPE_POLYLINE_2D || type == DWG_TYPE_POLYLINE_3D
@@ -1047,9 +1067,9 @@ get_first_owned_subentity (const Dwg_Object *owner)
       // guaranteed structure
       Dwg_Entity_POLYLINE_2D *_obj = owner->tio.entity->tio.POLYLINE_2D;
       if (version <= R_2000)
-        return _obj->first_vertex ? _obj->first_vertex->obj : NULL;
+        return _obj->first_vertex ? dwg_ref_object (dwg, _obj->first_vertex) : NULL;
       else
-        return _obj->vertex && _obj->vertex[0] ? _obj->vertex[0]->obj : NULL;
+        return _obj->vertex && _obj->vertex[0] ? dwg_ref_object (dwg, _obj->vertex[0]) : NULL;
     }
   else
     {
@@ -1064,7 +1084,8 @@ EXPORT Dwg_Object *
 get_next_owned_subentity (const Dwg_Object *restrict owner,
                           const Dwg_Object *restrict current)
 {
-  Dwg_Version_Type version = owner->parent->header.version;
+  Dwg_Data *dwg = owner->parent;
+  Dwg_Version_Type version = dwg->header.version;
   const Dwg_Object_Type type = owner->type;
   Dwg_Object_Entity *ent = owner->tio.entity;
   Dwg_Object *obj = dwg_next_object (current);
@@ -1087,7 +1108,7 @@ get_next_owned_subentity (const Dwg_Object *restrict owner,
             }
           else
             return _obj->attrib_handles
-                       ? _obj->attrib_handles[ent->__iterator]->obj
+                       ? dwg_ref_object (dwg, _obj->attrib_handles[ent->__iterator])
                        : NULL;
         }
     }
@@ -1109,8 +1130,8 @@ get_next_owned_subentity (const Dwg_Object *restrict owner,
             }
           else
             return _obj->attrib_handles
-                       ? _obj->attrib_handles[ent->__iterator]->obj
-                       : NULL;
+                      ? dwg_ref_object (dwg, _obj->attrib_handles[ent->__iterator])
+                      : NULL;
         }
     }
   else if (type == DWG_TYPE_POLYLINE_2D || type == DWG_TYPE_POLYLINE_3D
@@ -1131,7 +1152,7 @@ get_next_owned_subentity (const Dwg_Object *restrict owner,
               return NULL;
             }
           else
-            return _obj->vertex ? _obj->vertex[ent->__iterator]->obj : NULL;
+            return _obj->vertex ? dwg_ref_object (dwg, _obj->vertex[ent->__iterator]) : NULL;
         }
     }
   else
@@ -1147,7 +1168,8 @@ get_next_owned_subentity (const Dwg_Object *restrict owner,
 EXPORT Dwg_Object *
 get_first_owned_block (const Dwg_Object *hdr)
 {
-  unsigned int version = hdr->parent->header.version;
+  Dwg_Data *dwg = hdr->parent;
+  Dwg_Version_Type version = dwg->header.version;
   const Dwg_Object_BLOCK_HEADER *restrict _hdr
       = hdr->tio.object->tio.BLOCK_HEADER;
   if (hdr->type != DWG_TYPE_BLOCK_HEADER)
@@ -1159,7 +1181,7 @@ get_first_owned_block (const Dwg_Object *hdr)
   if (version >= R_13)
     {
       if (_hdr->block_entity)
-        return _hdr->block_entity->obj;
+        return dwg_ref_object (dwg, _hdr->block_entity);
       else
         {
           Dwg_Object *obj = (Dwg_Object *)hdr;
@@ -1170,7 +1192,7 @@ get_first_owned_block (const Dwg_Object *hdr)
     }
 
   // TODO: preR13 block table
-  LOG_ERROR ("Unsupported version: %d\n", version);
+  LOG_ERROR ("Unsupported version: %s\n", dwg_version_type (version));
   return NULL;
 }
 
@@ -1181,7 +1203,8 @@ EXPORT Dwg_Object *
 get_next_owned_block (const Dwg_Object *restrict hdr,
                       const Dwg_Object *restrict current)
 {
-  unsigned int version = hdr->parent->header.version;
+  Dwg_Data *dwg = hdr->parent;
+  Dwg_Version_Type version = dwg->header.version;
   const Dwg_Object_BLOCK_HEADER *restrict _hdr
       = hdr->tio.object->tio.BLOCK_HEADER;
   if (hdr->type != DWG_TYPE_BLOCK_HEADER)
@@ -1197,7 +1220,7 @@ get_next_owned_block (const Dwg_Object *restrict hdr,
       return dwg_next_object (current);
     }
 
-  LOG_ERROR ("Unsupported version: %d\n", version);
+  LOG_ERROR ("Unsupported version: %s\n", dwg_version_type (version));
   return NULL;
 }
 
@@ -1208,13 +1231,19 @@ EXPORT Dwg_Object *
 get_next_owned_block_entity (const Dwg_Object *restrict hdr,
                              const Dwg_Object *restrict current)
 {
-  unsigned int version = hdr->parent->header.version;
-  Dwg_Object_BLOCK_HEADER *restrict _hdr = hdr->tio.object->tio.BLOCK_HEADER;
+  Dwg_Data *dwg;
+  Dwg_Version_Type version;
+  Dwg_Object_BLOCK_HEADER *restrict _hdr;
+
   if (hdr->type != DWG_TYPE_BLOCK_HEADER)
     {
       LOG_ERROR ("Invalid BLOCK_HEADER type %d", hdr->type);
       return NULL;
     }
+
+  dwg = hdr->parent;
+  version = dwg->header.version;
+  _hdr = hdr->tio.object->tio.BLOCK_HEADER;
 
   if (R_13 <= version && version <= R_2000)
     {
@@ -1231,9 +1260,10 @@ get_next_owned_block_entity (const Dwg_Object *restrict hdr,
       if (_hdr->__iterator == _hdr->num_owned)
         return NULL;
       ref = _hdr->entities ? _hdr->entities[_hdr->__iterator] : NULL;
-      return ref ? ref->obj : NULL;
+      return ref ? dwg_ref_object (dwg, ref) : NULL;
     }
-  LOG_ERROR ("Unsupported version: %d\n", version);
+
+  LOG_ERROR ("Unsupported version: %s\n", dwg_version_type (version));
   return NULL;
 }
 
@@ -1345,7 +1375,7 @@ dwg_section_type (const char* restrict name)
 {
   if (name == NULL)
     {
-      return SECTION_UNKNOWN;
+      return SECTION_UNKNOWN; // but could also be INFO or SYSTEM_MAP
     }
   else if (strEQc (name, "AcDb:Header"))
     {
@@ -1427,7 +1457,7 @@ dwg_section_wtype (const DWGCHAR *restrict wname)
   int i = 0;
 
   if (wname == NULL)
-    return SECTION_UNKNOWN;
+    return SECTION_UNKNOWN; // but could also be INFO or SYSTEM_MAP
   wp = (DWGCHAR *)wname;
   while ((c = *wp++))
     {
@@ -1435,6 +1465,70 @@ dwg_section_wtype (const DWGCHAR *restrict wname)
     }
   name[i] = '\0';
   return dwg_section_type (name);
+}
+
+static const char * const dwg_section_r2004_names[] =
+{
+  "UNKNOWN",                  // 0
+  "AcDb:Header",              // 1
+  "AcDb:AuxHeader",           // 2
+  "AcDb:Classes",             // 3
+  "AcDb:Handles",             // 4
+  "AcDb:Template",            // 5
+  "AcDb:ObjFreeSpace",        // 6
+  "AcDb:AcDbObjects",         // 7
+  "AcDb:RevHistory",          // 8
+  "AcDb:SummaryInfo",         // 9
+  "AcDb:Preview",             // 10
+  "AcDb:AppInfo",             // 11
+  "AcDb:AppInfoHistory",      // 12
+  "AcDb:FileDepList",         // 13
+  "AcDb:Security",            // 14
+  "AcDb:VBAProject",          // 15
+  "AcDb:Signature",           // 16
+  "AcDb:AcDsPrototype_1b",    // 17
+  "INFO",                     // 18
+  "SYSTEM_MAP",               // 19
+};
+static const char * const dwg_section_r13_names[] =
+{
+  "Header",                   // 0
+  "Classes",                  // 1
+  "Handles",                  // 2
+  "2ndHeader",                // 3
+  "Template",                 // 4
+  "AuxHeader"                 // 5
+};
+static const char * const dwg_section_r11_names[] =
+{
+  "HEADER",                   // 0
+  "BLOCK",                    // 1
+  "LAYER"                     // 2
+  "STYLE",                    // 3
+  "LTYPE",                    // 4
+  "VIEW",                     // 5
+  "UCS",                      // 6
+  "VPORT",                    // 7
+  "APPID",                    // 8
+  "DIMSTYLE",                 // 9
+  "VPORT_ENTITY"              // 10
+};
+
+const char *
+dwg_section_name (const Dwg_Data *dwg, const unsigned int sec_id)
+{
+  if (dwg->header.version >= R_2004)
+    {
+      return (sec_id <= SECTION_SYSTEM_MAP) ? dwg_section_r2004_names[sec_id] : NULL;
+    }
+  else if (dwg->header.version > R_11)
+    {
+      return (sec_id <= SECTION_AUXHEADER_R2000) ? dwg_section_r13_names[sec_id] : NULL;
+    }
+  else
+    {
+      return (sec_id <= SECTION_VPORT_ENTITY) ? dwg_section_r11_names[sec_id] : NULL;
+    }
 }
 
 // See acdb.h: 100th of a mm, enum of
@@ -1477,8 +1571,6 @@ dxf_cvt_lweight (const BITCODE_BSd value)
   return lweights[value % 32];
 }
 
-#define ARRAY_SIZE(arr) (sizeof (arr) / sizeof (arr[0]))
-
 EXPORT BITCODE_BSd
 dxf_revcvt_lweight (const int lw)
 {
@@ -1488,7 +1580,7 @@ dxf_revcvt_lweight (const int lw)
   return 0;
 }
 
-static void
+void
 set_handle_size (Dwg_Handle *restrict hdl)
 {
   if (hdl->value)
@@ -1520,10 +1612,11 @@ dwg_add_handle (Dwg_Handle *restrict hdl, const BITCODE_RC code,
   hdl->value = absref;
   if (obj && (code == 0 || !offset) && absref) // only if same obj
     {
+      Dwg_Data *dwg = obj->parent;
       LOG_HANDLE ("object_map{%lX} = %u\n", absref, obj->index);
-      assert (obj->parent);
-      assert (obj->parent->object_map);
-      hash_set (obj->parent->object_map, absref, (uint32_t)obj->index);
+      assert (dwg);
+      assert (dwg->object_map);
+      hash_set (dwg->object_map, absref, (uint32_t)obj->index);
     }
 
   set_handle_size (hdl);
@@ -1658,8 +1751,53 @@ dwg_find_dictionary (Dwg_Data *restrict dwg, const char *restrict name)
   return NULL;
 }
 
+// find the named dict entry
 EXPORT BITCODE_H
 dwg_find_dicthandle (Dwg_Data *restrict dwg, BITCODE_H dict, const char *restrict name)
+{
+  BITCODE_BL i;
+  Dwg_Object_DICTIONARY *_obj;
+  Dwg_Object *obj = dwg_resolve_handle (dwg, dict->absolute_ref);
+
+  if (!obj || !obj->tio.object)
+    {
+      LOG_TRACE ("dwg_find_dicthandle: Could not resolve dict " FORMAT_REF "\n",
+                 ARGS_REF(dict));
+      return NULL;
+    }
+  if (obj->type != DWG_TYPE_DICTIONARY)
+    {
+      LOG_ERROR ("dwg_find_dicthandle: dict not a DICTIONARY\n");
+      return NULL;
+    }
+
+  _obj = obj->tio.object->tio.DICTIONARY;
+  if (!_obj->numitems)
+    return NULL;
+  for (i = 0; i < _obj->numitems; i++)
+    {
+      BITCODE_T *texts = _obj->texts;
+      BITCODE_H *hdlv = _obj->itemhandles;
+
+      if (!hdlv || !texts || !texts[i])
+        continue;
+      if (dwg->header.from_version >= R_2007)
+        {
+          if (bit_eq_TU (name, (BITCODE_TU)texts[i]))
+            return hdlv[i];
+        }
+      else
+        {
+          if (strEQ (name, texts[i]))
+            return hdlv[i];
+        }
+    }
+  return NULL;
+}
+
+// find dict entry and match its name
+EXPORT BITCODE_H
+dwg_find_dicthandle_objname (Dwg_Data *restrict dwg, BITCODE_H dict, const char *restrict name)
 {
   BITCODE_BL i;
   Dwg_Object_DICTIONARY *_obj;
@@ -1903,7 +2041,7 @@ dwg_find_tablehandle (Dwg_Data *restrict dwg, const char *restrict name,
       return 0;
     }
   if (obj->type == DWG_TYPE_DICTIONARY)
-    return dwg_find_dicthandle (dwg, ctrl, name);
+    return dwg_find_dicthandle_objname (dwg, ctrl, name);
   if (!dwg_obj_is_control (obj))
     {
       LOG_ERROR ("dwg_find_tablehandle: Could not resolve CONTROL object %s "
@@ -1946,6 +2084,31 @@ dwg_find_tablehandle (Dwg_Data *restrict dwg, const char *restrict name,
     }
 
   return 0;
+}
+
+/* Returns the string value of the member of the AcDbVariableDictionary.
+   NULL if not found.
+   The name is ascii. E.g. LIGHTINGUNITS => "0" */
+EXPORT char *
+dwg_variable_dict (Dwg_Data *restrict dwg, const char *restrict name)
+{
+  static BITCODE_H var_dict = NULL;
+  BITCODE_H var;
+  Dwg_Object *obj;
+  Dwg_Object_DICTIONARYVAR *_obj;
+
+  if (!var_dict || dwg->dirty_refs)
+    var_dict = dwg_find_dictionary (dwg, "AcDbVariableDictionary");
+  if (!var_dict)
+    return NULL;
+  var = dwg_find_dicthandle (dwg, var_dict, name);
+  if (!var)
+    return NULL;
+  obj = dwg_ref_object_silent (dwg, var);
+  if (!obj || obj->fixedtype != DWG_TYPE_DICTIONARYVAR)
+    return NULL;
+  _obj = obj->tio.object->tio.DICTIONARYVAR;
+  return _obj->str;
 }
 
 static bool
@@ -2053,4 +2216,251 @@ dwg_find_table_extname (Dwg_Data *restrict dwg, Dwg_Object *restrict obj)
     }
 
   return NULL;
+}
+
+static const Dwg_RGB_Palette rgb_palette[256] = {
+  { 0x00, 0x00, 0x00 }, // 0
+  { 0xFF, 0x00, 0x00 }, { 0xFF, 0xFF, 0x00 }, { 0x00, 0xFF, 0x00 },
+  { 0x00, 0xFF, 0xFF }, { 0x00, 0x00, 0xFF }, // 5
+  { 0xFF, 0x00, 0xFF }, { 0xFF, 0xFF, 0xFF }, { 0x41, 0x41, 0x41 },
+  { 0x80, 0x80, 0x80 }, { 0xFF, 0x00, 0x00 }, // 10
+  { 0xFF, 0xAA, 0xAA }, { 0xBD, 0x00, 0x00 }, { 0xBD, 0x7E, 0x7E },
+  { 0x81, 0x00, 0x00 }, { 0x81, 0x56, 0x56 }, // 15
+  { 0x68, 0x00, 0x00 }, { 0x68, 0x45, 0x45 }, { 0x4F, 0x00, 0x00 },
+  { 0x4F, 0x35, 0x35 }, { 0xFF, 0x3F, 0x00 }, // 20
+  { 0xFF, 0xBF, 0xAA }, { 0xBD, 0x2E, 0x00 }, { 0xBD, 0x8D, 0x7E },
+  { 0x81, 0x1F, 0x00 }, { 0x81, 0x60, 0x56 }, // 25
+  { 0x68, 0x19, 0x00 }, { 0x68, 0x4E, 0x45 }, { 0x4F, 0x13, 0x00 },
+  { 0x4F, 0x3B, 0x35 }, { 0xFF, 0x7F, 0x00 }, // 30
+  { 0xFF, 0xD4, 0xAA }, { 0xBD, 0x5E, 0x00 }, { 0xBD, 0x9D, 0x7E },
+  { 0x81, 0x40, 0x00 }, { 0x81, 0x6B, 0x56 }, // 35
+  { 0x68, 0x34, 0x00 }, { 0x68, 0x56, 0x45 }, { 0x4F, 0x27, 0x00 },
+  { 0x4F, 0x42, 0x35 }, { 0xFF, 0xBF, 0x00 }, // 40
+  { 0xFF, 0xEA, 0xAA }, { 0xBD, 0x8D, 0x00 }, { 0xBD, 0xAD, 0x7E },
+  { 0x81, 0x60, 0x00 }, { 0x81, 0x76, 0x56 }, // 45
+  { 0x68, 0x4E, 0x00 }, { 0x68, 0x5F, 0x45 }, { 0x4F, 0x3B, 0x00 },
+  { 0x4F, 0x49, 0x35 }, { 0xFF, 0xFF, 0x00 }, // 50
+  { 0xFF, 0xFF, 0xAA }, { 0xBD, 0xBD, 0x00 }, { 0xBD, 0xBD, 0x7E },
+  { 0x81, 0x81, 0x00 }, { 0x81, 0x81, 0x56 }, // 55
+  { 0x68, 0x68, 0x00 }, { 0x68, 0x68, 0x45 }, { 0x4F, 0x4F, 0x00 },
+  { 0x4F, 0x4F, 0x35 }, { 0xBF, 0xFF, 0x00 }, // 60
+  { 0xEA, 0xFF, 0xAA }, { 0x8D, 0xBD, 0x00 }, { 0xAD, 0xBD, 0x7E },
+  { 0x60, 0x81, 0x00 }, { 0x76, 0x81, 0x56 }, // 65
+  { 0x4E, 0x68, 0x00 }, { 0x5F, 0x68, 0x45 }, { 0x3B, 0x4F, 0x00 },
+  { 0x49, 0x4F, 0x35 }, { 0x7F, 0xFF, 0x00 }, // 70
+  { 0xD4, 0xFF, 0xAA }, { 0x5E, 0xBD, 0x00 }, { 0x9D, 0xBD, 0x7E },
+  { 0x40, 0x81, 0x00 }, { 0x6B, 0x81, 0x56 }, // 75
+  { 0x34, 0x68, 0x00 }, { 0x56, 0x68, 0x45 }, { 0x27, 0x4F, 0x00 },
+  { 0x42, 0x4F, 0x35 }, { 0x3F, 0xFF, 0x00 }, // 80
+  { 0xBF, 0xFF, 0xAA }, { 0x2E, 0xBD, 0x00 }, { 0x8D, 0xBD, 0x7E },
+  { 0x1F, 0x81, 0x00 }, { 0x60, 0x81, 0x56 }, // 85
+  { 0x19, 0x68, 0x00 }, { 0x4E, 0x68, 0x45 }, { 0x13, 0x4F, 0x00 },
+  { 0x3B, 0x4F, 0x35 }, { 0x00, 0xFF, 0x00 }, // 90
+  { 0xAA, 0xFF, 0xAA }, { 0x00, 0xBD, 0x00 }, { 0x7E, 0xBD, 0x7E },
+  { 0x00, 0x81, 0x00 }, { 0x56, 0x81, 0x56 }, // 95
+  { 0x00, 0x68, 0x00 }, { 0x45, 0x68, 0x45 }, { 0x00, 0x4F, 0x00 },
+  { 0x35, 0x4F, 0x35 }, { 0x00, 0xFF, 0x3F }, // 100
+  { 0xAA, 0xFF, 0xBF }, { 0x00, 0xBD, 0x2E }, { 0x7E, 0xBD, 0x8D },
+  { 0x00, 0x81, 0x1F }, { 0x56, 0x81, 0x60 }, // 105
+  { 0x00, 0x68, 0x19 }, { 0x45, 0x68, 0x4E }, { 0x00, 0x4F, 0x13 },
+  { 0x35, 0x4F, 0x3B }, { 0x00, 0xFF, 0x7F }, // 110
+  { 0xAA, 0xFF, 0xD4 }, { 0x00, 0xBD, 0x5E }, { 0x7E, 0xBD, 0x9D },
+  { 0x00, 0x81, 0x40 }, { 0x56, 0x81, 0x6B }, // 115
+  { 0x00, 0x68, 0x34 }, { 0x45, 0x68, 0x56 }, { 0x00, 0x4F, 0x27 },
+  { 0x35, 0x4F, 0x42 }, { 0x00, 0xFF, 0xBF }, // 120
+  { 0xAA, 0xFF, 0xEA }, { 0x00, 0xBD, 0x8D }, { 0x7E, 0xBD, 0xAD },
+  { 0x00, 0x81, 0x60 }, { 0x56, 0x81, 0x76 }, // 125
+  { 0x00, 0x68, 0x4E }, { 0x45, 0x68, 0x5F }, { 0x00, 0x4F, 0x3B },
+  { 0x35, 0x4F, 0x49 }, { 0x00, 0xFF, 0xFF }, // 130
+  { 0xAA, 0xFF, 0xFF }, { 0x00, 0xBD, 0xBD }, { 0x7E, 0xBD, 0xBD },
+  { 0x00, 0x81, 0x81 }, { 0x56, 0x81, 0x81 }, // 135
+  { 0x00, 0x68, 0x68 }, { 0x45, 0x68, 0x68 }, { 0x00, 0x4F, 0x4F },
+  { 0x35, 0x4F, 0x4F }, { 0x00, 0xBF, 0xFF }, // 140
+  { 0xAA, 0xEA, 0xFF }, { 0x00, 0x8D, 0xBD }, { 0x7E, 0xAD, 0xBD },
+  { 0x00, 0x60, 0x81 }, { 0x56, 0x76, 0x81 }, // 145
+  { 0x00, 0x4E, 0x68 }, { 0x45, 0x5F, 0x68 }, { 0x00, 0x3B, 0x4F },
+  { 0x35, 0x49, 0x4F }, { 0x00, 0x7F, 0xFF }, // 150
+  { 0xAA, 0xD4, 0xFF }, { 0x00, 0x5E, 0xBD }, { 0x7E, 0x9D, 0xBD },
+  { 0x00, 0x40, 0x81 }, { 0x56, 0x6B, 0x81 }, // 155
+  { 0x00, 0x34, 0x68 }, { 0x45, 0x56, 0x68 }, { 0x00, 0x27, 0x4F },
+  { 0x35, 0x42, 0x4F }, { 0x00, 0x3F, 0xFF }, // 160
+  { 0xAA, 0xBF, 0xFF }, { 0x00, 0x2E, 0xBD }, { 0x7E, 0x8D, 0xBD },
+  { 0x00, 0x1F, 0x81 }, { 0x56, 0x60, 0x81 }, // 165
+  { 0x00, 0x19, 0x68 }, { 0x45, 0x4E, 0x68 }, { 0x00, 0x13, 0x4F },
+  { 0x35, 0x3B, 0x4F }, { 0x00, 0x00, 0xFF }, // 170
+  { 0xAA, 0xAA, 0xFF }, { 0x00, 0x00, 0xBD }, { 0x7E, 0x7E, 0xBD },
+  { 0x00, 0x00, 0x81 }, { 0x56, 0x56, 0x81 }, // 175
+  { 0x00, 0x00, 0x68 }, { 0x45, 0x45, 0x68 }, { 0x00, 0x00, 0x4F },
+  { 0x35, 0x35, 0x4F }, { 0x3F, 0x00, 0xFF }, // 180
+  { 0xBF, 0xAA, 0xFF }, { 0x2E, 0x00, 0xBD }, { 0x8D, 0x7E, 0xBD },
+  { 0x1F, 0x00, 0x81 }, { 0x60, 0x56, 0x81 }, // 185
+  { 0x19, 0x00, 0x68 }, { 0x4E, 0x45, 0x68 }, { 0x13, 0x00, 0x4F },
+  { 0x3B, 0x35, 0x4F }, { 0x7F, 0x00, 0xFF }, // 190
+  { 0xD4, 0xAA, 0xFF }, { 0x5E, 0x00, 0xBD }, { 0x9D, 0x7E, 0xBD },
+  { 0x40, 0x00, 0x81 }, { 0x6B, 0x56, 0x81 }, // 195
+  { 0x34, 0x00, 0x68 }, { 0x56, 0x45, 0x68 }, { 0x27, 0x00, 0x4F },
+  { 0x42, 0x35, 0x4F }, { 0xBF, 0x00, 0xFF }, // 200
+  { 0xEA, 0xAA, 0xFF }, { 0x8D, 0x00, 0xBD }, { 0xAD, 0x7E, 0xBD },
+  { 0x60, 0x00, 0x81 }, { 0x76, 0x56, 0x81 }, // 205
+  { 0x4E, 0x00, 0x68 }, { 0x5F, 0x45, 0x68 }, { 0x3B, 0x00, 0x4F },
+  { 0x49, 0x35, 0x4F }, { 0xFF, 0x00, 0xFF }, // 210
+  { 0xFF, 0xAA, 0xFF }, { 0xBD, 0x00, 0xBD }, { 0xBD, 0x7E, 0xBD },
+  { 0x81, 0x00, 0x81 }, { 0x81, 0x56, 0x81 }, // 215
+  { 0x68, 0x00, 0x68 }, { 0x68, 0x45, 0x68 }, { 0x4F, 0x00, 0x4F },
+  { 0x4F, 0x35, 0x4F }, { 0xFF, 0x00, 0xBF }, // 220
+  { 0xFF, 0xAA, 0xEA }, { 0xBD, 0x00, 0x8D }, { 0xBD, 0x7E, 0xAD },
+  { 0x81, 0x00, 0x60 }, { 0x81, 0x56, 0x76 }, // 225
+  { 0x68, 0x00, 0x4E }, { 0x68, 0x45, 0x5F }, { 0x4F, 0x00, 0x3B },
+  { 0x4F, 0x35, 0x49 }, { 0xFF, 0x00, 0x7F }, // 230
+  { 0xFF, 0xAA, 0xD4 }, { 0xBD, 0x00, 0x5E }, { 0xBD, 0x7E, 0x9D },
+  { 0x81, 0x00, 0x40 }, { 0x81, 0x56, 0x6B }, // 235
+  { 0x68, 0x00, 0x34 }, { 0x68, 0x45, 0x56 }, { 0x4F, 0x00, 0x27 },
+  { 0x4F, 0x35, 0x42 }, { 0xFF, 0x00, 0x3F }, // 240
+  { 0xFF, 0xAA, 0xBF }, { 0xBD, 0x00, 0x2E }, { 0xBD, 0x7E, 0x8D },
+  { 0x81, 0x00, 0x1F }, { 0x81, 0x56, 0x60 }, // 245
+  { 0x68, 0x00, 0x19 }, { 0x68, 0x45, 0x4E }, { 0x4F, 0x00, 0x13 },
+  { 0x4F, 0x35, 0x3B }, { 0x33, 0x33, 0x33 }, // 250
+  { 0x50, 0x50, 0x50 }, { 0x69, 0x69, 0x69 }, { 0x82, 0x82, 0x82 },
+  { 0xBE, 0xBE, 0xBE }, { 0xFF, 0xFF, 0xFF } // 255
+};
+
+EXPORT const Dwg_RGB_Palette *dwg_rgb_palette (void)
+{
+  return rgb_palette;
+}
+
+// map [rVER] to our enum number, not the dwg->header.dwgversion
+// Acad 2018 offers SaveAs DWG: 2018,2013,2010,2007,2004,2004,2000,r14
+//                         DXF: 2018,2013,2010,2007,2004,2004,2000,r12
+// libdxfrw dwg2dxf offers R12, v2000, v2004, v2007, v2010
+EXPORT Dwg_Version_Type
+dwg_version_as (const char *version)
+{
+  if (strEQc (version, "r2000"))
+    return R_2000;
+  else if (strEQc (version, "r2004"))
+    return R_2004;
+  else if (strEQc (version, "r2007"))
+    return R_2007;
+  else if (strEQc (version, "r2010"))
+    return R_2010;
+  else if (strEQc (version, "r2013"))
+    return R_2013;
+  else if (strEQc (version, "r2018"))
+    return R_2018;
+  else if (strEQc (version, "r14"))
+    return R_14;
+  else if (strEQc (version, "r13"))
+    return R_13;
+  else if (strEQc (version, "r11") || strEQc (version, "r12"))
+    return R_11;
+  else if (strEQc (version, "r10"))
+    return R_10;
+  else if (strEQc (version, "r9"))
+    return R_9;
+  else if (strEQc (version, "r2.6"))
+    return R_2_6;
+  else if (strEQc (version, "r2.5"))
+    return R_2_5;
+  else if (strEQc (version, "r2.1"))
+    return R_2_1;
+  else if (strEQc (version, "r2.0"))
+    return R_2_0;
+  else if (strEQc (version, "r1.4"))
+    return R_1_4;
+  else if (strEQc (version, "r1.2"))
+    return R_1_2;
+  else if (strEQc (version, "r1.1"))
+    return R_1_1;
+  else
+    return R_INVALID;
+}
+
+/** The reverse of dwg_version_as(char*) */
+const char *
+dwg_version_type (const Dwg_Version_Type version)
+{
+  switch (version)
+    {
+    case R_INVALID:
+      return "invalid version";
+    case R_1_1:
+      return "r1.1";
+    case R_1_2:
+      return "r1.2";
+    case R_1_4:
+      return "r1.4";
+    case R_2_0:
+      return "r2.0";
+    case R_2_1:
+      return "r2.1";
+    case R_2_5:
+      return "r2.5";
+    case R_2_6:
+      return "r2.6";
+    case R_9:
+      return "r9";
+    case R_10:
+      return "r10";
+    case R_11:
+      return "r11";
+    case R_13:
+      return "r13";
+    case R_14:
+      return "r14";
+    case R_2000:
+      return "r2000";
+    case R_2004:
+      return "r2004";
+    case R_2007:
+      return "r2007";
+    case R_2010:
+      return "r2010";
+    case R_2013:
+      return "r2013";
+    case R_2018:
+      return "r2018";
+    case R_AFTER:
+      return "invalid after";
+    default:
+      return "";
+    }
+}
+
+// print errors as string to stderr
+EXPORT void
+dwg_errstrings (int error)
+{
+  if (error & 1)
+    HANDLER (OUTPUT, "WRONGCRC ");
+  if (error & 2)
+    HANDLER (OUTPUT, "NOTYETSUPPORTED ");
+  if (error & 4)
+    HANDLER (OUTPUT, "UNHANDLEDCLASS ");
+  if (error & 8)
+    HANDLER (OUTPUT, "INVALIDTYPE ");
+  if (error & 16)
+    HANDLER (OUTPUT, "INVALIDHANDLE ");
+  if (error & 32)
+    HANDLER (OUTPUT, "INVALIDEED ");
+  if (error & 64)
+    HANDLER (OUTPUT, "VALUEOUTOFBOUNDS ");
+  // -- critical --
+  if (error > 127)
+    HANDLER (OUTPUT, "\nCritical: ");
+  if (error & 128)
+    HANDLER (OUTPUT, "CLASSESNOTFOUND ");
+  if (error & 256)
+    HANDLER (OUTPUT, "SECTIONNOTFOUND ");
+  if (error & 512)
+    HANDLER (OUTPUT, "PAGENOTFOUND ");
+  if (error & 1024)
+    HANDLER (OUTPUT, "INTERNALERROR ");
+  if (error & 2048)
+    HANDLER (OUTPUT, "INVALIDDWG ");
+  if (error & 4096)
+    HANDLER (OUTPUT, "IOERROR ");
+  if (error & 8192)
+    HANDLER (OUTPUT, "OUTOFMEM ");
+  HANDLER (OUTPUT, "\n");
 }

@@ -77,8 +77,6 @@ typedef struct _array_hdls
   struct array_hdl items[]; // Flexible array grows
 } array_hdls;
 
-#define ARRAY_SIZE(arr) (sizeof (arr) / sizeof (arr[0]))
-
 array_hdls *array_push (array_hdls *restrict hdls, const char *restrict field,
                         const char *restrict name, const int code);
 array_hdls *new_array_hdls (int size);
@@ -160,11 +158,22 @@ BITCODE_RC dxf_find_lweight (const int lw);
       ADD_OBJECT (token);                                                     \
     }
 
-#define STRADD(field, string)                                                 \
+#define STRADD_TV(field, string)                                              \
   if (string)                                                                 \
     {                                                                         \
       field = malloc (strlen (string) + 1);                                   \
       strcpy (field, string);                                                 \
+    }
+#define STRADD_T(field, string)                                               \
+  if (string)                                                                 \
+    {                                                                         \
+      if (dat->version >= R_2007)                                             \
+        field = (char*)bit_utf8_to_TU (string);                               \
+      else                                                                    \
+        {                                                                     \
+          field = malloc (strlen (string) + 1);                               \
+          strcpy (field, string);                                             \
+        }                                                                     \
     }
 
 #define UPGRADE_ENTITY(FROM, TO)                                              \

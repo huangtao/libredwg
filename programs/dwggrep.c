@@ -340,7 +340,23 @@ match_TEXT (const char *restrict filename, const Dwg_Object *restrict obj)
   int found = 0;
   MATCH_ENTITY (TEXT, text_value, 1);
   if (!opt_text)
-    MATCH_TABLE (TEXT, style, STYLE, 7);
+    {
+      MATCH_TABLE (TEXT, style, STYLE, 7);
+    }
+  return found;
+}
+
+static int
+match_ATEXT (const char *restrict filename, const Dwg_Object *restrict obj)
+{
+  char *text;
+  int found = 0;
+  MATCH_ENTITY (ATEXT, text_value, 1);
+  if (!opt_text)
+    {
+      // ignore the various sizes stored as text
+      MATCH_ENTITY (ATEXT, style, 7);
+    }
   return found;
 }
 
@@ -353,7 +369,9 @@ match_ATTRIB (const char *restrict filename, const Dwg_Object *restrict obj)
   MATCH_ENTITY (ATTRIB, text_value, 1);
   MATCH_ENTITY (ATTRIB, tag, 2);
   if (!opt_text)
-    MATCH_TABLE (ATTRIB, style, STYLE, 7);
+    {
+      MATCH_TABLE (ATTRIB, style, STYLE, 7);
+    }
   return found;
 }
 
@@ -485,8 +503,8 @@ match_STYLE (const char *restrict filename, const Dwg_Object *restrict obj)
   MATCH_OBJECT (STYLE, name, 2);
   if (!opt_tables)
     {
-      MATCH_OBJECT (STYLE, font_name, 3);
-      MATCH_OBJECT (STYLE, bigfont_name, 4);
+      MATCH_OBJECT (STYLE, font_file, 3);
+      MATCH_OBJECT (STYLE, bigfont_file, 4);
     }
   return found;
 }
@@ -608,7 +626,7 @@ match_TOLERANCE (const char *restrict filename, const Dwg_Object *restrict obj)
 {
   char *text;
   int found = 0;
-  MATCH_ENTITY (TOLERANCE, text_string, 1);
+  MATCH_ENTITY (TOLERANCE, text_value, 1);
   return found;
 }
 
@@ -641,7 +659,7 @@ match_LAYER_INDEX (const char *restrict filename,
   const Dwg_Object_LAYER_INDEX *_obj = obj->tio.object->tio.LAYER_INDEX;
   for (i = 0; i < _obj->num_entries; i++)
     {
-      MATCH_OBJECT (LAYER_INDEX, entries[i].layername, 8);
+      MATCH_OBJECT (LAYER_INDEX, entries[i].name, 8);
     }
   return found;
 }
@@ -705,7 +723,7 @@ match_TABLE (const char *restrict filename, const Dwg_Object *restrict obj)
     {
       if (_obj->cells[i].type == 1)
         {
-          MATCH_ENTITY (TABLE, cells[i].text_string, 1);
+          MATCH_ENTITY (TABLE, cells[i].text_value, 1);
         }
       else if (_obj->cells[i].type == 2
                && _obj->cells[i].additional_data_flag == 1)
@@ -854,12 +872,12 @@ static int
 match_LIGHTLIST (const char *restrict filename, const Dwg_Object *restrict obj)
 {
   char *text;
-  int found = 0, i;
+  int found = 0;
   const Dwg_Object_LIGHTLIST *_obj = obj->tio.object->tio.LIGHTLIST;
 
-  for (i = 0; i < _obj->num_lights; i++)
+  for (BITCODE_BL i = 0; i < _obj->num_lights; i++)
     {
-      // MATCH_OBJECT (LIGHTLIST, lights[i].name, 1);
+      MATCH_OBJECT (LIGHTLIST, lights[i].name, 1);
     }
   return found;
 }
@@ -883,16 +901,16 @@ match_MATERIAL (const char *restrict filename, const Dwg_Object *restrict obj)
   //const Dwg_Object_MATERIAL *_obj = obj->tio.object->tio.MATERIAL;
   MATCH_OBJECT (MATERIAL, name, 1);
   MATCH_OBJECT (MATERIAL, description, 2);
-  MATCH_OBJECT (MATERIAL, diffusemap_filename, 3);
-  MATCH_OBJECT (MATERIAL, specularmap_filename, 4);
-  MATCH_OBJECT (MATERIAL, reflectionmap_filename, 6);
-  MATCH_OBJECT (MATERIAL, opacitymap_filename, 7);
-  MATCH_OBJECT (MATERIAL, bumpmap_filename, 8);
-  MATCH_OBJECT (MATERIAL, refractionmap_filename, 9);
-  MATCH_OBJECT (MATERIAL, normalmap_filename, 3);
-  MATCH_OBJECT (MATERIAL, genprocname, 300);
-  MATCH_OBJECT (MATERIAL, genprocvaltext, 301);
-  MATCH_OBJECT (MATERIAL, genprocvalcolorname, 430);
+  MATCH_OBJECT (MATERIAL, diffusemap.filename, 3);
+  MATCH_OBJECT (MATERIAL, specularmap.filename, 4);
+  MATCH_OBJECT (MATERIAL, reflectionmap.filename, 6);
+  MATCH_OBJECT (MATERIAL, opacitymap.filename, 7);
+  MATCH_OBJECT (MATERIAL, bumpmap.filename, 8);
+  MATCH_OBJECT (MATERIAL, refractionmap.filename, 9);
+  //MATCH_OBJECT (MATERIAL, normalmap.filename, 3);
+  //MATCH_OBJECT (MATERIAL, genprocname, 300);
+  //MATCH_OBJECT (MATERIAL, genprocvaltext, 301);
+  //MATCH_OBJECT (MATERIAL, genprocvalcolorname, 430);
   return found;
 }
 
@@ -905,7 +923,8 @@ match_PLOTSETTINGS (const char *restrict filename,
   //const Dwg_Object_PLOTSETTINGS *_obj = obj->tio.object->tio.PLOTSETTINGS;
   MATCH_OBJECT (PLOTSETTINGS, page_setup_name, 1);
   MATCH_OBJECT (PLOTSETTINGS, printer_cfg_file, 2);
-  MATCH_OBJECT (PLOTSETTINGS, paper_size, 4);
+  MATCH_OBJECT (PLOTSETTINGS, paper_size,3);
+  MATCH_OBJECT (PLOTSETTINGS, canonical_media_name, 4);
   return found;
 }
 
@@ -915,8 +934,8 @@ match_ASSOCACTION (const char *restrict filename,
 {
   char *text;
   int found = 0;
-  MATCH_OBJECT (ASSOCACTION, body.evaluatorid, 0);
-  MATCH_OBJECT (ASSOCACTION, body.expression, 0);
+  //MATCH_OBJECT (ASSOCACTION, body.evaluatorid, 0);
+  //MATCH_OBJECT (ASSOCACTION, body.expression, 0);
   return found;
 }
 static int
@@ -1157,6 +1176,7 @@ match_BLOCK_HEADER (const char *restrict filename,
 #endif
       ELSEMATCH (ATTDEF)
       ELSEMATCH (MTEXT)
+      ELSEMATCH (ATEXT)
       else if (obj->type == DWG_TYPE_INSERT)
         {
 #ifndef WITH_SUBENTS
